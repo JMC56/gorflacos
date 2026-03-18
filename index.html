@@ -271,6 +271,7 @@
             <div id="m-thanks" style="display:none;">
                 <p><strong>¡Gracias por tu compra!</strong></p>
                 <p>Se te entregará lo más pronto posible.</p>
+                <p>No olvides llevar el dinero exacto de tu pedido.</p>
                 <button class="btn" onclick="location.reload()">CERRAR</button>
             </div>
         </div>
@@ -345,7 +346,7 @@
                         <p><strong>$${precio}</strong></p>
                         <p class="small">Stock: ${stock}</p>
                     </div>
-                    ${agotado ? '<div class="lock">⛔ SIN STOCK</div>' : ''}
+                    ${agotado ? '<div class="lock">⛔ NO DISPONIBLE</div>' : ''}
                 `;
 
                 if (!agotado) {
