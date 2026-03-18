@@ -1,34 +1,155 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Login | Admin</title>
-    <style>
-        body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif; background-image: radial-gradient(#d1d1d1 1px, transparent 1px); background-size: 20px 20px; }
-        .login-box { background: white; padding: 40px; border: 4px solid #000; border-radius: 20px; box-shadow: 15px 15px 0px #000; width: 300px; text-align: center; }
-        input { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #000; border-radius: 10px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #000; color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<title>Login | Admin</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border: 4px solid #000;
+    border-radius: 20px;
+    box-shadow: 15px 15px 0px #000;
+    width: 320px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.login-box:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 20px 20px 0px #000;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 2px solid #000;
+    border-radius: 10px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #000;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+.msg {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+</style>
 </head>
+
 <body>
-    <div class="login-box">
-        <h2>ADMIN LOGIN</h2>
-        <input type="text" id="u" placeholder="Usuario">
-        <input type="password" id="p" placeholder="Contraseña">
-        <button onclick="login()">ENTRAR</button>
-    </div>
-    <script>
-        async function login() {
-            try {
-                const res = await fetch('gallopinto.json');
-                const data = await res.json();
-                const user = data.usuarios.find(x => x.username === document.getElementById('u').value && x.password === document.getElementById('p').value);
-                if(user && user.role === 'admin') {
-                    localStorage.setItem('admin_auth', 'true');
-                    window.location.href = 'admin.html';
-                } else { alert("Credenciales incorrectas"); }
-            } catch(e) { alert("Error cargando el JSON"); }
+
+<div class="login-box">
+    <h2>ADMIN LOGIN</h2>
+
+    <input type="text" id="u" placeholder="Usuario">
+    <input type="password" id="p" placeholder="Contraseña">
+
+    <button onclick="login()">ENTRAR</button>
+
+    <div id="msg" class="msg"></div>
+</div>
+
+<script>
+async function login() {
+    const userInput = document.getElementById('u').value.trim();
+    const passInput = document.getElementById('p').value.trim();
+    const msg = document.getElementById('msg');
+
+    if (!userInput || !passInput) {
+        msg.style.color = "red";
+        msg.textContent = "Completa todos los campos";
+        return;
+    }
+
+    try {
+        const res = await fetch('gallopinto.json');
+        const data = await res.json();
+
+        // 🔥 IMPORTANTE: soporta usuarios o usuarios[]
+        const users = data.usuarios || data.users || [];
+
+        const user = users.find(x => 
+            x.username === userInput && 
+            x.password === passInput
+        );
+
+        if (!user) {
+            msg.style.color = "red";
+            msg.textContent = "Credenciales incorrectas";
+            return;
         }
-    </script>
+
+        if (user.role !== 'admin') {
+            msg.style.color = "red";
+            msg.textContent = "No tienes acceso";
+            return;
+        }
+
+        // guardar sesión
+        localStorage.setItem('admin_auth', 'true');
+        localStorage.setItem('admin_user', user.username);
+
+        msg.style.color = "green";
+        msg.textContent = "Acceso concedido...";
+
+        setTimeout(() => {
+            window.location.href = 'admin.html';
+        }, 500);
+
+    } catch (e) {
+        console.error(e);
+        msg.style.color = "red";
+        msg.textContent = "Error cargando usuarios";
+    }
+}
+
+// ENTER funciona
+document.getElementById('p').addEventListener("keydown", e => {
+    if (e.key === "Enter") login();
+});
+document.getElementById('u').addEventListener("keydown", e => {
+    if (e.key === "Enter") login();
+});
+</script>
+
 </body>
 </html>
