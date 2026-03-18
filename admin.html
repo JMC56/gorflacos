@@ -2,26 +2,122 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <style>
-        body { font-family: sans-serif; padding: 30px; background-image: radial-gradient(#d1d1d1 1px, transparent 1px); background-size: 20px 20px; }
-        .box { background: white; padding: 25px; border: 3px solid #000; border-radius: 15px; box-shadow: 10px 10px 0px #000; margin-bottom: 30px; }
-        input { padding: 10px; border: 2px solid #000; border-radius: 8px; margin: 5px; }
-        .row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
-        .btn-add { background: #000; color: #fff; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; }
-        .venta { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top: 10px; border-left: 5px solid #000; }
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            padding: 30px;
+            margin: 0;
+            background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-color: #fafafa;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .box {
+            background: white;
+            padding: 25px;
+            border: 3px solid #000;
+            border-radius: 15px;
+            box-shadow: 10px 10px 0px #000;
+            margin-bottom: 30px;
+        }
+
+        input {
+            padding: 12px;
+            border: 2px solid #000;
+            border-radius: 8px;
+            margin: 5px;
+            min-width: 180px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn-add,
+        .btn {
+            background: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-danger {
+            background: #c00;
+            color: #fff;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-light {
+            background: #fff;
+            color: #000;
+            border: 2px solid #000;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .venta {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border-left: 5px solid #000;
+            cursor: pointer;
+        }
+
+        .venta small {
+            display: block;
+            margin-top: 5px;
+        }
+
+        .top-actions {
+            margin-bottom: 20px;
+        }
+
+        .product-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
+    <div class="top-actions">
+        <button class="btn-light" onclick="location.href='index.html'">IR A LA TIENDA</button>
+    </div>
+
     <h1>ADMIN DASHBOARD</h1>
 
     <div class="box">
         <h3>AÑADIR PRODUCTO</h3>
         <input type="text" id="n" placeholder="Nombre">
         <input type="text" id="i" placeholder="URL Imagen">
-        <input type="number" id="p" placeholder="Precio">
+        <input type="number" id="p" placeholder="Precio" step="0.01">
         <input type="number" id="s" placeholder="Stock">
-        <button class="btn-add" onclick="crear()">GUARDAR EN FIREBASE</button>
+        <button class="btn-add" onclick="crear()">GUARDAR</button>
     </div>
 
     <div class="box">
@@ -37,8 +133,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
-        if(!localStorage.getItem('admin_auth')) window.location.href='login.html';
-        
+        if (!localStorage.getItem("admin_auth")) {
+            window.location.href = "login.html";
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
             authDomain: "gorflacos.firebaseapp.com",
@@ -47,60 +145,162 @@
             messagingSenderId: "507648872448",
             appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
         };
-        firebase.initializeApp(firebaseConfig);
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
         const db = firebase.firestore();
 
-        async function crear() {
-            const nom = document.getElementById('n').value;
-            const img = document.getElementById('i').value;
-            const pre = parseFloat(document.getElementById('p').value);
-            const stk = parseInt(document.getElementById('s').value);
-            if(nom && img) {
-                await db.collection("productos").add({ nombre: nom, imagen: img, precio: pre, stock: stk });
-                alert("Producto añadido");
-                location.reload();
+        function formatFecha(fecha) {
+            try {
+                if (!fecha) return "Sin fecha";
+                if (fecha.toDate) {
+                    return fecha.toDate().toLocaleString();
+                }
+                return String(fecha);
+            } catch (e) {
+                return "Fecha inválida";
             }
         }
 
-        db.collection("productos").onSnapshot(snap => {
-            const div = document.getElementById('inv');
-            div.innerHTML = '';
-            snap.forEach(doc => {
-                const data = doc.data();
-                div.innerHTML += `
-                    <div class="row">
-                        <span><b>${data.nombre}</b></span>
-                        <span>Stock: <input type="number" id="stk-${doc.id}" value="${data.stock}" style="width:50px"> 
-                        <button onclick="upd('${doc.id}')">Actualizar</button>
-                        <button onclick="del('${doc.id}')" style="color:red">Eliminar</button></span>
-                    </div>
-                `;
-            });
-        });
+        async function crear() {
+            const nom = document.getElementById("n").value.trim();
+            const img = document.getElementById("i").value.trim();
+            const pre = parseFloat(document.getElementById("p").value);
+            const stk = parseInt(document.getElementById("s").value, 10);
+
+            if (!nom || !img || isNaN(pre) || isNaN(stk)) {
+                alert("Completa todos los campos correctamente");
+                return;
+            }
+
+            try {
+                await db.collection("productos").add({
+                    nombre: nom,
+                    imagen: img,
+                    precio: pre,
+                    stock: stk
+                });
+
+                document.getElementById("n").value = "";
+                document.getElementById("i").value = "";
+                document.getElementById("p").value = "";
+                document.getElementById("s").value = "";
+
+                alert("Producto añadido");
+            } catch (error) {
+                console.error("Error al crear producto:", error);
+                alert("No se pudo guardar el producto");
+            }
+        }
+
+        db.collection("productos").onSnapshot(
+            (snap) => {
+                const div = document.getElementById("inv");
+                div.innerHTML = "";
+
+                if (snap.empty) {
+                    div.innerHTML = "<p>No hay productos registrados.</p>";
+                    return;
+                }
+
+                snap.forEach(doc => {
+                    const data = doc.data();
+
+                    div.innerHTML += `
+                        <div class="row">
+                            <span>
+                                <b>${data.nombre || "Sin nombre"}</b><br>
+                                <small>Precio: $${Number(data.precio || 0)}</small>
+                            </span>
+
+                            <div class="product-actions">
+                                <span>Stock:</span>
+                                <input type="number" id="stk-${doc.id}" value="${Number(data.stock || 0)}" style="width:80px">
+                                <button class="btn" onclick="upd('${doc.id}')">Actualizar</button>
+                                <button class="btn-danger" onclick="del('${doc.id}')">Eliminar</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            },
+            (error) => {
+                console.error("Error al leer inventario:", error);
+                document.getElementById("inv").innerHTML = "<p>Error cargando inventario.</p>";
+            }
+        );
 
         async function upd(id) {
-            const val = parseInt(document.getElementById('stk-'+id).value);
-            await db.collection("productos").doc(id).update({ stock: val });
-            alert("Stock actualizado");
+            const val = parseInt(document.getElementById("stk-" + id).value, 10);
+
+            if (isNaN(val) || val < 0) {
+                alert("Stock inválido");
+                return;
+            }
+
+            try {
+                await db.collection("productos").doc(id).update({
+                    stock: val
+                });
+                alert("Stock actualizado");
+            } catch (error) {
+                console.error("Error actualizando stock:", error);
+                alert("No se pudo actualizar el stock");
+            }
         }
 
         async function del(id) {
-            if(confirm("¿Borrar?")) await db.collection("productos").doc(id).delete();
+            if (!confirm("¿Borrar este producto?")) return;
+
+            try {
+                await db.collection("productos").doc(id).delete();
+            } catch (error) {
+                console.error("Error eliminando producto:", error);
+                alert("No se pudo eliminar");
+            }
         }
 
-        db.collection("compras").orderBy("fecha", "desc").onSnapshot(snap => {
-            const vDiv = document.getElementById('ventas');
-            vDiv.innerHTML = '';
-            snap.forEach(doc => {
-                const v = doc.data();
-                vDiv.innerHTML += `
-                    <div class="venta" onclick="alert('Pedido: ${v.pedido}')">
-                        <b>${v.cliente}</b> (${v.grado}) - Total: $${v.total} <br>
-                        <small>${v.fecha}</small> (Click para ver productos)
-                    </div>
-                `;
-            });
-        });
+        db.collection("compras").orderBy("fecha", "desc").onSnapshot(
+            (snap) => {
+                const vDiv = document.getElementById("ventas");
+                vDiv.innerHTML = "";
+
+                if (snap.empty) {
+                    vDiv.innerHTML = "<p>No hay compras registradas.</p>";
+                    return;
+                }
+
+                snap.forEach(doc => {
+                    const v = doc.data();
+                    const items = Array.isArray(v.items) ? v.items : [];
+
+                    vDiv.innerHTML += `
+                        <details class="venta">
+                            <summary>
+                                <b>${v.cliente || "Sin nombre"}</b> (${v.grado || "Sin grado"}) - Total: $${Number(v.total || 0)}
+                                <small>${formatFecha(v.fecha)}</small>
+                            </summary>
+                            <div style="margin-top:10px;">
+                                ${
+                                    items.length
+                                    ? items.map(i => `<p>${i.nombre} x${i.qty} - $${i.precio}</p>`).join("")
+                                    : `<p>${v.pedido || "Sin detalle"}</p>`
+                                }
+                            </div>
+                        </details>
+                    `;
+                });
+            },
+            (error) => {
+                console.error("Error al leer compras:", error);
+                document.getElementById("ventas").innerHTML = "<p>Error cargando compras.</p>";
+            }
+        );
+
+        window.crear = crear;
+        window.upd = upd;
+        window.del = del;
     </script>
 </body>
 </html>
