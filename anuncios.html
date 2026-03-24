@@ -32,7 +32,7 @@
         }
 
         .panel{
-            width:min(800px, 100%);
+            width:min(850px, 100%);
             background:var(--panel);
             border:1px solid var(--line);
             border-radius:24px;
@@ -179,14 +179,34 @@
             font-size:1.1rem;
             word-break:break-word;
         }
+
+        .toggle-row{
+            margin-top:16px;
+            display:flex;
+            align-items:center;
+            gap:10px;
+            color:#fff;
+            font-weight:700;
+        }
+
+        .toggle-row input{
+            width:auto;
+            transform:scale(1.25);
+            accent-color:#ff003c;
+        }
     </style>
 </head>
 <body>
     <div class="panel">
         <h1 class="glitch" data-text="CONTROL DE ANUNCIOS">CONTROL DE ANUNCIOS</h1>
-        <p>Escribe el mensaje global. Al publicarlo, aparecerá en todas las pantallas en tiempo real.</p>
+        <p>Escribe el mensaje global. Al publicarlo, aparecerá el avatar en todos los dispositivos y bloqueará toda la interacción hasta apagarlo.</p>
 
         <textarea id="announcementInput" placeholder="Escribe aquí el anuncio global..."></textarea>
+
+        <label class="toggle-row">
+            <input type="checkbox" id="enableAvatar" checked>
+            Activar avatar global con burbuja
+        </label>
 
         <div class="row">
             <button onclick="publicarAnuncio()">PUBLICAR AHORA</button>
@@ -221,6 +241,7 @@
         const announcementInput = document.getElementById("announcementInput");
         const statusBox = document.getElementById("statusBox");
         const liveText = document.getElementById("liveText");
+        const enableAvatar = document.getElementById("enableAvatar");
 
         async function publicarAnuncio() {
             const text = announcementInput.value.trim();
@@ -234,6 +255,8 @@
                 await db.collection("system").doc("globalAnnouncement").set({
                     active: true,
                     text: text,
+                    avatarEnabled: enableAvatar.checked,
+                    mode: "avatarBubble",
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
 
@@ -249,6 +272,8 @@
                 await db.collection("system").doc("globalAnnouncement").set({
                     active: false,
                     text: "",
+                    avatarEnabled: false,
+                    mode: "off",
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
 
@@ -267,8 +292,12 @@
 
             const data = doc.data() || {};
             if (data.active && data.text) {
-                liveText.textContent = data.text;
+                liveText.textContent = data.avatarEnabled
+                    ? `AVATAR ACTIVO: ${data.text}`
+                    : data.text;
+
                 announcementInput.value = data.text;
+                enableAvatar.checked = !!data.avatarEnabled;
             } else {
                 liveText.textContent = "Sin anuncio activo";
             }
