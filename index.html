@@ -216,7 +216,7 @@
 
   <div class="wrap">
     <h1 class="title" data-text="KODE">KODE</h1>
-    <div class="subtitle">IDIOTAS</div>
+    <div class="subtitle">IDIOTAS LOS ESTOY VIENDO</div>
 
     <div class="progress-section">
       <div class="counter" id="counter">0/10</div>
@@ -224,9 +224,9 @@
         <div class="fill" id="fill"></div>
       </div>
 
-      <button class="btn" id="voteBtn">CLICK</button>
+      <button class="btn" id="voteBtn">NO PUEDEN CONTRA MI</button>
       <div class="msg" id="message"></div>
-      <div class="mini">¿Creyeron que los iba a dejar en paz?</div>
+      <div class="mini">JAJAJAJAJA, SUPEREN ESO MALDITOS LOS VEO POR SUS CAMARAS PENDEJOS</div>
     </div>
   </div>
 
@@ -257,7 +257,7 @@
     const voteBtn = document.getElementById("voteBtn");
     const messageEl = document.getElementById("message");
 
-    const TOTAL = 666;
+    const TOTAL = 100000000;
     const DOC_REF = doc(db, "progress", "kode_main");
     const LOCAL_KEY = "kode_voted";
 
@@ -297,7 +297,7 @@
 
         const alreadyVoted = localStorage.getItem(LOCAL_KEY) === "true";
         if (alreadyVoted) {
-          lockButtonWithMessage("Ya le diste click. No puedes volver a votar.");
+          lockButtonWithMessage("Nunca lo lograran.");
         }
       } catch (error) {
         console.error(error);
