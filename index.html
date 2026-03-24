@@ -8,88 +8,72 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 
 body{
-  background:black;
-  color:white;
-  font-family:monospace;
+  font-family:Arial;
+  height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  height:100vh;
   overflow:hidden;
+  background:#000;
 }
 
-/* 🔥 FONDO HACKER */
-body::before{
-  content:"";
+/* 🔥 FONDO BONITO */
+.bg{
   position:fixed;
   inset:0;
   background:
-    linear-gradient(rgba(0,0,0,.85),rgba(0,0,0,.95)),
-    repeating-linear-gradient(
-      0deg,
-      rgba(0,255,0,.05) 0px,
-      transparent 2px,
-      transparent 4px
-    );
-  animation:scan 6s linear infinite;
+    linear-gradient(rgba(0,0,0,.75),rgba(0,0,0,.9)),
+    url("https://images.unsplash.com/photo-1535223289827-42f1e9919769?q=80&w=1974&auto=format&fit=crop") center/cover;
   z-index:0;
 }
 
-@keyframes scan{
-  from{background-position:0 0;}
-  to{background-position:0 100px;}
-}
-
-/* CONTENEDOR */
+/* CONTENIDO */
 .wrap{
   z-index:2;
   text-align:center;
-  background:rgba(0,0,0,.5);
   padding:40px;
   border-radius:20px;
+  background:rgba(0,0,0,.4);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.1);
 }
 
-/* 🔴 TITULO GLITCH */
+/* 🔴 TITULO */
 .title{
-  font-size:60px;
+  font-size:70px;
+  font-weight:900;
+  color:white;
+  letter-spacing:8px;
   position:relative;
-  display:inline-block;
-  letter-spacing:6px;
 }
 
+/* GLITCH FINO */
 .title::before,
 .title::after{
   content:attr(data-text);
   position:absolute;
   left:0;
+  top:0;
 }
 
 .title::before{
   color:red;
-  animation:gl1 .6s infinite;
+  transform:translate(2px,0);
+  opacity:.6;
 }
 
 .title::after{
-  color:cyan;
-  animation:gl2 .6s infinite;
-}
-
-@keyframes gl1{
-  0%{transform:translate(2px,-2px);}
-  50%{transform:translate(-2px,2px);}
-}
-
-@keyframes gl2{
-  0%{transform:translate(-2px,2px);}
-  50%{transform:translate(2px,-2px);}
+  color:white;
+  transform:translate(-2px,0);
+  opacity:.6;
 }
 
 /* BARRA */
 .bar{
-  margin-top:20px;
-  width:300px;
+  margin-top:25px;
+  width:320px;
   height:20px;
-  background:#111;
+  background:rgba(255,255,255,.1);
   border-radius:10px;
   overflow:hidden;
 }
@@ -97,22 +81,31 @@ body::before{
 .fill{
   height:100%;
   width:0%;
-  background:#00ff00;
+  background:linear-gradient(90deg,#ff0000,#ffffff);
   transition:.4s;
 }
 
 .counter{
-  margin-top:10px;
+  margin-top:15px;
+  font-size:22px;
+  font-weight:bold;
 }
 
+/* BOTON */
 button{
-  margin-top:20px;
-  padding:12px;
+  margin-top:25px;
+  padding:14px 30px;
   border:none;
   border-radius:10px;
+  background:#ff0000;
+  color:white;
+  font-weight:bold;
   cursor:pointer;
-  background:#00ff00;
-  color:black;
+  transition:.2s;
+}
+
+button:hover{
+  background:#cc0000;
 }
 
 /* ALERTA */
@@ -131,12 +124,22 @@ button{
 }
 
 #alertText{
-  font-size:55px;
+  font-size:60px;
+  color:white;
+  text-align:center;
+  animation:zoom .3s ease;
+}
+
+@keyframes zoom{
+  from{transform:scale(0.7);}
+  to{transform:scale(1);}
 }
 </style>
 </head>
 
 <body>
+
+<div class="bg"></div>
 
 <div class="wrap">
   <h1 class="title" data-text="KODE">KODE</h1>
@@ -158,47 +161,40 @@ button{
 <!-- FIREBASE V10 -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, setDoc, runTransaction
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const META = 10; // 🔥 CAMBIA AQUÍ
+const META = 10;
 
-const config={
+const app = initializeApp({
   apiKey:"AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
   authDomain:"gorflacos.firebaseapp.com",
   projectId:"gorflacos"
-};
+});
 
-const app=initializeApp(config);
-const db=getFirestore(app);
+const db = getFirestore(app);
+const ref = doc(db,"progress","kode_main");
 
-const ref=doc(db,"progress","kode_main");
-
-const counter=document.getElementById("counter");
-const fill=document.getElementById("fill");
-const btn=document.getElementById("btn");
-const msg=document.getElementById("msg");
+const counter = document.getElementById("counter");
+const fill = document.getElementById("fill");
+const btn = document.getElementById("btn");
+const msg = document.getElementById("msg");
 
 const LOCAL="kode_voted";
 
-// CARGAR
 async function load(){
-  const snap=await getDoc(ref);
+  const snap = await getDoc(ref);
 
   if(!snap.exists()){
     await setDoc(ref,{current:0,total:META});
     update(0,META);
   }else{
-    const d=snap.data();
+    const d = snap.data();
     update(d.current||0,META);
-
-    // fuerza actualización de meta
     await setDoc(ref,{total:META},{merge:true});
   }
 
   if(localStorage.getItem(LOCAL)){
-    bloquear("Ya votaste desde este dispositivo.");
+    bloquear("Ya votaste.");
   }
 }
 
@@ -207,12 +203,11 @@ function update(c,t){
   fill.style.width=(c/t*100)+"%";
 }
 
-function bloquear(text){
+function bloquear(t){
   btn.disabled=true;
-  msg.innerText=text;
+  msg.innerText=t;
 }
 
-// CLICK
 btn.onclick=async ()=>{
   if(localStorage.getItem(LOCAL)){
     bloquear("Acceso bloqueado.");
@@ -220,15 +215,12 @@ btn.onclick=async ()=>{
   }
 
   await runTransaction(db,async(t)=>{
-    const snap=await t.get(ref);
-    const d=snap.data();
-
-    let c=d.current||0;
+    const snap = await t.get(ref);
+    let c = snap.data().current||0;
 
     if(c>=META) return;
 
     c++;
-
     t.update(ref,{current:c});
     update(c,META);
   });
@@ -245,20 +237,18 @@ load();
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <script>
-if(!firebase.apps.length){
-  firebase.initializeApp({
-    apiKey:"AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
-    authDomain:"gorflacos.firebaseapp.com",
-    projectId:"gorflacos"
-  });
-}
+firebase.initializeApp({
+  apiKey:"AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+  authDomain:"gorflacos.firebaseapp.com",
+  projectId:"gorflacos"
+});
 
-const db2=firebase.firestore();
+const db2 = firebase.firestore();
 
-const alertBox=document.getElementById("alert");
-const alertText=document.getElementById("alertText");
+const alertBox = document.getElementById("alert");
+const alertText = document.getElementById("alertText");
 
-let lastTime=0;
+let last=0;
 
 db2.collection("system").doc("globalAnnouncement")
 .onSnapshot(doc=>{
@@ -267,10 +257,9 @@ db2.collection("system").doc("globalAnnouncement")
   const d=doc.data();
 
   if(!d.active) return;
+  if(d.time===last) return;
 
-  if(d.time === lastTime) return;
-
-  lastTime = d.time;
+  last=d.time;
 
   alertText.innerText=d.text;
   alertBox.classList.add("active");
