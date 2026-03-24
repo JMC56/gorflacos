@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VOLVEREMOS</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      min-height:100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      position:relative;
+      background:#000;
+    }
+
+    .bg{
+      position:fixed;
+      inset:0;
+      background:
+        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.75)),
+        url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+      transform:scale(1.05);
+      filter:brightness(.65);
+      z-index:0;
+    }
+
+    .overlay-noise{
+      position:fixed;
+      inset:0;
+      background-image:
+        radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size:4px 4px;
+      opacity:.08;
+      z-index:1;
+      pointer-events:none;
+    }
+
+    .wrap{
+      width:min(92%, 650px);
+      text-align:center;
+      position:relative;
+      z-index:2;
+      padding:40px 28px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.30);
+      backdrop-filter: blur(10px);
+      border-radius:24px;
+      box-shadow:0 25px 70px rgba(0,0,0,.45);
+    }
+
+    .title{
+      position:relative;
+      display:inline-block;
+      color:#fff;
+      font-size:clamp(2.5rem, 8vw, 6rem);
+      font-weight:900;
+      letter-spacing:6px;
+      text-transform:uppercase;
+      text-shadow:
+        0 0 10px rgba(255,255,255,.25),
+        0 0 30px rgba(255,255,255,.15);
+      animation:flicker 3s infinite;
+    }
+
+    .title::before,
+    .title::after{
+      content:attr(data-text);
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      overflow:hidden;
+      color:#fff;
+      background:transparent;
+      clip-path: inset(0 0 0 0);
+    }
+
+    .title::before{
+      left:2px;
+      text-shadow:-2px 0 rgba(255,0,80,.8);
+      animation:glitch1 1.8s infinite linear alternate-reverse;
+    }
+
+    .title::after{
+      left:-2px;
+      text-shadow:2px 0 rgba(0,220,255,.8);
+      animation:glitch2 1.4s infinite linear alternate-reverse;
+    }
+
+    .subtitle{
+      margin-top:14px;
+      color:rgba(255,255,255,.78);
+      font-size:1rem;
+      letter-spacing:2px;
+    }
+
+    .progress-section{
+      margin-top:38px;
+    }
+
+    .counter{
+      color:#fff;
+      font-size:1.4rem;
+      font-weight:800;
+      margin-bottom:14px;
+      letter-spacing:2px;
+    }
+
+    .bar{
+      width:100%;
+      height:22px;
+      border-radius:999px;
+      background:rgba(255,255,255,.10);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: inset 0 0 18px rgba(255,255,255,.06);
+    }
+
+    .fill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background:
+        linear-gradient(90deg, #ffffff 0%, #d1d1d1 45%, #ffffff 100%);
+      box-shadow:
+        0 0 12px rgba(255,255,255,.55),
+        0 0 28px rgba(255,255,255,.30);
+      transition:width .45s ease;
+    }
+
+    .btn{
+      margin-top:24px;
+      padding:15px 26px;
+      border:none;
+      border-radius:14px;
+      background:#fff;
+      color:#000;
+      font-weight:900;
+      font-size:1rem;
+      letter-spacing:1px;
+      cursor:pointer;
+      transition:transform .2s ease, opacity .2s ease, box-shadow .2s ease;
+      box-shadow:0 12px 30px rgba(255,255,255,.18);
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+    }
+
+    .btn:disabled{
+      cursor:not-allowed;
+      opacity:.55;
+      transform:none;
+    }
+
+    .msg{
+      margin-top:18px;
+      min-height:24px;
+      color:#fff;
+      font-weight:700;
+      font-size:.98rem;
+      text-shadow:0 0 10px rgba(255,255,255,.12);
+    }
+
+    .mini{
+      margin-top:10px;
+      color:rgba(255,255,255,.58);
+      font-size:.88rem;
+    }
+
+    @keyframes glitch1{
+      0%   { clip-path: inset(10% 0 80% 0); transform: translate(-2px,-2px); }
+      20%  { clip-path: inset(85% 0 5% 0); transform: translate(2px,1px); }
+      40%  { clip-path: inset(40% 0 30% 0); transform: translate(-1px,2px); }
+      60%  { clip-path: inset(20% 0 55% 0); transform: translate(2px,-1px); }
+      80%  { clip-path: inset(65% 0 10% 0); transform: translate(-2px,1px); }
+      100% { clip-path: inset(5% 0 75% 0); transform: translate(1px,-2px); }
+    }
+
+    @keyframes glitch2{
+      0%   { clip-path: inset(75% 0 5% 0); transform: translate(2px,1px); }
+      20%  { clip-path: inset(15% 0 65% 0); transform: translate(-2px,-1px); }
+      40%  { clip-path: inset(55% 0 20% 0); transform: translate(1px,2px); }
+      60%  { clip-path: inset(5% 0 80% 0); transform: translate(-1px,-2px); }
+      80%  { clip-path: inset(30% 0 45% 0); transform: translate(2px,1px); }
+      100% { clip-path: inset(82% 0 3% 0); transform: translate(-2px,0px); }
+    }
+
+    @keyframes flicker{
+      0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity:1; }
+      20%, 24%, 55% { opacity:.8; }
+    }
+
+    @media (max-width:600px){
+      .wrap{
+        padding:30px 18px;
+      }
+      .bar{
+        height:18px;
+      }
+      .btn{
+        width:100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="overlay-noise"></div>
+
+  <div class="wrap">
+    <h1 class="title" data-text="VOLVEREMOS">VOLVEREMOS</h1>
+    <div class="subtitle">NO TODO HA TERMINADO</div>
+
+    <div class="progress-section">
+      <div class="counter" id="counter">0/10</div>
+      <div class="bar">
+        <div class="fill" id="fill"></div>
+      </div>
+
+      <button class="btn" id="voteBtn">DAR CLICK</button>
+      <div class="msg" id="message"></div>
+      <div class="mini">Solo puedes apoyar una vez desde este dispositivo</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      runTransaction
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // =========================================================
+    // PEGA AQUÍ TU CONFIG DE FIREBASE
+    // =========================================================
+  ¡   const firebaseConfig = {
+        apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+        authDomain: "gorflacos.firebaseapp.com",
+        projectId: "gorflacos",
+        storageBucket: "gorflacos.firebasestorage.app",
+        messagingSenderId: "507648872448",
+        appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const counterEl = document.getElementById("counter");
+    const fillEl = document.getElementById("fill");
+    const voteBtn = document.getElementById("voteBtn");
+    const messageEl = document.getElementById("message");
+
+    const TOTAL = 10;
+    const DOC_REF = doc(db, "progress", "volveremos_main");
+    const LOCAL_KEY = "volveremos_voted";
+
+    function renderProgress(current){
+      const safeValue = Math.max(0, Math.min(current, TOTAL));
+      counterEl.textContent = `${safeValue}/${TOTAL}`;
+      fillEl.style.width = `${(safeValue / TOTAL) * 100}%`;
+
+      if (safeValue >= TOTAL) {
+        voteBtn.disabled = true;
+        messageEl.textContent = "La barra ya llegó al máximo.";
+      }
+    }
+
+    function lockButtonWithMessage(msg){
+      voteBtn.disabled = true;
+      messageEl.textContent = msg;
+    }
+
+    async function ensureDocument(){
+      const snap = await getDoc(DOC_REF);
+      if (!snap.exists()) {
+        await setDoc(DOC_REF, {
+          current: 0,
+          total: TOTAL,
+          updatedAt: Date.now()
+        });
+        return { current: 0, total: TOTAL };
+      }
+      return snap.data();
+    }
+
+    async function loadProgress(){
+      try{
+        const data = await ensureDocument();
+        renderProgress(data.current || 0);
+
+        const alreadyVoted = localStorage.getItem(LOCAL_KEY) === "true";
+        if (alreadyVoted) {
+          lockButtonWithMessage("Ya le diste click. No puedes volver a votar.");
+        }
+      }catch(error){
+        console.error(error);
+        messageEl.textContent = "Error al cargar el progreso.";
+      }
+    }
+
+    async function voteOnce(){
+      const alreadyVoted = localStorage.getItem(LOCAL_KEY) === "true";
+
+      if (alreadyVoted) {
+        lockButtonWithMessage("Ya le diste click. No puedes volver a votar.");
+        return;
+      }
+
+      voteBtn.disabled = true;
+      messageEl.textContent = "Guardando...";
+
+      try{
+        const newValue = await runTransaction(db, async (transaction) => {
+          const snap = await transaction.get(DOC_REF);
+
+          if (!snap.exists()) {
+            transaction.set(DOC_REF, {
+              current: 1,
+              total: TOTAL,
+              updatedAt: Date.now()
+            });
+            return 1;
+          }
+
+          const data = snap.data();
+          const current = Number(data.current || 0);
+
+          if (current >= TOTAL) {
+            return current;
+          }
+
+          const updated = current + 1;
+
+          transaction.update(DOC_REF, {
+            current: updated,
+            updatedAt: Date.now()
+          });
+
+          return updated;
+        });
+
+        localStorage.setItem(LOCAL_KEY, "true");
+        renderProgress(newValue);
+
+        if (newValue >= TOTAL) {
+          messageEl.textContent = "Gracias. La barra llegó al máximo.";
+        } else {
+          messageEl.textContent = "Gracias, ya diste tu click.";
+        }
+
+        voteBtn.disabled = true;
+      }catch(error){
+        console.error(error);
+        voteBtn.disabled = false;
+        messageEl.textContent = "No se pudo guardar el click.";
+      }
+    }
+
+    voteBtn.addEventListener("click", voteOnce);
+    loadProgress();
+  </script>
+</body>
+</html>
