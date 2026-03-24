@@ -1,261 +1,613 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>KODE</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
+  *{margin:0;padding:0;box-sizing:border-box}
 
-body{
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:Arial;
-  background:black;
-  overflow:hidden;
-}
+  :root{
+    --rojo:#ff1e2d;
+    --rojo2:#ff4d5a;
+    --blanco:#ffffff;
+    --gris:#7f7f7f;
+    --panel:rgba(0,0,0,.46);
+    --linea:rgba(255,255,255,.12);
+  }
 
-/* FONDO BONITO */
-.bg{
-  position:fixed;
-  inset:0;
-  background:
-    linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.9)),
-    url("https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1974&auto=format&fit=crop") center/cover;
-  z-index:0;
-}
+  body{
+    min-height:100vh;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#000;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    position:relative;
+  }
 
-/* CONTENEDOR */
-.wrap{
-  z-index:2;
-  text-align:center;
-  padding:40px;
-  border-radius:20px;
-  background:rgba(0,0,0,.5);
-  backdrop-filter:blur(12px);
-  border:1px solid rgba(255,255,255,.1);
-}
+  .bg{
+    position:fixed;
+    inset:0;
+    background:
+      linear-gradient(rgba(0,0,0,.62), rgba(0,0,0,.82)),
+      url("https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1974&auto=format&fit=crop") center/cover no-repeat;
+    transform:scale(1.05);
+    z-index:0;
+  }
 
-/* TITULO */
-.title{
-  font-size:80px;
-  font-weight:900;
-  color:white;
-  letter-spacing:10px;
-  position:relative;
-}
+  .bg::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.03) 0px,
+        rgba(255,255,255,.03) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+    mix-blend-mode:screen;
+    opacity:.2;
+  }
 
-/* GLITCH FINO */
-.title::before{
-  content:attr(data-text);
-  position:absolute;
-  left:2px;
-  color:red;
-  opacity:.6;
-}
+  .wrap{
+    position:relative;
+    z-index:2;
+    width:min(92%, 700px);
+    text-align:center;
+    padding:42px 28px;
+    border-radius:26px;
+    background:var(--panel);
+    backdrop-filter:blur(12px);
+    border:1px solid var(--linea);
+    box-shadow:0 30px 80px rgba(0,0,0,.45);
+  }
 
-.title::after{
-  content:attr(data-text);
-  position:absolute;
-  left:-2px;
-  color:white;
-  opacity:.6;
-}
+  .title{
+    position:relative;
+    display:inline-block;
+    font-size:clamp(3.4rem, 10vw, 7rem);
+    font-weight:900;
+    letter-spacing:10px;
+    color:#fff;
+    text-transform:uppercase;
+    text-shadow:
+      0 0 10px rgba(255,255,255,.18),
+      0 0 26px rgba(255,30,45,.14);
+    animation:flicker 2.8s infinite;
+  }
 
-/* BARRA */
-.bar{
-  margin-top:25px;
-  width:340px;
-  height:20px;
-  background:#111;
-  border-radius:10px;
-  overflow:hidden;
-}
+  .title::before,
+  .title::after{
+    content:attr(data-text);
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
 
-.fill{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,#ff0000,#ffffff);
-  transition:.4s;
-}
+  .title::before{
+    color:var(--rojo);
+    transform:translate(2px,0);
+    opacity:.6;
+    clip-path:inset(0 0 50% 0);
+    animation:glitchTop 1.5s infinite linear alternate-reverse;
+  }
 
-.counter{
-  margin-top:15px;
-  font-size:22px;
-}
+  .title::after{
+    color:#fff;
+    transform:translate(-2px,0);
+    opacity:.6;
+    clip-path:inset(50% 0 0 0);
+    animation:glitchBottom 1.2s infinite linear alternate-reverse;
+  }
 
-/* BOTON */
-button{
-  margin-top:25px;
-  padding:14px 30px;
-  border:none;
-  border-radius:10px;
-  background:#ff0000;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
+  .sub{
+    margin-top:10px;
+    color:rgba(255,255,255,.72);
+    letter-spacing:3px;
+    font-size:.98rem;
+  }
 
-/* ALERTA */
-#alert{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.95);
-  z-index:999999;
-}
+  .meta-line{
+    margin-top:28px;
+    font-size:1.3rem;
+    font-weight:800;
+    letter-spacing:1px;
+    color:#fff;
+  }
 
-#alert.active{
-  display:flex;
-}
+  .votes-line{
+    margin-top:10px;
+    color:rgba(255,255,255,.85);
+    font-size:1rem;
+  }
 
-#alertText{
-  font-size:60px;
-  color:white;
-  text-align:center;
-  animation:zoom .3s ease;
-}
+  .bar{
+    width:min(100%, 420px);
+    height:22px;
+    margin:18px auto 0;
+    border-radius:999px;
+    overflow:hidden;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.13);
+    box-shadow:inset 0 0 18px rgba(255,255,255,.04);
+  }
 
-@keyframes zoom{
-  from{transform:scale(.7);}
-  to{transform:scale(1);}
-}
+  .fill{
+    height:100%;
+    width:0%;
+    border-radius:999px;
+    background:linear-gradient(90deg, var(--rojo) 0%, #ffffff 100%);
+    box-shadow:
+      0 0 12px rgba(255,30,45,.45),
+      0 0 26px rgba(255,255,255,.18);
+    transition:width .45s ease;
+  }
+
+  .btn{
+    margin-top:24px;
+    padding:15px 28px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(180deg, var(--rojo) 0%, #cf1622 100%);
+    color:#fff;
+    font-size:1rem;
+    font-weight:900;
+    letter-spacing:1px;
+    cursor:pointer;
+    box-shadow:0 14px 30px rgba(255,30,45,.22);
+    transition:transform .2s ease, opacity .2s ease, filter .2s ease, background .2s ease;
+  }
+
+  .btn:hover:not(:disabled){
+    transform:translateY(-2px);
+    filter:brightness(1.06);
+  }
+
+  .btn:disabled,
+  .btn.disabled{
+    background:linear-gradient(180deg, #686868 0%, #565656 100%);
+    color:#e5e5e5;
+    cursor:not-allowed;
+    box-shadow:none;
+    opacity:.95;
+  }
+
+  .msg{
+    margin-top:16px;
+    min-height:24px;
+    font-weight:700;
+    color:#fff;
+  }
+
+  .mini{
+    margin-top:10px;
+    font-size:.9rem;
+    color:rgba(255,255,255,.58);
+  }
+
+  /* ANUNCIO GLOBAL */
+  #alert{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:30px;
+    background:rgba(0,0,0,.94);
+    z-index:999999;
+  }
+
+  #alert.active{
+    display:flex;
+    animation:fadeIn .28s ease;
+  }
+
+  .alert-box{
+    width:min(100%, 1000px);
+    text-align:center;
+    padding:36px 26px;
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(10,10,10,.62);
+    backdrop-filter:blur(10px);
+    box-shadow:0 20px 70px rgba(0,0,0,.5);
+  }
+
+  .alert-tag{
+    color:var(--rojo2);
+    font-size:.95rem;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+
+  #alertText{
+    font-size:clamp(2.4rem, 7vw, 5.6rem);
+    line-height:.95;
+    color:#fff;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:4px;
+    animation:announceIn .35s ease;
+  }
+
+  .alert-sub{
+    margin-top:16px;
+    color:rgba(255,255,255,.72);
+    font-size:1rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+
+  /* POPUP TEMPORIZADOR */
+  #countdownPopup{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(0,0,0,.88);
+    z-index:999998;
+  }
+
+  #countdownPopup.active{
+    display:flex;
+    animation:fadeIn .3s ease;
+  }
+
+  .countdown-box{
+    width:min(92%, 760px);
+    text-align:center;
+    padding:34px 24px;
+    border-radius:24px;
+    background:rgba(0,0,0,.72);
+    border:1px solid rgba(255,30,45,.28);
+    box-shadow:
+      0 24px 80px rgba(0,0,0,.55),
+      0 0 28px rgba(255,30,45,.12);
+    backdrop-filter:blur(10px);
+  }
+
+  .countdown-kicker{
+    color:var(--rojo2);
+    text-transform:uppercase;
+    letter-spacing:5px;
+    font-size:.92rem;
+    margin-bottom:12px;
+  }
+
+  .countdown-title{
+    font-size:clamp(2rem, 6vw, 4rem);
+    font-weight:900;
+    color:#fff;
+    text-transform:uppercase;
+    letter-spacing:4px;
+    text-shadow:0 0 18px rgba(255,30,45,.16);
+  }
+
+  .countdown-time{
+    margin-top:18px;
+    font-size:clamp(2.5rem, 9vw, 6rem);
+    color:#fff;
+    font-weight:900;
+    letter-spacing:6px;
+  }
+
+  .countdown-sub{
+    margin-top:14px;
+    color:rgba(255,255,255,.72);
+    font-size:1rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+
+  @keyframes flicker{
+    0%,18%,22%,58%,62%,100%{opacity:1}
+    20%,60%{opacity:.82}
+  }
+
+  @keyframes glitchTop{
+    0%{transform:translate(2px,0)}
+    25%{transform:translate(-2px,-1px)}
+    50%{transform:translate(1px,1px)}
+    100%{transform:translate(2px,0)}
+  }
+
+  @keyframes glitchBottom{
+    0%{transform:translate(-2px,0)}
+    25%{transform:translate(2px,1px)}
+    50%{transform:translate(-1px,-1px)}
+    100%{transform:translate(-2px,0)}
+  }
+
+  @keyframes fadeIn{
+    from{opacity:0}
+    to{opacity:1}
+  }
+
+  @keyframes announceIn{
+    from{opacity:0; transform:scale(.94)}
+    to{opacity:1; transform:scale(1)}
+  }
+
+  @media (max-width:600px){
+    .wrap{padding:30px 18px}
+    .btn{width:100%}
+    .bar{height:18px}
+  }
 </style>
 </head>
-
 <body>
 
 <div class="bg"></div>
 
 <div class="wrap">
   <h1 class="title" data-text="KODE">KODE</h1>
+  <div class="sub">SISTEMA DE ACCESO CONTROLADO</div>
 
-  <div class="counter" id="counter">0/10</div>
+  <div class="meta-line" id="metaLine">0/10</div>
+  <div class="votes-line" id="votesLine">0 votos</div>
 
   <div class="bar">
     <div class="fill" id="fill"></div>
   </div>
 
-  <button id="btn">CLICK</button>
-  <div id="msg"></div>
+  <button class="btn" id="btn">CLICK</button>
+  <div class="msg" id="msg"></div>
+  <div class="mini">Un solo voto por dispositivo.</div>
 </div>
 
+<!-- ANUNCIO GLOBAL -->
 <div id="alert">
-  <div id="alertText"></div>
+  <div class="alert-box">
+    <div class="alert-tag">ANUNCIO GLOBAL</div>
+    <div id="alertText"></div>
+    <div class="alert-sub">MENSAJE ACTIVO EN TIEMPO REAL</div>
+  </div>
 </div>
 
-<!-- FIREBASE V10 -->
+<!-- POPUP COUNTDOWN -->
+<div id="countdownPopup">
+  <div class="countdown-box">
+    <div class="countdown-kicker">PROTOCOLO ACTIVADO</div>
+    <div class="countdown-title">TEMPORIZADOR FINAL</div>
+    <div class="countdown-time" id="countdownTime">10:00</div>
+    <div class="countdown-sub">EL CONTEO TERMINA EN 10 MINUTOS</div>
+  </div>
+</div>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, setDoc, runTransaction, onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    runTransaction,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const META = 10;
+  const META = 10; // CAMBIA AQUÍ LA META
 
-const app = initializeApp({
-  apiKey:"AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
-  authDomain:"gorflacos.firebaseapp.com",
-  projectId:"gorflacos"
-});
+  const firebaseConfig = {
+    apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+    authDomain: "gorflacos.firebaseapp.com",
+    projectId: "gorflacos",
+    storageBucket: "gorflacos.firebasestorage.app",
+    messagingSenderId: "507648872448",
+    appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
+  };
 
-const db = getFirestore(app);
-const ref = doc(db,"progress","kode_main");
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-const counter = document.getElementById("counter");
-const fill = document.getElementById("fill");
-const btn = document.getElementById("btn");
-const msg = document.getElementById("msg");
+  const progressRef = doc(db, "progress", "kode_main");
+  const announcementRef = doc(db, "system", "globalAnnouncement");
 
-const LOCAL="kode_voted";
+  const metaLine = document.getElementById("metaLine");
+  const votesLine = document.getElementById("votesLine");
+  const fill = document.getElementById("fill");
+  const btn = document.getElementById("btn");
+  const msg = document.getElementById("msg");
 
-/* 🔴 TIEMPO REAL PROGRESO */
-onSnapshot(ref,(snap)=>{
-  if(!snap.exists()) return;
+  const alertBox = document.getElementById("alert");
+  const alertText = document.getElementById("alertText");
 
-  const d = snap.data();
-  const c = d.current||0;
+  const countdownPopup = document.getElementById("countdownPopup");
+  const countdownTime = document.getElementById("countdownTime");
 
-  counter.innerText = c+"/"+META;
-  fill.style.width = (c/META*100)+"%";
-});
+  const LOCAL_KEY = "kode_voted";
+  let countdownInterval = null;
 
-/* 🔴 INIT */
-async function init(){
-  const snap = await getDoc(ref);
-
-  if(!snap.exists()){
-    await setDoc(ref,{current:0,total:META});
-  }else{
-    await setDoc(ref,{total:META},{merge:true});
-  }
-
-  if(localStorage.getItem(LOCAL)){
+  function setButtonBlocked(text){
     btn.disabled = true;
-    msg.innerText = "Ya votaste.";
-  }
-}
-
-/* 🔴 CLICK */
-btn.onclick = async ()=>{
-  if(localStorage.getItem(LOCAL)){
-    msg.innerText="Bloqueado.";
-    return;
+    btn.classList.add("disabled");
+    msg.textContent = text;
   }
 
-  await runTransaction(db,async(t)=>{
-    const snap = await t.get(ref);
-    let c = snap.data().current||0;
+  function setButtonActive(text=""){
+    btn.disabled = false;
+    btn.classList.remove("disabled");
+    msg.textContent = text;
+  }
 
-    if(c>=META) return;
+  function renderProgress(current, total){
+    const safeCurrent = Number(current || 0);
+    const safeTotal = Number(total || META);
 
-    t.update(ref,{current:c+1});
+    metaLine.textContent = `${safeCurrent}/${safeTotal}`;
+    votesLine.textContent = `${safeCurrent} voto${safeCurrent === 1 ? "" : "s"}`;
+    fill.style.width = `${Math.max(0, Math.min(100, (safeCurrent / safeTotal) * 100))}%`;
+  }
+
+  function startCountdown(endAt){
+    if (!endAt) return;
+
+    countdownPopup.classList.add("active");
+
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    const tick = () => {
+      const remaining = endAt - Date.now();
+
+      if (remaining <= 0) {
+        countdownTime.textContent = "00:00";
+        return;
+      }
+
+      const totalSeconds = Math.floor(remaining / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      countdownTime.textContent = `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+    };
+
+    tick();
+    countdownInterval = setInterval(tick, 1000);
+  }
+
+  function stopCountdown(){
+    countdownPopup.classList.remove("active");
+    if (countdownInterval) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+    }
+  }
+
+  function showAnnouncement(text){
+    alertText.textContent = String(text || "").trim();
+    if (alertText.textContent) {
+      alertBox.classList.add("active");
+    }
+  }
+
+  function hideAnnouncement(){
+    alertBox.classList.remove("active");
+    alertText.textContent = "";
+  }
+
+  async function initDocument(){
+    const snap = await getDoc(progressRef);
+
+    if (!snap.exists()) {
+      await setDoc(progressRef, {
+        current: 0,
+        total: META,
+        statusText: `0/${META} · 0 votos`,
+        countdownActive: false,
+        countdownEndsAt: null,
+        updatedAt: Date.now()
+      });
+      return;
+    }
+
+    const data = snap.data() || {};
+    await setDoc(progressRef, {
+      total: META,
+      statusText: `${Number(data.current || 0)}/${META} · ${Number(data.current || 0)} votos`,
+      updatedAt: Date.now()
+    }, { merge: true });
+  }
+
+  btn.addEventListener("click", async () => {
+    if (localStorage.getItem(LOCAL_KEY) === "1") {
+      setButtonBlocked("Acceso bloqueado en este dispositivo.");
+      return;
+    }
+
+    btn.disabled = true;
+
+    try {
+      const result = await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(progressRef);
+        const data = snap.data() || {};
+
+        let current = Number(data.current || 0);
+        const total = META;
+
+        if (current >= total) {
+          return { current, total, reached: true };
+        }
+
+        current += 1;
+
+        const payload = {
+          current,
+          total,
+          statusText: `${current}/${total} · ${current} votos`,
+          updatedAt: Date.now()
+        };
+
+        if (current >= total && !data.countdownActive) {
+          payload.countdownActive = true;
+          payload.countdownEndsAt = Date.now() + 10 * 60 * 1000;
+        }
+
+        transaction.set(progressRef, payload, { merge: true });
+
+        return { current, total, reached: current >= total };
+      });
+
+      localStorage.setItem(LOCAL_KEY, "1");
+      renderProgress(result.current, result.total);
+      setButtonBlocked("Voto registrado.");
+    } catch (error) {
+      console.error(error);
+      btn.disabled = false;
+      msg.textContent = "No se pudo registrar el voto.";
+    }
   });
 
-  localStorage.setItem(LOCAL,"1");
-  btn.disabled=true;
-  msg.innerText="Registrado.";
-};
+  onSnapshot(progressRef, (snap) => {
+    if (!snap.exists()) return;
 
-init();
-</script>
+    const data = snap.data() || {};
+    const current = Number(data.current || 0);
+    const total = Number(data.total || META);
 
-<!-- 🔴 ANUNCIOS REAL TIME -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    renderProgress(current, total);
 
-<script>
-firebase.initializeApp({
-  apiKey:"AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
-  authDomain:"gorflacos.firebaseapp.com",
-  projectId:"gorflacos"
-});
+    if (localStorage.getItem(LOCAL_KEY) === "1") {
+      setButtonBlocked(current >= total ? "Meta alcanzada." : "Ya votaste desde este dispositivo.");
+    } else if (current >= total) {
+      setButtonBlocked("Meta alcanzada.");
+    } else {
+      setButtonActive("");
+    }
 
-const db2 = firebase.firestore();
+    if (data.countdownActive && data.countdownEndsAt) {
+      startCountdown(Number(data.countdownEndsAt));
+    } else {
+      stopCountdown();
+    }
+  });
 
-const alertBox = document.getElementById("alert");
-const alertText = document.getElementById("alertText");
+  onSnapshot(announcementRef, (snap) => {
+    if (!snap.exists()) {
+      hideAnnouncement();
+      return;
+    }
 
-/* 🔴 TIEMPO REAL VERDADERO */
-db2.collection("system").doc("globalAnnouncement")
-.onSnapshot(doc=>{
-  if(!doc.exists) return;
+    const data = snap.data() || {};
 
-  const d = doc.data();
+    if (data.active && data.text) {
+      showAnnouncement(data.text);
+    } else {
+      hideAnnouncement();
+    }
+  });
 
-  if(d.active && d.text){
-    alertText.innerText = d.text;
-    alertBox.classList.add("active");
+  await initDocument();
 
-    setTimeout(()=>{
-      alertBox.classList.remove("active");
-    },4000);
+  if (localStorage.getItem(LOCAL_KEY) === "1") {
+    setButtonBlocked("Ya votaste desde este dispositivo.");
   }
-});
 </script>
 
 </body>
