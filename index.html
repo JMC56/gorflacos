@@ -8,55 +8,49 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 
 body{
-  min-height:100vh;
+  background:#000;
+  color:white;
   font-family:Arial;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:black;
-  overflow:hidden;
+  height:100vh;
 }
 
-/* FONDO */
-.bg{
-  position:fixed;
-  inset:0;
-  background:
-    linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)),
-    url('https://www.hollywoodreporter.com/wp-content/uploads/2024/07/21rep5.jpg?w=1850') center/cover;
-  z-index:0;
-}
-
-/* CONTENIDO */
+/* CONTENEDOR */
 .wrap{
-  z-index:2;
   text-align:center;
-  background:rgba(0,0,0,.4);
+  background:rgba(0,0,0,.5);
   padding:40px;
   border-radius:20px;
 }
 
+/* TITULO */
 .title{
   font-size:60px;
-  color:white;
+  letter-spacing:5px;
 }
 
-.counter{
-  margin-top:20px;
-  font-size:25px;
-}
-
+/* BARRA */
 .bar{
-  margin-top:10px;
+  margin-top:20px;
+  width:300px;
   height:20px;
-  background:#333;
+  background:#222;
   border-radius:10px;
+  overflow:hidden;
 }
 
 .fill{
   height:100%;
   width:0%;
   background:white;
+  transition:.4s;
+}
+
+.counter{
+  margin-top:10px;
+  font-size:20px;
 }
 
 button{
@@ -64,67 +58,64 @@ button{
   padding:12px;
   border:none;
   border-radius:10px;
+  cursor:pointer;
 }
 
-/* 🚨 ALERTA HACKER */
+/* 🚨 ALERTA LIMPIA */
 #alert{
   position:fixed;
   inset:0;
   display:none;
   align-items:center;
   justify-content:center;
-  background:black;
+  background:rgba(0,0,0,.95);
   z-index:999999;
 }
 
 #alert.active{
   display:flex;
-  animation:flash 0.2s infinite;
+  animation:fadeIn .4s ease;
 }
 
 #alertText{
-  font-size:60px;
-  color:#00ff00;
-  font-family:monospace;
+  font-size:55px;
   text-align:center;
-  animation:shake 0.08s infinite;
+  animation:zoomIn .4s ease;
 }
 
-@keyframes shake{
-  0%{transform:translate(2px,0);}
-  50%{transform:translate(-2px,0);}
-  100%{transform:translate(2px,0);}
+@keyframes fadeIn{
+  from{opacity:0;}
+  to{opacity:1;}
 }
 
-@keyframes flash{
-  0%{background:black;}
-  50%{background:#020202;}
+@keyframes zoomIn{
+  from{transform:scale(0.8);}
+  to{transform:scale(1);}
 }
 </style>
 </head>
 
 <body>
 
-<div class="bg"></div>
-
 <div class="wrap">
   <h1 class="title">KODE</h1>
 
-  <div class="counter" id="counter">0/100</div>
+  <div class="counter" id="counter">0/10</div>
 
   <div class="bar">
     <div class="fill" id="fill"></div>
   </div>
 
   <button id="btn">CLICK</button>
+  <div id="msg"></div>
 </div>
 
-<!-- 🚨 ALERTA -->
+<!-- ALERTA -->
 <div id="alert">
   <div id="alertText"></div>
 </div>
 
-<!-- FIREBASE V10 (PROGRESO) -->
+<!-- FIREBASE V10 -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
@@ -140,36 +131,66 @@ const config={
 const app=initializeApp(config);
 const db=getFirestore(app);
 
+const ref=doc(db,"progress","kode_main");
+
 const counter=document.getElementById("counter");
 const fill=document.getElementById("fill");
 const btn=document.getElementById("btn");
+const msg=document.getElementById("msg");
 
-const ref=doc(db,"progress","kode_main");
-const TOTAL=100;
+const LOCAL="kode_voted";
 
+// CARGAR
 async function load(){
   const snap=await getDoc(ref);
+
   if(!snap.exists()){
-    await setDoc(ref,{current:0});
-    update(0);
+    await setDoc(ref,{current:0,total:10});
+    update(0,10);
   }else{
-    update(snap.data().current||0);
+    const d=snap.data();
+    update(d.current||0,d.total||10);
+  }
+
+  if(localStorage.getItem(LOCAL)){
+    bloquear("Ya votaste desde este dispositivo.");
   }
 }
 
-function update(v){
-  counter.innerText=v+"/"+TOTAL;
-  fill.style.width=(v/TOTAL*100)+"%";
+function update(c,t){
+  counter.innerText=c+"/"+t;
+  fill.style.width=(c/t*100)+"%";
 }
 
+function bloquear(text){
+  btn.disabled=true;
+  msg.innerText=text;
+}
+
+// CLICK
 btn.onclick=async ()=>{
+  if(localStorage.getItem(LOCAL)){
+    bloquear("Acceso bloqueado.");
+    return;
+  }
+
   await runTransaction(db,async(t)=>{
     const snap=await t.get(ref);
-    let v=snap.exists()?snap.data().current:0;
-    v++;
-    t.set(ref,{current:v});
-    update(v);
+    const d=snap.data();
+
+    let c=d.current||0;
+    let total=d.total||10;
+
+    if(c>=total) return;
+
+    c++;
+
+    t.update(ref,{current:c});
+    update(c,total);
   });
+
+  localStorage.setItem(LOCAL,"1");
+  bloquear("Voto registrado.");
 };
 
 load();
@@ -193,42 +214,32 @@ const db2=firebase.firestore();
 const alertBox=document.getElementById("alert");
 const alertText=document.getElementById("alertText");
 
-let loop=null;
+let lastTime=0;
 
-// ESCUCHAR ANUNCIOS
+// ANUNCIOS LIMPIOS
 db2.collection("system").doc("globalAnnouncement")
 .onSnapshot(doc=>{
-  if(!doc.exists)return;
+  if(!doc.exists) return;
 
   const d=doc.data();
 
-  if(d.active && d.text){
-    activar(d.text);
-  }else{
-    desactivar();
-  }
+  if(!d.active) return;
+
+  // evita repetición
+  if(d.time === lastTime) return;
+
+  lastTime = d.time;
+
+  mostrar(d.text);
 });
 
-function activar(text){
+function mostrar(text){
+  alertText.innerText=text;
   alertBox.classList.add("active");
 
-  loop=setInterval(()=>{
-    alertText.innerText=corrupt(text.toUpperCase());
-  },80);
-}
-
-function desactivar(){
-  alertBox.classList.remove("active");
-  clearInterval(loop);
-}
-
-function corrupt(t){
-  const c="█▓▒@#%&/<>[]{}$";
-  return t.split("").map(l=>{
-    return Math.random()>0.6
-      ? c[Math.floor(Math.random()*c.length)]
-      : l;
-  }).join("");
+  setTimeout(()=>{
+    alertBox.classList.remove("active");
+  },4000);
 }
 </script>
 
