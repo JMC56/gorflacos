@@ -8,27 +8,80 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 
 body{
-  background:#000;
+  background:black;
   color:white;
-  font-family:Arial;
+  font-family:monospace;
   display:flex;
   align-items:center;
   justify-content:center;
   height:100vh;
+  overflow:hidden;
+}
+
+/* 🔥 FONDO HACKER */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    linear-gradient(rgba(0,0,0,.85),rgba(0,0,0,.95)),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,255,0,.05) 0px,
+      transparent 2px,
+      transparent 4px
+    );
+  animation:scan 6s linear infinite;
+  z-index:0;
+}
+
+@keyframes scan{
+  from{background-position:0 0;}
+  to{background-position:0 100px;}
 }
 
 /* CONTENEDOR */
 .wrap{
+  z-index:2;
   text-align:center;
   background:rgba(0,0,0,.5);
   padding:40px;
   border-radius:20px;
 }
 
-/* TITULO */
+/* 🔴 TITULO GLITCH */
 .title{
   font-size:60px;
-  letter-spacing:5px;
+  position:relative;
+  display:inline-block;
+  letter-spacing:6px;
+}
+
+.title::before,
+.title::after{
+  content:attr(data-text);
+  position:absolute;
+  left:0;
+}
+
+.title::before{
+  color:red;
+  animation:gl1 .6s infinite;
+}
+
+.title::after{
+  color:cyan;
+  animation:gl2 .6s infinite;
+}
+
+@keyframes gl1{
+  0%{transform:translate(2px,-2px);}
+  50%{transform:translate(-2px,2px);}
+}
+
+@keyframes gl2{
+  0%{transform:translate(-2px,2px);}
+  50%{transform:translate(2px,-2px);}
 }
 
 /* BARRA */
@@ -36,7 +89,7 @@ body{
   margin-top:20px;
   width:300px;
   height:20px;
-  background:#222;
+  background:#111;
   border-radius:10px;
   overflow:hidden;
 }
@@ -44,13 +97,12 @@ body{
 .fill{
   height:100%;
   width:0%;
-  background:white;
+  background:#00ff00;
   transition:.4s;
 }
 
 .counter{
   margin-top:10px;
-  font-size:20px;
 }
 
 button{
@@ -59,9 +111,11 @@ button{
   border:none;
   border-radius:10px;
   cursor:pointer;
+  background:#00ff00;
+  color:black;
 }
 
-/* 🚨 ALERTA LIMPIA */
+/* ALERTA */
 #alert{
   position:fixed;
   inset:0;
@@ -74,23 +128,10 @@ button{
 
 #alert.active{
   display:flex;
-  animation:fadeIn .4s ease;
 }
 
 #alertText{
   font-size:55px;
-  text-align:center;
-  animation:zoomIn .4s ease;
-}
-
-@keyframes fadeIn{
-  from{opacity:0;}
-  to{opacity:1;}
-}
-
-@keyframes zoomIn{
-  from{transform:scale(0.8);}
-  to{transform:scale(1);}
 }
 </style>
 </head>
@@ -98,7 +139,7 @@ button{
 <body>
 
 <div class="wrap">
-  <h1 class="title">KODE</h1>
+  <h1 class="title" data-text="KODE">KODE</h1>
 
   <div class="counter" id="counter">0/10</div>
 
@@ -110,7 +151,6 @@ button{
   <div id="msg"></div>
 </div>
 
-<!-- ALERTA -->
 <div id="alert">
   <div id="alertText"></div>
 </div>
@@ -121,6 +161,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
 import {
   getFirestore, doc, getDoc, setDoc, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const META = 10; // 🔥 CAMBIA AQUÍ
 
 const config={
   apiKey:"AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
@@ -145,11 +187,14 @@ async function load(){
   const snap=await getDoc(ref);
 
   if(!snap.exists()){
-    await setDoc(ref,{current:0,total:10});
-    update(0,10);
+    await setDoc(ref,{current:0,total:META});
+    update(0,META);
   }else{
     const d=snap.data();
-    update(d.current||0,d.total||10);
+    update(d.current||0,META);
+
+    // fuerza actualización de meta
+    await setDoc(ref,{total:META},{merge:true});
   }
 
   if(localStorage.getItem(LOCAL)){
@@ -179,14 +224,13 @@ btn.onclick=async ()=>{
     const d=snap.data();
 
     let c=d.current||0;
-    let total=d.total||10;
 
-    if(c>=total) return;
+    if(c>=META) return;
 
     c++;
 
     t.update(ref,{current:c});
-    update(c,total);
+    update(c,META);
   });
 
   localStorage.setItem(LOCAL,"1");
@@ -196,7 +240,7 @@ btn.onclick=async ()=>{
 load();
 </script>
 
-<!-- FIREBASE V8 (ANUNCIOS) -->
+<!-- ANUNCIOS -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
@@ -216,7 +260,6 @@ const alertText=document.getElementById("alertText");
 
 let lastTime=0;
 
-// ANUNCIOS LIMPIOS
 db2.collection("system").doc("globalAnnouncement")
 .onSnapshot(doc=>{
   if(!doc.exists) return;
@@ -225,22 +268,17 @@ db2.collection("system").doc("globalAnnouncement")
 
   if(!d.active) return;
 
-  // evita repetición
   if(d.time === lastTime) return;
 
   lastTime = d.time;
 
-  mostrar(d.text);
-});
-
-function mostrar(text){
-  alertText.innerText=text;
+  alertText.innerText=d.text;
   alertBox.classList.add("active");
 
   setTimeout(()=>{
     alertBox.classList.remove("active");
   },4000);
-}
+});
 </script>
 
 </body>
