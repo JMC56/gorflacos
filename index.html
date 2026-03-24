@@ -400,21 +400,25 @@
         }
 
         .speech-bubble {
-            position: relative;
-            max-width: min(460px, 52vw);
-            min-width: 220px;
-            background: #fff;
-            color: #000;
-            border: 4px solid #000;
-            border-radius: 28px;
-            padding: 20px 22px;
-            box-shadow: 10px 10px 0 #000;
-            font-weight: 900;
-            line-height: 1.18;
-            font-size: clamp(1rem, 2vw, 1.6rem);
-            text-transform: uppercase;
-            opacity: 0;
-            transform: scale(.75) translateY(20px);
+    position: relative;
+    max-width: 380px;
+    background: #fff;
+    color: #000;
+    border: 4px solid #000;
+    border-radius: 40px;
+    padding: 18px 22px;
+    box-shadow: 8px 8px 0 #000;
+
+    font-weight: 900;
+    font-size: 1.6rem;
+    text-transform: uppercase;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    transform: scale(.6);
         }
 
         .speech-bubble.show {
