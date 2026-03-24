@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VOLVEREMOS</title>
+  <title>KODE</title>
   <style>
     *{
       margin:0;
@@ -26,18 +26,17 @@
       position:fixed;
       inset:0;
       background:
-        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.75)),
+        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.78)),
         url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
       transform:scale(1.05);
-      filter:brightness(.65);
+      filter:brightness(.55);
       z-index:0;
     }
 
     .overlay-noise{
       position:fixed;
       inset:0;
-      background-image:
-        radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+      background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
       background-size:4px 4px;
       opacity:.08;
       z-index:1;
@@ -61,9 +60,9 @@
       position:relative;
       display:inline-block;
       color:#fff;
-      font-size:clamp(2.5rem, 8vw, 6rem);
+      font-size:clamp(2.8rem, 9vw, 6rem);
       font-weight:900;
-      letter-spacing:6px;
+      letter-spacing:8px;
       text-transform:uppercase;
       text-shadow:
         0 0 10px rgba(255,255,255,.25),
@@ -75,32 +74,31 @@
     .title::after{
       content:attr(data-text);
       position:absolute;
-      left:0;
       top:0;
+      left:0;
       width:100%;
       overflow:hidden;
       color:#fff;
-      background:transparent;
-      clip-path: inset(0 0 0 0);
+      pointer-events:none;
     }
 
     .title::before{
       left:2px;
-      text-shadow:-2px 0 rgba(255,0,80,.8);
-      animation:glitch1 1.8s infinite linear alternate-reverse;
+      text-shadow:-2px 0 rgba(255,0,85,.85);
+      animation:glitch1 1.6s infinite linear alternate-reverse;
     }
 
     .title::after{
       left:-2px;
-      text-shadow:2px 0 rgba(0,220,255,.8);
-      animation:glitch2 1.4s infinite linear alternate-reverse;
+      text-shadow:2px 0 rgba(0,220,255,.85);
+      animation:glitch2 1.2s infinite linear alternate-reverse;
     }
 
     .subtitle{
       margin-top:14px;
       color:rgba(255,255,255,.78);
       font-size:1rem;
-      letter-spacing:2px;
+      letter-spacing:3px;
     }
 
     .progress-section{
@@ -129,8 +127,7 @@
       height:100%;
       width:0%;
       border-radius:999px;
-      background:
-        linear-gradient(90deg, #ffffff 0%, #d1d1d1 45%, #ffffff 100%);
+      background:linear-gradient(90deg, #ffffff 0%, #d1d1d1 45%, #ffffff 100%);
       box-shadow:
         0 0 12px rgba(255,255,255,.55),
         0 0 28px rgba(255,255,255,.30);
@@ -192,12 +189,12 @@
       40%  { clip-path: inset(55% 0 20% 0); transform: translate(1px,2px); }
       60%  { clip-path: inset(5% 0 80% 0); transform: translate(-1px,-2px); }
       80%  { clip-path: inset(30% 0 45% 0); transform: translate(2px,1px); }
-      100% { clip-path: inset(82% 0 3% 0); transform: translate(-2px,0px); }
+      100% { clip-path: inset(82% 0 3% 0); transform: translate(-2px,0); }
     }
 
     @keyframes flicker{
       0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity:1; }
-      20%, 24%, 55% { opacity:.8; }
+      20%, 24%, 55% { opacity:.82; }
     }
 
     @media (max-width:600px){
@@ -218,7 +215,7 @@
   <div class="overlay-noise"></div>
 
   <div class="wrap">
-    <h1 class="title" data-text="VOLVEREMOS">KODE</h1>
+    <h1 class="title" data-text="KODE">KODE</h1>
     <div class="subtitle">I BACK</div>
 
     <div class="progress-section">
@@ -229,7 +226,7 @@
 
       <button class="btn" id="voteBtn">CLICK</button>
       <div class="msg" id="message"></div>
-      <div class="mini">Haz click para devolver la pagina a la normalidad</div>
+      <div class="mini">Haz click para devolver la página a la normalidad</div>
     </div>
   </div>
 
@@ -243,16 +240,13 @@
       runTransaction
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // =========================================================
-    // PEGA AQUÍ TU CONFIG DE FIREBASE
-    // =========================================================
-  ¡   const firebaseConfig = {
-        apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
-        authDomain: "gorflacos.firebaseapp.com",
-        projectId: "gorflacos",
-        storageBucket: "gorflacos.firebasestorage.app",
-        messagingSenderId: "507648872448",
-        appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
+    const firebaseConfig = {
+      apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+      authDomain: "gorflacos.firebaseapp.com",
+      projectId: "gorflacos",
+      storageBucket: "gorflacos.firebasestorage.app",
+      messagingSenderId: "507648872448",
+      appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -264,10 +258,10 @@
     const messageEl = document.getElementById("message");
 
     const TOTAL = 10;
-    const DOC_REF = doc(db, "progress", "volveremos_main");
-    const LOCAL_KEY = "volveremos_voted";
+    const DOC_REF = doc(db, "progress", "kode_main");
+    const LOCAL_KEY = "kode_voted";
 
-    function renderProgress(current){
+    function renderProgress(current) {
       const safeValue = Math.max(0, Math.min(current, TOTAL));
       counterEl.textContent = `${safeValue}/${TOTAL}`;
       fillEl.style.width = `${(safeValue / TOTAL) * 100}%`;
@@ -278,12 +272,12 @@
       }
     }
 
-    function lockButtonWithMessage(msg){
+    function lockButtonWithMessage(msg) {
       voteBtn.disabled = true;
       messageEl.textContent = msg;
     }
 
-    async function ensureDocument(){
+    async function ensureDocument() {
       const snap = await getDoc(DOC_REF);
       if (!snap.exists()) {
         await setDoc(DOC_REF, {
@@ -296,8 +290,8 @@
       return snap.data();
     }
 
-    async function loadProgress(){
-      try{
+    async function loadProgress() {
+      try {
         const data = await ensureDocument();
         renderProgress(data.current || 0);
 
@@ -305,13 +299,13 @@
         if (alreadyVoted) {
           lockButtonWithMessage("Ya le diste click. No puedes volver a votar.");
         }
-      }catch(error){
+      } catch (error) {
         console.error(error);
         messageEl.textContent = "Error al cargar el progreso.";
       }
     }
 
-    async function voteOnce(){
+    async function voteOnce() {
       const alreadyVoted = localStorage.getItem(LOCAL_KEY) === "true";
 
       if (alreadyVoted) {
@@ -322,7 +316,7 @@
       voteBtn.disabled = true;
       messageEl.textContent = "Guardando...";
 
-      try{
+      try {
         const newValue = await runTransaction(db, async (transaction) => {
           const snap = await transaction.get(DOC_REF);
 
@@ -362,7 +356,7 @@
         }
 
         voteBtn.disabled = true;
-      }catch(error){
+      } catch (error) {
         console.error(error);
         voteBtn.disabled = false;
         messageEl.textContent = "No se pudo guardar el click.";
