@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Acceso</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:#000;
+  color:#fff;
+  font-family:Consolas, monospace;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* FONDO */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle, rgba(255,0,0,.08), transparent 60%);
+  z-index:0;
+}
+
+/* CONTENEDOR */
+.box{
+  z-index:2;
+  width:90%;
+  max-width:900px;
+  background:rgba(0,0,0,.8);
+  border:1px solid rgba(255,255,255,.1);
+  padding:30px;
+  border-radius:15px;
+  backdrop-filter:blur(10px);
+}
+
+/* TITULO */
+.title{
+  font-size:40px;
+  font-weight:bold;
+  margin-bottom:20px;
+  color:#fff;
+}
+
+/* MENSAJE */
+#text{
+  white-space:pre-wrap;
+  line-height:1.7;
+  font-size:16px;
+}
+
+/* BOTON */
+button{
+  margin-top:20px;
+  padding:12px 20px;
+  border:none;
+  background:#ff0000;
+  color:#fff;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+/* CURSOR */
+.cursor{
+  display:inline-block;
+  width:10px;
+  background:#ff0000;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  0%,50%,100%{opacity:1;}
+  25%,75%{opacity:0;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <div class="title">Acceso detectado</div>
+
+  <div id="text"></div>
+
+  <button onclick="start()">Leer mensaje</button>
+</div>
+
+<script>
+const msg = `Me llamo Leo, aunque en internet me conocen como “ShadowByte”. Y si ustedes tres están leyendo esto… sí, fui yo quien hackeó la página de Gorflacos Store.
+
+No lo hice para robarles nada. De hecho, si revisan bien, no falta ni un solo dato. Solo cambié una cosa: este mensaje.
+
+Sé que esto suena raro, pero necesitaba que me escucharan.
+
+Todo empezó hace unas semanas, cuando encontré su tienda navegando por internet. Al principio pensé que era una página más… pero había algo extraño en el código. Algo oculto, como si alguien hubiera dejado una puerta abierta a propósito.
+
+No pude evitarlo. Entré.
+
+Y lo que encontré no era normal.
+
+Había archivos escondidos dentro del servidor. Archivos que no tenían nada que ver con una tienda: nombres raros, carpetas con símbolos, y un archivo que se repetía en todos lados: “mirror_log”.
+
+Cuando lo abrí, sentí lo mismo que aquella primera vez…
+
+La pantalla se puso negra.
+
+Y luego… apareció mi propia cara.
+
+No era una cámara mía. No era posible. Pero ahí estaba yo, viéndome a mí mismo desde la pantalla. Y entonces entendí algo: esto no empezó conmigo.
+
+Ustedes tres… no sé si lo saben, pero su página no es solo una tienda.
+
+Es un punto de acceso.
+
+Desde ese día, cada vez que me conecto, algo intenta rastrearme. Mensajes que aparecen solos, archivos que se crean sin que yo haga nada. Y siempre el mismo texto:
+
+“No debiste entrar.”
+
+Por eso estoy aquí.
+
+No para hacerles daño… sino para advertirles.
+
+Si ustedes crearon esa página, revisen bien lo que hay dentro. Y si no lo hicieron… entonces alguien más la está usando.
+
+Yo ya intenté salir de esto, pero no puedo. Siento que cada vez que entro, dejo de ser un poco más yo.
+
+Si este mensaje desaparece… probablemente ya sea tarde.
+
+Y si ven algo raro en su sistema…
+
+no lo abran.
+
+— ShadowByte 💻`;
+
+const el = document.getElementById("text");
+
+function start(){
+  el.innerHTML="";
+  let i = 0;
+
+  const interval = setInterval(()=>{
+    el.innerHTML = msg.slice(0,i) + '<span class="cursor"></span>';
+    i++;
+
+    if(i > msg.length){
+      clearInterval(interval);
+      el.innerHTML = msg;
+    }
+  },15);
+}
+</script>
+
+</body>
+</html>
