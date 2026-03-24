@@ -10,7 +10,8 @@
 
 :root{
 --rojo:#ff1e2d;
---blanco:#fff;
+--verde:#00ff9f;
+--bg:#020202;
 }
 
 body{
@@ -24,40 +25,87 @@ justify-content:center;
 overflow:hidden;
 }
 
-/* CONTENEDOR */
-.wrap{
-width:90%;
-max-width:600px;
-text-align:center;
+/* 🔥 FONDO HACKER */
+.bg{
+position:fixed;
+inset:0;
+background:
+radial-gradient(circle at 50% 50%, rgba(0,255,150,.08), transparent 60%),
+linear-gradient(#000,#000),
+url("https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1974&auto=format&fit=crop") center/cover;
+opacity:.4;
+z-index:0;
 }
 
-.title{
-font-size:4rem;
-font-weight:900;
+/* 🔥 PANEL */
+.wrap{
+position:relative;
+z-index:2;
+width:min(92%,700px);
+text-align:center;
+padding:40px;
+border-radius:20px;
+background:rgba(0,0,0,.7);
+border:1px solid rgba(0,255,150,.2);
+backdrop-filter:blur(10px);
+box-shadow:0 0 60px rgba(0,255,150,.08);
 }
+
+/* 🔥 TITULO */
+.title{
+font-size:clamp(3rem,10vw,6rem);
+font-weight:900;
+letter-spacing:6px;
+color:#fff;
+text-shadow:0 0 15px rgba(0,255,150,.3);
+}
+
+/* 🔥 PROGRESO */
+.meta-line{margin-top:20px;font-size:1.4rem;font-weight:800}
+.votes-line{margin-top:10px;color:#aaa}
 
 .bar{
 width:100%;
-height:20px;
-background:#222;
-margin:20px 0;
-border-radius:10px;
+height:22px;
+margin-top:20px;
+border-radius:999px;
+background:rgba(255,255,255,.05);
+border:1px solid rgba(0,255,150,.2);
 overflow:hidden;
 }
 
 .fill{
 height:100%;
 width:0%;
-background:linear-gradient(90deg,var(--rojo),#fff);
+background:linear-gradient(90deg,var(--verde),#fff);
+box-shadow:0 0 15px var(--verde);
+transition:.4s;
 }
 
-button{
-padding:15px;
-font-weight:bold;
+/* 🔥 BOTÓN */
+.btn{
+margin-top:25px;
+padding:15px 30px;
+border:none;
+border-radius:12px;
+background:linear-gradient(180deg,var(--rojo),#a80f1a);
+color:#fff;
+font-weight:900;
 cursor:pointer;
+box-shadow:0 0 20px rgba(255,0,0,.3);
+transition:.2s;
 }
 
-/* AVATAR */
+.btn:hover{
+transform:translateY(-2px);
+}
+
+.msg{
+margin-top:12px;
+font-weight:700;
+}
+
+/* 🔥 AVATAR */
 #avatarOverlay{
 position:fixed;
 inset:0;
@@ -75,21 +123,23 @@ position:absolute;
 bottom:40px;
 left:40px;
 display:flex;
-gap:20px;
 align-items:center;
+gap:20px;
 }
 
 .avatar-container img{
-width:250px;
+width:260px;
 image-rendering:pixelated;
+filter:drop-shadow(0 20px 30px rgba(0,0,0,.7));
 }
 
 .speech-bubble{
 background:#fff;
 color:#000;
-padding:15px;
-border-radius:20px;
-font-weight:bold;
+padding:16px 20px;
+border-radius:25px;
+font-weight:900;
+max-width:340px;
 opacity:0;
 transform:scale(.7);
 }
@@ -100,37 +150,44 @@ transform:scale(1);
 transition:.3s;
 }
 
-/* COUNTDOWN */
+/* 🔥 COUNTDOWN */
 #countdownPopup{
 position:fixed;
 inset:0;
 display:none;
 align-items:center;
 justify-content:center;
-background:#000;
+background:rgba(0,0,0,.9);
 z-index:999998;
 }
 
 #countdownPopup.active{display:flex}
 
 .countdown-time{
-font-size:3rem;
+font-size:4rem;
 font-weight:900;
+color:var(--verde);
+text-shadow:0 0 20px var(--verde);
 }
 </style>
 </head>
 
 <body>
 
+<div class="bg"></div>
+
 <div class="wrap">
 <h1 class="title">KODE</h1>
+
 <div id="metaLine">0/15</div>
 <div id="votesLine">0 votos</div>
 
-<div class="bar"><div id="fill" class="fill"></div></div>
+<div class="bar">
+<div id="fill" class="fill"></div>
+</div>
 
-<button id="btn">CLICK</button>
-<div id="msg"></div>
+<button id="btn" class="btn">CLICK</button>
+<div id="msg" class="msg"></div>
 </div>
 
 <!-- AVATAR -->
@@ -186,32 +243,19 @@ let countdownInterval;
 function lock(){
 btn.disabled=true;
 btn.style.opacity=".5";
-btn.style.cursor="not-allowed";
-}
-
-function unlock(){
-btn.disabled=false;
-btn.style.opacity="1";
-}
-
-/* INICIO */
-if(localStorage.getItem(LOCAL_KEY)){
-lock();
 msg.textContent="Ya votaste";
 }
 
-/* CLICK */
-btn.addEventListener("click", async ()=>{
+/* INICIO */
+if(localStorage.getItem(LOCAL_KEY)) lock();
 
-if(localStorage.getItem(LOCAL_KEY)){
-lock();
-return;
-}
+/* CLICK */
+btn.onclick=async()=>{
+if(localStorage.getItem(LOCAL_KEY)) return;
 
 lock();
 msg.textContent="Enviando...";
 
-try{
 await runTransaction(db, async (t)=>{
 const snap=await t.get(progressRef);
 let c=snap.data().current||0;
@@ -221,16 +265,9 @@ t.set(progressRef,{current:c},{merge:true});
 
 localStorage.setItem(LOCAL_KEY,"1");
 msg.textContent="Voto registrado";
+};
 
-}catch(e){
-console.error(e);
-unlock();
-msg.textContent="Error";
-}
-
-});
-
-/* RENDER */
+/* PROGRESO */
 onSnapshot(progressRef,snap=>{
 const d=snap.data()||{};
 const c=d.current||0;
@@ -240,9 +277,7 @@ metaLine.textContent=`${c}/${t}`;
 votesLine.textContent=`${c} votos`;
 fill.style.width=`${(c/t)*100}%`;
 
-if(localStorage.getItem(LOCAL_KEY)){
-lock();
-}
+if(localStorage.getItem(LOCAL_KEY)) lock();
 
 if(d.countdownActive && d.countdownEndsAt){
 startCountdown(d.countdownEndsAt);
@@ -278,7 +313,7 @@ tick();
 countdownInterval=setInterval(tick,1000);
 }
 
-/* TEXTO ANIMADO */
+/* AVATAR TEXTO */
 function typeText(text){
 clearInterval(typingInterval);
 speechText.textContent="";
@@ -291,7 +326,6 @@ if(i>=text.length) clearInterval(typingInterval);
 },30);
 }
 
-/* ANUNCIOS */
 function showAnnouncement(text){
 avatarOverlay.classList.add("active");
 speechBubble.classList.remove("show");
@@ -304,11 +338,9 @@ typeText(text);
 
 function hideAnnouncement(){
 avatarOverlay.classList.remove("active");
-speechBubble.classList.remove("show");
-speechText.textContent="";
 }
 
-/* FIREBASE ANUNCIOS */
+/* FIREBASE */
 onSnapshot(announcementRef,snap=>{
 const d=snap.data()||{};
 if(d.active && d.text){
@@ -317,7 +349,6 @@ showAnnouncement(d.text);
 hideAnnouncement();
 }
 });
-
 </script>
 
 </body>
