@@ -10,92 +10,60 @@
 
 :root{
 --rojo:#ff1e2d;
---rojo2:#ff4d5a;
---blanco:#ffffff;
---gris:#7f7f7f;
---panel:rgba(0,0,0,.46);
---linea:rgba(255,255,255,.12);
+--blanco:#fff;
 }
 
 body{
 min-height:100vh;
-font-family:Arial, Helvetica, sans-serif;
+font-family:Arial;
 background:#000;
 color:#fff;
 display:flex;
 align-items:center;
 justify-content:center;
 overflow:hidden;
-position:relative;
 }
 
-/* FONDO */
-.bg{
-position:fixed;
-inset:0;
-background:
-linear-gradient(rgba(0,0,0,.62), rgba(0,0,0,.82)),
-url("https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1974&auto=format&fit=crop") center/cover no-repeat;
-z-index:0;
-}
-
+/* CONTENEDOR */
 .wrap{
-position:relative;
-z-index:2;
-width:min(92%, 700px);
+width:90%;
+max-width:600px;
 text-align:center;
-padding:42px 28px;
-border-radius:26px;
-background:var(--panel);
-backdrop-filter:blur(12px);
-border:1px solid var(--linea);
 }
 
 .title{
-font-size:clamp(3rem, 10vw, 6rem);
+font-size:4rem;
 font-weight:900;
-letter-spacing:8px;
 }
-
-.meta-line{margin-top:25px;font-size:1.3rem;font-weight:800}
-.votes-line{margin-top:10px}
 
 .bar{
 width:100%;
 height:20px;
-margin-top:15px;
-border-radius:999px;
+background:#222;
+margin:20px 0;
+border-radius:10px;
 overflow:hidden;
-background:rgba(255,255,255,.1);
 }
 
 .fill{
 height:100%;
 width:0%;
 background:linear-gradient(90deg,var(--rojo),#fff);
-transition:.4s;
 }
 
-.btn{
-margin-top:20px;
-padding:14px 25px;
-background:var(--rojo);
-color:#fff;
-border:none;
-border-radius:12px;
-font-weight:900;
+button{
+padding:15px;
+font-weight:bold;
 cursor:pointer;
 }
 
-.msg{margin-top:10px}
-
-/* 🔥 AVATAR GLOBAL */
+/* AVATAR */
 #avatarOverlay{
 position:fixed;
 inset:0;
 background:rgba(0,0,0,.9);
-z-index:999999;
 display:none;
+z-index:999999;
 }
 
 #avatarOverlay.active{
@@ -107,32 +75,21 @@ position:absolute;
 bottom:40px;
 left:40px;
 display:flex;
-align-items:center;
 gap:20px;
+align-items:center;
 }
 
-.avatar-character{
-width:260px;
-}
-
-.avatar-character img{
-width:100%;
+.avatar-container img{
+width:250px;
 image-rendering:pixelated;
-filter:drop-shadow(0 20px 30px rgba(0,0,0,.6));
 }
 
 .speech-bubble{
-position:relative;
-max-width:360px;
 background:#fff;
 color:#000;
-border:4px solid #000;
-border-radius:30px;
-padding:16px 20px;
-font-weight:900;
-font-size:1.3rem;
-text-transform:uppercase;
-box-shadow:6px 6px 0 #000;
+padding:15px;
+border-radius:20px;
+font-weight:bold;
 opacity:0;
 transform:scale(.7);
 }
@@ -140,32 +97,7 @@ transform:scale(.7);
 .speech-bubble.show{
 opacity:1;
 transform:scale(1);
-transition:.25s;
-}
-
-.speech-bubble::before{
-content:"";
-position:absolute;
-left:-16px;
-top:50%;
-transform:translateY(-50%) rotate(45deg);
-width:20px;
-height:20px;
-background:#fff;
-border-left:4px solid #000;
-border-bottom:4px solid #000;
-}
-
-.speech-bubble::after{
-content:"";
-position:absolute;
-left:-30px;
-top:60%;
-width:10px;
-height:10px;
-background:#fff;
-border:4px solid #000;
-border-radius:50%;
+transition:.3s;
 }
 
 /* COUNTDOWN */
@@ -175,38 +107,36 @@ inset:0;
 display:none;
 align-items:center;
 justify-content:center;
-background:rgba(0,0,0,.9);
+background:#000;
 z-index:999998;
 }
 
 #countdownPopup.active{display:flex}
 
-.countdown-box{text-align:center}
-.countdown-time{font-size:4rem;font-weight:900}
+.countdown-time{
+font-size:3rem;
+font-weight:900;
+}
 </style>
 </head>
 
 <body>
 
-<div class="bg"></div>
-
 <div class="wrap">
 <h1 class="title">KODE</h1>
-<div class="meta-line" id="metaLine">0/15</div>
-<div class="votes-line" id="votesLine">0 votos</div>
+<div id="metaLine">0/15</div>
+<div id="votesLine">0 votos</div>
 
-<div class="bar"><div class="fill" id="fill"></div></div>
+<div class="bar"><div id="fill" class="fill"></div></div>
 
-<button class="btn" id="btn">CLICK</button>
-<div class="msg" id="msg"></div>
+<button id="btn">CLICK</button>
+<div id="msg"></div>
 </div>
 
-<!-- 🔥 AVATAR -->
+<!-- AVATAR -->
 <div id="avatarOverlay">
 <div class="avatar-container">
-<div class="avatar-character">
 <img src="assets/1.png">
-</div>
 <div class="speech-bubble" id="speechBubble">
 <span id="speechText"></span>
 </div>
@@ -215,19 +145,15 @@ z-index:999998;
 
 <!-- COUNTDOWN -->
 <div id="countdownPopup">
-<div class="countdown-box">
 <div class="countdown-time" id="countdownTime">10:00</div>
-</div>
 </div>
 
 <script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-const META=15;
+import { getFirestore, doc, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const firebaseConfig={
-apiKey:"AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+apiKey:"AIzaSyB...",
 authDomain:"gorflacos.firebaseapp.com",
 projectId:"gorflacos"
 };
@@ -238,11 +164,11 @@ const db=getFirestore(app);
 const progressRef=doc(db,"progress","kode_main");
 const announcementRef=doc(db,"system","globalAnnouncement");
 
-const metaLine=document.getElementById("metaLine");
-const votesLine=document.getElementById("votesLine");
-const fill=document.getElementById("fill");
 const btn=document.getElementById("btn");
 const msg=document.getElementById("msg");
+const fill=document.getElementById("fill");
+const metaLine=document.getElementById("metaLine");
+const votesLine=document.getElementById("votesLine");
 
 const avatarOverlay=document.getElementById("avatarOverlay");
 const speechBubble=document.getElementById("speechBubble");
@@ -251,75 +177,72 @@ const speechText=document.getElementById("speechText");
 const countdownPopup=document.getElementById("countdownPopup");
 const countdownTime=document.getElementById("countdownTime");
 
-let countdownInterval;
+const LOCAL_KEY="kode_voted";
+
 let typingInterval;
+let countdownInterval;
 
-/* TEXTO ANIMADO */
-function typeText(text){
-clearInterval(typingInterval);
-speechText.textContent="";
-let i=0;
-typingInterval=setInterval(()=>{
-speechText.textContent+=text[i];
-i++;
-if(i>=text.length) clearInterval(typingInterval);
-},30);
+/* BLOQUEO */
+function lock(){
+btn.disabled=true;
+btn.style.opacity=".5";
+btn.style.cursor="not-allowed";
 }
 
-/* AVATAR */
-function showAnnouncement(text){
-const clean=String(text||"").trim();
-if(!clean)return;
-avatarOverlay.classList.add("active");
-speechBubble.classList.remove("show");
-setTimeout(()=>{
-speechBubble.classList.add("show");
-typeText(clean);
-},300);
+function unlock(){
+btn.disabled=false;
+btn.style.opacity="1";
 }
 
-function hideAnnouncement(){
-avatarOverlay.classList.remove("active");
-speechBubble.classList.remove("show");
-speechText.textContent="";
-clearInterval(typingInterval);
+/* INICIO */
+if(localStorage.getItem(LOCAL_KEY)){
+lock();
+msg.textContent="Ya votaste";
 }
 
-/* PROGRESO */
-function renderProgress(c,t){
+/* CLICK */
+btn.addEventListener("click", async ()=>{
+
+if(localStorage.getItem(LOCAL_KEY)){
+lock();
+return;
+}
+
+lock();
+msg.textContent="Enviando...";
+
+try{
+await runTransaction(db, async (t)=>{
+const snap=await t.get(progressRef);
+let c=snap.data().current||0;
+c++;
+t.set(progressRef,{current:c},{merge:true});
+});
+
+localStorage.setItem(LOCAL_KEY,"1");
+msg.textContent="Voto registrado";
+
+}catch(e){
+console.error(e);
+unlock();
+msg.textContent="Error";
+}
+
+});
+
+/* RENDER */
+onSnapshot(progressRef,snap=>{
+const d=snap.data()||{};
+const c=d.current||0;
+const t=d.total||15;
+
 metaLine.textContent=`${c}/${t}`;
 votesLine.textContent=`${c} votos`;
 fill.style.width=`${(c/t)*100}%`;
+
+if(localStorage.getItem(LOCAL_KEY)){
+lock();
 }
-
-/* COUNTDOWN */
-function startCountdown(endAt){
-countdownPopup.classList.add("active");
-if(countdownInterval) clearInterval(countdownInterval);
-
-const tick=()=>{
-const r=endAt-Date.now();
-if(r<=0){
-countdownTime.textContent="00:00";
-clearInterval(countdownInterval);
-setTimeout(()=>countdownPopup.classList.remove("active"),800);
-return;
-}
-const s=Math.floor(r/1000);
-const m=Math.floor(s/60);
-const sec=s%60;
-countdownTime.textContent=`${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
-};
-
-tick();
-countdownInterval=setInterval(tick,1000);
-}
-
-/* FIREBASE */
-onSnapshot(progressRef,snap=>{
-if(!snap.exists())return;
-const d=snap.data();
-renderProgress(d.current||0,d.total||META);
 
 if(d.countdownActive && d.countdownEndsAt){
 startCountdown(d.countdownEndsAt);
@@ -328,27 +251,72 @@ countdownPopup.classList.remove("active");
 }
 });
 
+/* COUNTDOWN */
+function startCountdown(endAt){
+countdownPopup.classList.add("active");
+
+if(countdownInterval) clearInterval(countdownInterval);
+
+const tick=()=>{
+const r=endAt-Date.now();
+
+if(r<=0){
+countdownTime.textContent="00:00";
+clearInterval(countdownInterval);
+setTimeout(()=>countdownPopup.classList.remove("active"),800);
+return;
+}
+
+const s=Math.floor(r/1000);
+const m=Math.floor(s/60);
+const sec=s%60;
+
+countdownTime.textContent=`${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+};
+
+tick();
+countdownInterval=setInterval(tick,1000);
+}
+
+/* TEXTO ANIMADO */
+function typeText(text){
+clearInterval(typingInterval);
+speechText.textContent="";
+let i=0;
+
+typingInterval=setInterval(()=>{
+speechText.textContent+=text[i];
+i++;
+if(i>=text.length) clearInterval(typingInterval);
+},30);
+}
+
+/* ANUNCIOS */
+function showAnnouncement(text){
+avatarOverlay.classList.add("active");
+speechBubble.classList.remove("show");
+
+setTimeout(()=>{
+speechBubble.classList.add("show");
+typeText(text);
+},300);
+}
+
+function hideAnnouncement(){
+avatarOverlay.classList.remove("active");
+speechBubble.classList.remove("show");
+speechText.textContent="";
+}
+
+/* FIREBASE ANUNCIOS */
 onSnapshot(announcementRef,snap=>{
-if(!snap.exists()){hideAnnouncement();return;}
-const d=snap.data();
+const d=snap.data()||{};
 if(d.active && d.text){
 showAnnouncement(d.text);
 }else{
 hideAnnouncement();
 }
 });
-
-btn.onclick=async()=>{
-if(localStorage.getItem("voted"))return;
-await runTransaction(db,async t=>{
-const snap=await t.get(progressRef);
-let c=snap.data().current||0;
-c++;
-t.set(progressRef,{current:c},{merge:true});
-});
-localStorage.setItem("voted","1");
-msg.textContent="Voto registrado";
-};
 
 </script>
 
