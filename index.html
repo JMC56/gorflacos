@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reunión en Vivo</title>
+  <style>
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    body{
+      font-family:Arial, Helvetica, sans-serif;
+      background:#111827;
+      color:#fff;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topbar{
+      height:70px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 20px;
+      background:#0b1220;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+
+    .brand{
+      font-size:1.3rem;
+      font-weight:700;
+      letter-spacing:.3px;
+    }
+
+    .status{
+      font-size:.95rem;
+      color:#cbd5e1;
+    }
+
+    .main{
+      flex:1;
+      display:grid;
+      grid-template-columns: 1fr 320px;
+      gap:18px;
+      padding:18px;
+    }
+
+    .stage{
+      background:#0f172a;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.08);
+      position:relative;
+      overflow:hidden;
+      min-height:520px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .main-video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      background:#000;
+    }
+
+    .overlay-name{
+      position:absolute;
+      left:18px;
+      bottom:18px;
+      background:rgba(0,0,0,.45);
+      padding:10px 14px;
+      border-radius:14px;
+      font-size:.95rem;
+      backdrop-filter:blur(8px);
+    }
+
+    .waiting{
+      text-align:center;
+      padding:30px;
+      color:#cbd5e1;
+      max-width:600px;
+      line-height:1.6;
+    }
+
+    .sidebar{
+      background:#0f172a;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.08);
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      min-height:520px;
+    }
+
+    .side-title{
+      font-size:1rem;
+      font-weight:700;
+      color:#e2e8f0;
+      padding:4px 4px 0;
+    }
+
+    .thumbs{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      overflow:auto;
+      padding-right:4px;
+    }
+
+    .thumb-card{
+      background:#111827;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      overflow:hidden;
+      position:relative;
+      min-height:170px;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .thumb-card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(255,255,255,.18);
+    }
+
+    .thumb-video{
+      width:100%;
+      height:170px;
+      object-fit:cover;
+      background:#000;
+      display:block;
+    }
+
+    .thumb-label{
+      position:absolute;
+      left:10px;
+      bottom:10px;
+      font-size:.85rem;
+      background:rgba(0,0,0,.45);
+      padding:8px 10px;
+      border-radius:10px;
+      backdrop-filter:blur(6px);
+    }
+
+    .controls{
+      position:sticky;
+      bottom:0;
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      padding:16px;
+      background:#0b1220;
+      border-top:1px solid rgba(255,255,255,.08);
+      flex-wrap:wrap;
+    }
+
+    button, select{
+      border:none;
+      outline:none;
+      border-radius:14px;
+      padding:13px 16px;
+      font-size:.95rem;
+    }
+
+    button{
+      cursor:pointer;
+      background:#1e293b;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.08);
+      transition:.2s ease;
+    }
+
+    button:hover{
+      background:#334155;
+    }
+
+    button.danger{
+      background:#7f1d1d;
+    }
+
+    button.danger:hover{
+      background:#991b1b;
+    }
+
+    button.active{
+      background:#065f46;
+    }
+
+    select{
+      background:#1e293b;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.08);
+      min-width:220px;
+    }
+
+    .info-box{
+      background:#111827;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:14px;
+      color:#cbd5e1;
+      line-height:1.5;
+      font-size:.92rem;
+    }
+
+    @media (max-width: 980px){
+      .main{
+        grid-template-columns:1fr;
+      }
+
+      .sidebar{
+        min-height:auto;
+      }
+
+      .thumbs{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">Live Meeting</div>
+    <div class="status" id="statusText">Esperando permiso de cámara...</div>
+  </div>
+
+  <div class="main">
+    <div class="stage" id="stage">
+      <div class="waiting" id="waitingMessage">
+        Presiona <strong>Iniciar cámara</strong> para dar permiso y mostrar tu video.
+      </div>
+
+      <video id="mainVideo" class="main-video" autoplay playsinline muted style="display:none;"></video>
+      <div class="overlay-name" id="mainLabel" style="display:none;">Tu cámara</div>
+    </div>
+
+    <div class="sidebar">
+      <div class="side-title">Cámaras detectadas</div>
+
+      <div class="info-box">
+        Esta página solo mostrará cámaras si el navegador recibe tu permiso.
+        Puedes cambiar entre las cámaras disponibles del dispositivo.
+      </div>
+
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="startBtn">Iniciar cámara</button>
+    <button id="camBtn" class="active">Cámara encendida</button>
+    <button id="micBtn" class="active">Micrófono activo</button>
+    <select id="cameraSelect">
+      <option value="">Selecciona una cámara</option>
+    </select>
+    <button id="refreshBtn">Actualizar cámaras</button>
+    <button id="stopBtn" class="danger">Salir</button>
+  </div>
+
+  <script>
+    const mainVideo = document.getElementById("mainVideo");
+    const mainLabel = document.getElementById("mainLabel");
+    const waitingMessage = document.getElementById("waitingMessage");
+    const statusText = document.getElementById("statusText");
+    const thumbs = document.getElementById("thumbs");
+
+    const startBtn = document.getElementById("startBtn");
+    const camBtn = document.getElementById("camBtn");
+    const micBtn = document.getElementById("micBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const cameraSelect = document.getElementById("cameraSelect");
+
+    let currentStream = null;
+    let videoDevices = [];
+    let currentDeviceId = "";
+    let camEnabled = true;
+    let micEnabled = true;
+
+    async function getDevices() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      videoDevices = devices.filter(d => d.kind === "videoinput");
+      renderCameraOptions();
+      renderThumbs();
+    }
+
+    function renderCameraOptions() {
+      cameraSelect.innerHTML = "";
+
+      if (!videoDevices.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No se detectaron cámaras";
+        cameraSelect.appendChild(opt);
+        return;
+      }
+
+      videoDevices.forEach((device, index) => {
+        const opt = document.createElement("option");
+        opt.value = device.deviceId;
+        opt.textContent = device.label || `Cámara ${index + 1}`;
+        if (device.deviceId === currentDeviceId) {
+          opt.selected = true;
+        }
+        cameraSelect.appendChild(opt);
+      });
+    }
+
+    function renderThumbs() {
+      thumbs.innerHTML = "";
+
+      if (!videoDevices.length) {
+        thumbs.innerHTML = `
+          <div class="info-box">
+            No hay cámaras detectadas todavía. Primero da permiso a la cámara.
+          </div>
+        `;
+        return;
+      }
+
+      videoDevices.forEach((device, index) => {
+        const card = document.createElement("div");
+        card.className = "thumb-card";
+
+        const video = document.createElement("video");
+        video.className = "thumb-video";
+        video.autoplay = true;
+        video.playsInline = true;
+        video.muted = true;
+
+        const label = document.createElement("div");
+        label.className = "thumb-label";
+        label.textContent = device.label || `Cámara ${index + 1}`;
+
+        card.appendChild(video);
+        card.appendChild(label);
+
+        card.addEventListener("click", async () => {
+          await startCamera(device.deviceId);
+        });
+
+        thumbs.appendChild(card);
+
+        attachPreviewToThumb(video, device.deviceId);
+      });
+    }
+
+    async function attachPreviewToThumb(videoElement, deviceId) {
+      try {
+        const previewStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            deviceId: { exact: deviceId }
+          },
+          audio: false
+        });
+
+        videoElement.srcObject = previewStream;
+
+        videoElement.addEventListener("loadedmetadata", () => {
+          videoElement.play().catch(() => {});
+        });
+
+        setTimeout(() => {
+          const tracks = previewStream.getTracks();
+          tracks.forEach(track => track.stop());
+        }, 2500);
+      } catch (error) {
+        console.warn("No se pudo cargar preview de cámara:", error);
+      }
+    }
+
+    function stopCurrentStream() {
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+      }
+    }
+
+    async function startCamera(deviceId = "") {
+      try {
+        stopCurrentStream();
+
+        const constraints = {
+          video: deviceId
+            ? { deviceId: { exact: deviceId } }
+            : true,
+          audio: true
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        currentStream = stream;
+
+        const videoTrack = stream.getVideoTracks()[0];
+        const audioTrack = stream.getAudioTracks()[0];
+
+        currentDeviceId = videoTrack.getSettings().deviceId || deviceId || "";
+
+        if (videoTrack) videoTrack.enabled = camEnabled;
+        if (audioTrack) audioTrack.enabled = micEnabled;
+
+        mainVideo.srcObject = stream;
+        mainVideo.style.display = "block";
+        mainLabel.style.display = "block";
+        waitingMessage.style.display = "none";
+
+        const label = videoTrack.label || "Tu cámara";
+        mainLabel.textContent = label;
+        statusText.textContent = "Conectado correctamente";
+
+        await getDevices();
+      } catch (error) {
+        console.error(error);
+        statusText.textContent = "No se pudo acceder a la cámara";
+        waitingMessage.style.display = "block";
+        waitingMessage.innerHTML = `
+          No se pudo abrir la cámara o el micrófono.<br><br>
+          Verifica permisos del navegador y que no estén siendo usados por otra aplicación.
+        `;
+      }
+    }
+
+    function toggleCamera() {
+      if (!currentStream) return;
+
+      const videoTrack = currentStream.getVideoTracks()[0];
+      if (!videoTrack) return;
+
+      camEnabled = !camEnabled;
+      videoTrack.enabled = camEnabled;
+
+      camBtn.textContent = camEnabled ? "Cámara encendida" : "Cámara apagada";
+      camBtn.classList.toggle("danger", !camEnabled);
+      camBtn.classList.toggle("active", camEnabled);
+      statusText.textContent = camEnabled ? "Video activo" : "Video apagado";
+    }
+
+    function toggleMic() {
+      if (!currentStream) return;
+
+      const audioTrack = currentStream.getAudioTracks()[0];
+      if (!audioTrack) return;
+
+      micEnabled = !micEnabled;
+      audioTrack.enabled = micEnabled;
+
+      micBtn.textContent = micEnabled ? "Micrófono activo" : "Micrófono silenciado";
+      micBtn.classList.toggle("danger", !micEnabled);
+      micBtn.classList.toggle("active", micEnabled);
+      statusText.textContent = micEnabled ? "Micrófono activo" : "Micrófono silenciado";
+    }
+
+    function stopMeeting() {
+      stopCurrentStream();
+      mainVideo.srcObject = null;
+      mainVideo.style.display = "none";
+      mainLabel.style.display = "none";
+      waitingMessage.style.display = "block";
+      waitingMessage.innerHTML = `La cámara se ha detenido.`;
+      statusText.textContent = "Sesión cerrada";
+    }
+
+    startBtn.addEventListener("click", async () => {
+      await startCamera(cameraSelect.value || "");
+    });
+
+    camBtn.addEventListener("click", toggleCamera);
+    micBtn.addEventListener("click", toggleMic);
+    stopBtn.addEventListener("click", stopMeeting);
+
+    refreshBtn.addEventListener("click", async () => {
+      try {
+        await getDevices();
+        statusText.textContent = "Lista de cámaras actualizada";
+      } catch (error) {
+        console.error(error);
+        statusText.textContent = "No se pudieron actualizar las cámaras";
+      }
+    });
+
+    cameraSelect.addEventListener("change", async () => {
+      if (cameraSelect.value) {
+        await startCamera(cameraSelect.value);
+      }
+    });
+
+    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+      navigator.mediaDevices.addEventListener?.("devicechange", async () => {
+        await getDevices();
+      });
+    }
+
+    window.addEventListener("load", async () => {
+      try {
+        await getDevices();
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
