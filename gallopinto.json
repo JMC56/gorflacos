@@ -1,6 +1,6 @@
 {
     "usuarios": [
-        { "username": "back", "password": "JAMES2014$", "role": "admin" },
-        { "username": "fuck", "password": "05-08-2013!$", "role": "admin" }
+        { "username": "admin", "password": "JAMES2014$", "role": "admin" },
+        { "username": "memo_admin", "password": "05-08-2013!$", "role": "admin" }
     ]
 }
