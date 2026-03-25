@@ -10,11 +10,13 @@
 
 :root{
   --verde:#00ff9f;
-  --verde2:#9fffd8;
+  --verde2:#b5ffe3;
+  --verde3:#7cffca;
   --fondo:#000;
   --panel:rgba(0,0,0,.82);
   --borde:rgba(0,255,159,.25);
   --brillo:0 0 20px rgba(0,255,159,.22);
+  --rojo:#ff6b6b;
 }
 
 html,body{
@@ -37,6 +39,7 @@ body{
   min-height:100vh;
   overflow:hidden;
   position:relative;
+  padding:18px;
 }
 
 body::before{
@@ -57,6 +60,14 @@ body::before{
   animation:scan 8s linear infinite;
 }
 
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.15) 55%, rgba(0,0,0,.55) 100%);
+}
+
 @keyframes scan{
   0%{transform:translateY(-12px)}
   100%{transform:translateY(12px)}
@@ -67,19 +78,39 @@ body::before{
   z-index:2;
   background:var(--panel);
   border:1px solid var(--borde);
-  padding:40px;
+  padding:34px 22px 24px;
   border-radius:22px;
   text-align:center;
-  width:90%;
-  max-width:760px;
+  width:100%;
+  max-width:780px;
   box-shadow:
     0 0 40px rgba(0,255,159,.10),
     inset 0 0 20px rgba(0,255,159,.03);
   backdrop-filter:blur(8px);
 }
 
+.top-tags{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.chip{
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid rgba(0,255,159,.18);
+  background:rgba(0,255,159,.05);
+  color:var(--verde2);
+  font-size:.72rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
 .title{
-  font-size:clamp(2.6rem, 8vw, 4.8rem);
+  font-size:clamp(2.5rem, 8vw, 4.8rem);
   font-weight:900;
   letter-spacing:6px;
   text-shadow:
@@ -100,15 +131,55 @@ body::before{
   margin-top:10px;
   color:var(--verde2);
   opacity:.92;
-  font-size:.95rem;
+  font-size:.96rem;
   letter-spacing:1px;
+}
+
+.date-line{
+  margin-top:8px;
+  color:var(--verde3);
+  font-size:.84rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+}
+
+.live-line{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  margin-top:14px;
+  color:#d8ffee;
+  letter-spacing:2px;
+  font-weight:900;
+  font-size:.84rem;
+}
+
+.live-dot{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#1d1d1d;
+  border:1px solid rgba(255,255,255,.14);
+}
+
+.live-dot.on{
+  background:var(--verde);
+  box-shadow:0 0 14px rgba(0,255,159,.75);
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.17)}
+  100%{transform:scale(1)}
 }
 
 .timer{
   display:flex;
   justify-content:center;
   gap:16px;
-  margin-top:28px;
+  margin-top:24px;
   flex-wrap:wrap;
 }
 
@@ -135,7 +206,7 @@ body::before{
 }
 
 .img-box{
-  margin-top:28px;
+  margin-top:26px;
   border:1px solid rgba(0,255,159,.2);
   border-radius:20px;
   overflow:hidden;
@@ -160,7 +231,7 @@ body::before{
   flex-direction:column;
   align-items:center;
   gap:10px;
-  width:min(85%, 340px);
+  width:min(85%, 360px);
 }
 
 #secretInput{
@@ -171,12 +242,11 @@ body::before{
   background:rgba(0,0,0,.82);
   color:var(--verde);
   text-align:center;
-  font-size:1.15rem;
+  font-size:1.1rem;
   font-weight:900;
   letter-spacing:2px;
   outline:none;
   box-shadow:0 0 18px rgba(0,255,159,.12);
-  text-transform:none;
 }
 
 #secretInput::placeholder{
@@ -185,7 +255,7 @@ body::before{
 }
 
 #secretBtn{
-  padding:12px 20px;
+  padding:12px 22px;
   border:none;
   border-radius:12px;
   background:linear-gradient(180deg, #00ff9f, #00b96f);
@@ -211,16 +281,22 @@ body::before{
 }
 
 #inputMsg.bad{
-  color:#ff6b6b;
+  color:var(--rojo);
   text-shadow:0 0 12px rgba(255,0,0,.28);
 }
 
 .status{
   margin-top:18px;
-  min-height:22px;
+  min-height:44px;
   color:var(--verde2);
   font-size:.9rem;
-  opacity:.9;
+  opacity:.95;
+  line-height:1.45;
+  white-space:pre-line;
+}
+
+.hidden{
+  display:none !important;
 }
 
 /* AVATAR */
@@ -328,8 +404,73 @@ body::before{
   color:var(--verde2);
 }
 
-.hidden{
+/* ENTRADA UNICA */
+#enterOverlay{
+  position:fixed;
+  inset:0;
+  z-index:11000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.96);
+  padding:20px;
+}
+
+#enterOverlay.hidden{
   display:none !important;
+}
+
+.enter-box{
+  width:min(92%, 560px);
+  text-align:center;
+  border:1px solid rgba(0,255,159,.25);
+  border-radius:24px;
+  padding:30px 20px;
+  background:rgba(0,0,0,.85);
+  box-shadow:0 0 36px rgba(0,255,159,.12);
+}
+
+.enter-title{
+  font-size:clamp(1.8rem, 6vw, 3rem);
+  font-weight:900;
+  color:#e5fff3;
+  letter-spacing:3px;
+  text-shadow:0 0 12px rgba(0,255,159,.5);
+}
+
+.enter-sub{
+  margin-top:12px;
+  color:var(--verde2);
+  line-height:1.6;
+  font-size:.98rem;
+}
+
+#enterBtn{
+  margin-top:20px;
+  padding:14px 26px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(180deg, #00ff9f, #00b96f);
+  color:#00140c;
+  font-weight:900;
+  font-size:1rem;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(0,255,159,.24);
+}
+
+#enterMode{
+  margin-top:14px;
+  color:var(--verde3);
+  font-size:.82rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+audio{
+  width:0;
+  height:0;
+  opacity:0;
+  pointer-events:none;
 }
 
 @media (max-width:700px){
@@ -379,8 +520,19 @@ body::before{
 <body>
 
 <div class="wrap">
+  <div class="top-tags">
+    <div class="chip">sistema global</div>
+    <div class="chip" id="roleChip">modo visitante</div>
+  </div>
+
   <h1 class="title">EL ORFANATO</h1>
   <div class="sub">Temporizador global activo</div>
+  <div class="date-line">26 DE MARZO</div>
+
+  <div class="live-line">
+    <span class="live-dot" id="voiceDot"></span>
+    <span id="voiceState">AUDIO EN ESPERA</span>
+  </div>
 
   <div class="timer" id="timerBox">
     <div class="time">
@@ -408,6 +560,21 @@ body::before{
   </div>
 
   <div class="status" id="status">Conectando con el sistema global...</div>
+</div>
+
+<!-- AUDIO REMOTO -->
+<audio id="remoteAudio" autoplay playsinline></audio>
+
+<!-- ENTRADA -->
+<div id="enterOverlay">
+  <div class="enter-box">
+    <div class="enter-title">EL ORFANATO</div>
+    <div class="enter-sub">
+      Pulsa entrar para activar permisos del navegador.
+    </div>
+    <button id="enterBtn">ENTRAR</button>
+    <div id="enterMode">detectando modo...</div>
+  </div>
 </div>
 
 <!-- AVATAR -->
@@ -439,11 +606,16 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  deleteDoc,
   onSnapshot,
-  serverTimestamp
+  collection,
+  addDoc,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-/* CONFIG */
+/* =========================
+   CONFIG
+========================= */
 const firebaseConfig = {
   apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
   authDomain: "gorflacos.firebaseapp.com",
@@ -453,15 +625,26 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* REFERENCIAS */
+/* =========================
+   REFERENCIAS
+========================= */
 const timerRef = doc(db, "global", "timer");
 const anuncioRef = doc(db, "system", "globalAnnouncement");
 
-/* ELEMENTOS */
+const ROOM_ID = "orfanato_main_voice_room";
+const roomRef = doc(db, "voiceRooms", ROOM_ID);
+const listenersCol = collection(db, "voiceRooms", ROOM_ID, "listeners");
+
+/* =========================
+   ELEMENTOS
+========================= */
 const hEl = document.getElementById("h");
 const mEl = document.getElementById("m");
 const sEl = document.getElementById("s");
 const statusEl = document.getElementById("status");
+const roleChip = document.getElementById("roleChip");
+const voiceDot = document.getElementById("voiceDot");
+const voiceState = document.getElementById("voiceState");
 
 const overlay = document.getElementById("avatarOverlay");
 const text = document.getElementById("text");
@@ -476,16 +659,67 @@ const secretInput = document.getElementById("secretInput");
 const secretBtn = document.getElementById("secretBtn");
 const inputMsg = document.getElementById("inputMsg");
 
-/* TIMER GLOBAL */
+const enterOverlay = document.getElementById("enterOverlay");
+const enterBtn = document.getElementById("enterBtn");
+const enterMode = document.getElementById("enterMode");
+
+const remoteAudio = document.getElementById("remoteAudio");
+
+/* =========================
+   ESTADO GENERAL
+========================= */
+const isAdmin = new URLSearchParams(location.search).get("admin") === "1";
+const DEFAULT_DURATION_MS = 5 * 60 * 1000;
+
 let timerInterval = null;
 let popupInterval = null;
 let currentEndTime = null;
 let alreadyFound = false;
 
+/* =========================
+   WEBRTC ESTADO
+========================= */
+const ICE_SERVERS = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" }
+  ]
+};
+
+let hasEntered = false;
+let localStream = null;
+let isBroadcasting = false;
+let isListening = false;
+
+let broadcasterUnsubListeners = null;
+const broadcasterPeers = new Map();
+
+let listenerPeer = null;
+let listenerDocRef = null;
+let listenerUnsubDoc = null;
+let listenerUnsubOfferCandidates = null;
+
+/* =========================
+   UI HELPERS
+========================= */
 function format(n){
   return String(n).padStart(2, "0");
 }
 
+function setVoiceState(textValue, on = false){
+  voiceState.textContent = textValue;
+  voiceDot.classList.toggle("on", on);
+}
+
+function setStatus(textValue){
+  statusEl.textContent = textValue;
+}
+
+roleChip.textContent = isAdmin ? "modo emisor" : "modo oyente";
+enterMode.textContent = isAdmin ? "este dispositivo transmitirá" : "este dispositivo escuchará";
+
+/* =========================
+   TIMER GLOBAL
+========================= */
 function stopMainTimer(){
   if(timerInterval){
     clearInterval(timerInterval);
@@ -534,10 +768,10 @@ async function initTimer(){
 
     if(snap.exists()){
       const data = snap.data() || {};
-      currentEndTime = data.endTime || (Date.now() + (3 * 60 * 60 * 1000));
+      currentEndTime = data.endTime || (Date.now() + DEFAULT_DURATION_MS);
       alreadyFound = data.found === true;
     }else{
-      currentEndTime = Date.now() + (3 * 60 * 60 * 1000);
+      currentEndTime = Date.now() + DEFAULT_DURATION_MS;
 
       await setDoc(timerRef, {
         endTime: currentEndTime,
@@ -552,11 +786,11 @@ async function initTimer(){
       renderFoundState();
     }else{
       startTimerLoop();
-      statusEl.textContent = "Temporizador global cargado.";
+      setStatus("Temporizador global cargado.");
     }
   }catch(error){
     console.error("Error initTimer:", error);
-    statusEl.textContent = "Error al conectar con Firebase.";
+    setStatus("Error al conectar con Firebase.");
   }
 }
 
@@ -566,7 +800,7 @@ function renderFoundState(){
   renderZeros();
   inputArea.classList.add("hidden");
   finalOverlay.classList.add("active");
-  statusEl.textContent = "El código ya fue encontrado.";
+  setStatus("El código ya fue encontrado.");
 }
 
 function renderNotFoundState(){
@@ -589,13 +823,15 @@ onSnapshot(timerRef, (snap) => {
       finalOverlay.classList.remove("active");
     }
     renderNotFoundState();
-    statusEl.textContent = "Temporizador global sincronizado.";
+    setStatus("Temporizador global sincronizado.");
   }
 }, (err) => {
   console.error("Error escuchando timer:", err);
 });
 
-/* INPUT SECRETO */
+/* =========================
+   INPUT SECRETO
+========================= */
 function setInputMessage(message, ok = false){
   inputMsg.textContent = message;
   inputMsg.className = ok ? "ok" : "bad";
@@ -607,7 +843,7 @@ async function trySecret(){
     return;
   }
 
-  const value = (secretInput.value || "").trim();
+  const value = (secretInput.value || "").trim().toUpperCase();
 
   if(value === "BOLO"){
     try{
@@ -637,7 +873,9 @@ secretInput.addEventListener("keydown", (e) => {
   }
 });
 
-/* ANUNCIOS */
+/* =========================
+   ANUNCIOS
+========================= */
 onSnapshot(anuncioRef, (snap) => {
   const d = snap.data() || {};
 
@@ -652,7 +890,9 @@ onSnapshot(anuncioRef, (snap) => {
   console.error("Error anuncio:", err);
 });
 
-/* COUNTDOWN POPUP */
+/* =========================
+   COUNTDOWN POPUP
+========================= */
 function stopPopup(){
   popup.classList.remove("active");
   if(popupInterval){
@@ -684,12 +924,390 @@ function startPopup(end){
   popupInterval = setInterval(tick, 1000);
 }
 
-/* INICIO */
+window.startPopup = startPopup;
+
+/* =========================
+   WEBRTC HELPERS
+========================= */
+async function clearRoomListeners(){
+  const snap = await getDocs(listenersCol);
+  const tasks = [];
+  snap.forEach(d => tasks.push(deleteDoc(d.ref)));
+  await Promise.allSettled(tasks);
+}
+
+function randomId(){
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+/* =========================
+   EMISOR
+========================= */
+async function startBroadcast(){
+  if(isBroadcasting) return;
+
+  try{
+    localStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      },
+      video: false
+    });
+
+    isBroadcasting = true;
+    setVoiceState("MICRÓFONO EN VIVO", true);
+    setStatus("Micrófono activo.\nTransmitiendo automáticamente a la sala global.");
+
+    await setDoc(roomRef, {
+      active: true,
+      broadcasterRole: "admin",
+      updatedAt: Date.now()
+    }, { merge: true });
+
+    await clearRoomListeners();
+
+    if(broadcasterUnsubListeners){
+      broadcasterUnsubListeners();
+      broadcasterUnsubListeners = null;
+    }
+
+    broadcasterUnsubListeners = onSnapshot(listenersCol, async (snapshot) => {
+      for(const change of snapshot.docChanges()){
+        if(change.type === "added"){
+          const listenerId = change.doc.id;
+          const data = change.doc.data() || {};
+          if(data.offer) continue;
+          if(broadcasterPeers.has(listenerId)) continue;
+          await handleNewListener(listenerId, change.doc.ref);
+        }
+      }
+    });
+
+  }catch(error){
+    console.error("Error startBroadcast:", error);
+    setVoiceState("MICRÓFONO BLOQUEADO", false);
+    setStatus("No se pudo abrir el micrófono.\nRevisa permisos y HTTPS.");
+  }
+}
+
+async function handleNewListener(listenerId, listenerRef){
+  try{
+    const pc = new RTCPeerConnection(ICE_SERVERS);
+
+    localStream.getTracks().forEach(track => {
+      pc.addTrack(track, localStream);
+    });
+
+    const offerCandidatesCol = collection(db, "voiceRooms", ROOM_ID, "listeners", listenerId, "offerCandidates");
+    const answerCandidatesCol = collection(db, "voiceRooms", ROOM_ID, "listeners", listenerId, "answerCandidates");
+
+    pc.onicecandidate = async (event) => {
+      if(event.candidate){
+        await addDoc(offerCandidatesCol, event.candidate.toJSON());
+      }
+    };
+
+    const answerCandidatesUnsub = onSnapshot(answerCandidatesCol, (snap) => {
+      snap.docChanges().forEach(async (change) => {
+        if(change.type === "added"){
+          try{
+            await pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+          }catch(e){
+            console.error("Error ICE broadcaster:", e);
+          }
+        }
+      });
+    });
+
+    const docUnsub = onSnapshot(listenerRef, async (snap) => {
+      const data = snap.data();
+      if(!data) return;
+
+      if(data.answer && !pc.currentRemoteDescription){
+        try{
+          await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+        }catch(e){
+          console.error("Error setRemoteDescription broadcaster:", e);
+        }
+      }
+    });
+
+    pc.onconnectionstatechange = () => {
+      const state = pc.connectionState;
+      if(state === "disconnected" || state === "failed" || state === "closed"){
+        cleanupBroadcasterPeer(listenerId);
+      }
+    };
+
+    const offer = await pc.createOffer({
+      offerToReceiveAudio: false,
+      offerToReceiveVideo: false
+    });
+
+    await pc.setLocalDescription(offer);
+
+    await updateDoc(listenerRef, {
+      offer: {
+        type: offer.type,
+        sdp: offer.sdp
+      },
+      updatedAt: Date.now()
+    });
+
+    broadcasterPeers.set(listenerId, {
+      pc,
+      docUnsub,
+      answerCandidatesUnsub
+    });
+
+  }catch(error){
+    console.error("Error handleNewListener:", error);
+  }
+}
+
+function cleanupBroadcasterPeer(listenerId){
+  const item = broadcasterPeers.get(listenerId);
+  if(!item) return;
+
+  try{ item.docUnsub && item.docUnsub(); }catch{}
+  try{ item.answerCandidatesUnsub && item.answerCandidatesUnsub(); }catch{}
+  try{ item.pc && item.pc.close(); }catch{}
+
+  broadcasterPeers.delete(listenerId);
+}
+
+async function stopBroadcast(){
+  try{
+    if(broadcasterUnsubListeners){
+      broadcasterUnsubListeners();
+      broadcasterUnsubListeners = null;
+    }
+
+    for(const [listenerId] of broadcasterPeers){
+      cleanupBroadcasterPeer(listenerId);
+    }
+
+    if(localStream){
+      localStream.getTracks().forEach(t => t.stop());
+      localStream = null;
+    }
+
+    await setDoc(roomRef, {
+      active: false,
+      updatedAt: Date.now()
+    }, { merge: true });
+
+    await clearRoomListeners();
+  }catch(error){
+    console.error("Error stopBroadcast:", error);
+  }
+
+  isBroadcasting = false;
+  setVoiceState("AUDIO EN ESPERA", false);
+}
+
+/* =========================
+   OYENTE
+========================= */
+async function startListening(){
+  if(isListening) return;
+
+  try{
+    const roomSnap = await getDoc(roomRef);
+    const roomData = roomSnap.data() || {};
+
+    if(!roomData.active){
+      setVoiceState("SIN TRANSMISIÓN ACTIVA", false);
+      setStatus("No hay un emisor activo todavía.");
+      return;
+    }
+
+    const listenerId = randomId();
+    listenerDocRef = doc(db, "voiceRooms", ROOM_ID, "listeners", listenerId);
+
+    await setDoc(listenerDocRef, {
+      createdAt: Date.now(),
+      answer: null
+    });
+
+    listenerPeer = new RTCPeerConnection(ICE_SERVERS);
+
+    const answerCandidatesCol = collection(db, "voiceRooms", ROOM_ID, "listeners", listenerId, "answerCandidates");
+    const offerCandidatesCol = collection(db, "voiceRooms", ROOM_ID, "listeners", listenerId, "offerCandidates");
+
+    listenerPeer.ontrack = (event) => {
+      remoteAudio.srcObject = event.streams[0];
+      const playPromise = remoteAudio.play();
+      if(playPromise){
+        playPromise.catch(() => {});
+      }
+      setVoiceState("AUDIO EN VIVO", true);
+      setStatus("Audio global conectado.");
+    };
+
+    listenerPeer.onicecandidate = async (event) => {
+      if(event.candidate){
+        await addDoc(answerCandidatesCol, event.candidate.toJSON());
+      }
+    };
+
+    listenerPeer.onconnectionstatechange = () => {
+      const state = listenerPeer.connectionState;
+      if(state === "connected"){
+        isListening = true;
+        setVoiceState("AUDIO EN VIVO", true);
+      }else if(state === "disconnected" || state === "failed" || state === "closed"){
+        stopListening("Conexión de audio cerrada.");
+      }
+    };
+
+    listenerUnsubOfferCandidates = onSnapshot(offerCandidatesCol, (snap) => {
+      snap.docChanges().forEach(async (change) => {
+        if(change.type === "added"){
+          try{
+            await listenerPeer.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+          }catch(e){
+            console.error("Error ICE listener:", e);
+          }
+        }
+      });
+    });
+
+    listenerUnsubDoc = onSnapshot(listenerDocRef, async (snap) => {
+      const data = snap.data();
+      if(!data){
+        stopListening("La transmisión fue detenida.");
+        return;
+      }
+
+      if(data.offer && !listenerPeer.currentRemoteDescription){
+        try{
+          await listenerPeer.setRemoteDescription(new RTCSessionDescription(data.offer));
+          const answer = await listenerPeer.createAnswer();
+          await listenerPeer.setLocalDescription(answer);
+
+          await updateDoc(listenerDocRef, {
+            answer: {
+              type: answer.type,
+              sdp: answer.sdp
+            },
+            updatedAt: Date.now()
+          });
+
+        }catch(e){
+          console.error("Error creando answer:", e);
+          setStatus("No se pudo completar el enlace de audio.");
+        }
+      }
+    });
+
+    setVoiceState("CONECTANDO AUDIO...", false);
+    setStatus("Buscando señal del emisor...");
+
+  }catch(error){
+    console.error("Error startListening:", error);
+    setStatus("Error iniciando el audio global.");
+  }
+}
+
+async function stopListening(message = "Audio detenido."){
+  try{
+    if(listenerUnsubDoc){
+      listenerUnsubDoc();
+      listenerUnsubDoc = null;
+    }
+
+    if(listenerUnsubOfferCandidates){
+      listenerUnsubOfferCandidates();
+      listenerUnsubOfferCandidates = null;
+    }
+
+    if(listenerPeer){
+      try{ listenerPeer.close(); }catch{}
+      listenerPeer = null;
+    }
+
+    if(remoteAudio.srcObject){
+      try{
+        const tracks = remoteAudio.srcObject.getTracks();
+        tracks.forEach(t => t.stop());
+      }catch{}
+      remoteAudio.srcObject = null;
+    }
+
+    if(listenerDocRef){
+      try{ await deleteDoc(listenerDocRef); }catch{}
+      listenerDocRef = null;
+    }
+  }catch(error){
+    console.error("Error stopListening:", error);
+  }
+
+  isListening = false;
+  setVoiceState("AUDIO EN ESPERA", false);
+  setStatus(message);
+}
+
+/* =========================
+   AUTO ROOM WATCH
+========================= */
+onSnapshot(roomRef, (snap) => {
+  const data = snap.data() || {};
+
+  if(!hasEntered) return;
+
+  if(isAdmin){
+    if(data.active){
+      setVoiceState("MICRÓFONO EN VIVO", true);
+    }
+  }else{
+    if(data.active && !isListening){
+      startListening();
+    }else if(!data.active && isListening){
+      stopListening("La transmisión fue detenida por el emisor.");
+    }else if(!data.active && !isListening){
+      setVoiceState("SIN TRANSMISIÓN ACTIVA", false);
+    }
+  }
+});
+
+/* =========================
+   ENTRAR
+========================= */
+async function handleEnter(){
+  if(hasEntered) return;
+  hasEntered = true;
+  enterOverlay.classList.add("hidden");
+
+  if(isAdmin){
+    await startBroadcast();
+  }else{
+    await startListening();
+  }
+}
+
+enterBtn.addEventListener("click", handleEnter);
+
+/* =========================
+   INICIO
+========================= */
 initTimer();
 
-/* OPCIONAL: para usar desde consola si quieres probar popup manual
-window.startPopup = startPopup;
-*/
+/* =========================
+   LIMPIEZA
+========================= */
+window.addEventListener("beforeunload", async () => {
+  try{
+    if(isAdmin && isBroadcasting){
+      await stopBroadcast();
+    }
+    if(!isAdmin && listenerDocRef){
+      await deleteDoc(listenerDocRef);
+    }
+  }catch{}
+});
 </script>
 
 </body>
