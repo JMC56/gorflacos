@@ -1210,9 +1210,17 @@
                 const active = data.active === true;
                 const text = normalizeText(data.text);
                 const avatarEnabled = data.avatarEnabled !== false;
+                const avatarFile = data.avatar || "1.png"; // 🔥 NUEVO
 
                 if (active && text && avatarEnabled) {
-                    showAvatarAnnouncement(text);
+
+    const avatarImg = document.getElementById("avatarImg");
+
+    // 🔥 CAMBIO DINÁMICO DE PERSONAJE
+    avatarImg.src = "assets/" + avatarFile;
+
+    showAvatarAnnouncement(text);
+}
                 } else {
                     hideAvatarAnnouncement();
                 }
