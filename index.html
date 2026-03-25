@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KODE</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+--rojo:#ff1e2d;
+--verde:#00ff9f;
+--bg:#020202;
+--verde2:#a8ffe0;
+--line:rgba(0,255,150,.2);
+--lineStrong:rgba(0,255,150,.45);
+}
+
+body{
+min-height:100vh;
+font-family:Arial, Helvetica, sans-serif;
+background:#000;
+color:#fff;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
+}
+
+/* 🔥 FONDO HACKER */
+.bg{
+position:fixed;
+inset:0;
+background:
+radial-gradient(circle at 50% 50%, rgba(0,255,150,.08), transparent 60%),
+linear-gradient(#000,#000),
+url("https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1974&auto=format&fit=crop") center/cover;
+opacity:.4;
+z-index:0;
+}
+
+/* 🔥 PANEL */
+.wrap{
+position:relative;
+z-index:2;
+width:min(92%,700px);
+text-align:center;
+padding:40px;
+border-radius:20px;
+background:rgba(0,0,0,.7);
+border:1px solid rgba(0,255,150,.2);
+backdrop-filter:blur(10px);
+box-shadow:0 0 60px rgba(0,255,150,.08);
+}
+
+/* 🔥 TITULO */
+.title{
+font-size:clamp(3rem,10vw,6rem);
+font-weight:900;
+letter-spacing:6px;
+color:#fff;
+text-shadow:0 0 15px rgba(0,255,150,.3);
+}
+
+/* 🔥 PROGRESO */
+.meta-line{
+margin-top:20px;
+font-size:1.4rem;
+font-weight:800;
+}
+
+.votes-line{
+margin-top:10px;
+color:#aaa;
+}
+
+.bar{
+width:100%;
+height:22px;
+margin-top:20px;
+border-radius:999px;
+background:rgba(255,255,255,.05);
+border:1px solid rgba(0,255,150,.2);
+overflow:hidden;
+}
+
+.fill{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,var(--verde),#fff);
+box-shadow:0 0 15px var(--verde);
+transition:.4s;
+}
+
+/* 🔥 BOTÓN */
+.btn{
+margin-top:25px;
+padding:15px 30px;
+border:none;
+border-radius:12px;
+background:linear-gradient(180deg,var(--rojo),#a80f1a);
+color:#fff;
+font-weight:900;
+cursor:pointer;
+box-shadow:0 0 20px rgba(255,0,0,.3);
+transition:.2s;
+}
+
+.btn:hover{
+transform:translateY(-2px);
+}
+
+.btn:disabled{
+cursor:not-allowed;
+transform:none;
+opacity:.5;
+}
+
+.msg{
+margin-top:12px;
+font-weight:700;
+min-height:22px;
+}
+
+/* 🔥 AVATAR */
+#avatarOverlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.9);
+display:none;
+z-index:999999;
+}
+
+#avatarOverlay.active{
+display:block;
+}
+
+.avatar-container{
+position:absolute;
+bottom:40px;
+left:40px;
+display:flex;
+align-items:center;
+gap:20px;
+opacity:0;
+transform:translateY(30px);
+}
+
+.avatar-container.show{
+opacity:1;
+transform:translateY(0);
+transition:.35s ease;
+}
+
+.avatar-container img{
+width:260px;
+image-rendering:pixelated;
+filter:drop-shadow(0 20px 30px rgba(0,0,0,.7));
+}
+
+.speech-bubble{
+background:#fff;
+color:#000;
+padding:16px 20px;
+border-radius:25px;
+font-weight:900;
+max-width:340px;
+opacity:0;
+transform:scale(.7);
+line-height:1.4;
+box-shadow:0 12px 28px rgba(0,0,0,.35);
+}
+
+.speech-bubble.show{
+opacity:1;
+transform:scale(1);
+transition:.3s;
+}
+
+/* 🔥 GLITCH OVERLAY */
+.screen-noise{
+position:absolute;
+inset:0;
+opacity:0;
+pointer-events:none;
+background-image:
+linear-gradient(rgba(0,255,153,.05) 1px, transparent 1px),
+linear-gradient(90deg, rgba(0,255,153,.03) 1px, transparent 1px);
+background-size:100% 4px, 4px 100%;
+}
+
+#avatarOverlay.glitching .screen-noise{
+opacity:1;
+animation:screenNoise .12s steps(2) infinite, glitchFlash 1s linear forwards;
+}
+
+.glitch-burst{
+position:absolute;
+left:50%;
+top:12%;
+transform:translateX(-50%);
+font-weight:900;
+font-size:clamp(2rem, 6vw, 4.6rem);
+letter-spacing:6px;
+color:var(--verde2);
+text-transform:uppercase;
+opacity:0;
+text-shadow:
+0 0 10px rgba(0,255,153,.5),
+4px 0 0 rgba(0,255,153,.45),
+-4px 0 0 rgba(180,255,230,.28);
+pointer-events:none;
+}
+
+#avatarOverlay.glitching .glitch-burst{
+animation:burstGlitch 1s ease forwards;
+}
+
+@keyframes screenNoise{
+0%{transform:translate(0,0)}
+25%{transform:translate(2px,-1px)}
+50%{transform:translate(-2px,1px)}
+75%{transform:translate(1px,2px)}
+100%{transform:translate(0,0)}
+}
+
+@keyframes glitchFlash{
+0%{opacity:0}
+15%{opacity:.95}
+25%{opacity:.25}
+35%{opacity:.85}
+50%{opacity:.18}
+70%{opacity:.75}
+100%{opacity:0}
+}
+
+@keyframes burstGlitch{
+0%{
+opacity:0;
+transform:translateX(-50%) scale(.7) skewX(0deg);
+filter:blur(10px);
+}
+20%{
+opacity:1;
+transform:translateX(-49%) scale(1.05) skewX(10deg);
+filter:blur(0);
+}
+35%{
+transform:translateX(-51%) scale(.98) skewX(-8deg);
+}
+55%{
+transform:translateX(-50%) scale(1.03) skewX(4deg);
+}
+100%{
+opacity:0;
+transform:translateX(-50%) scale(1) skewX(0deg);
+}
+}
+
+/* 🔥 COUNTDOWN */
+#countdownPopup{
+position:fixed;
+inset:0;
+display:none;
+align-items:center;
+justify-content:center;
+background:rgba(0,0,0,.9);
+z-index:999998;
+}
+
+#countdownPopup.active{
+display:flex;
+}
+
+.countdown-time{
+font-size:4rem;
+font-weight:900;
+color:var(--verde);
+text-shadow:0 0 20px var(--verde);
+}
+
+@media (max-width:900px){
+.avatar-container{
+left:16px;
+right:16px;
+bottom:16px;
+gap:12px;
+}
+
+.avatar-container img{
+width:170px;
+}
+
+.speech-bubble{
+max-width:calc(100vw - 230px);
+font-size:.96rem;
+}
+}
+
+@media (max-width:700px){
+.wrap{
+padding:28px 20px;
+}
+
+.meta-line{
+font-size:1.2rem;
+}
+
+.avatar-container img{
+width:120px;
+}
+
+.speech-bubble{
+max-width:calc(100vw - 150px);
+font-size:.9rem;
+padding:14px 15px;
+}
+
+.countdown-time{
+font-size:3rem;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+
+<div class="wrap">
+<h1 class="title">KODE</h1>
+
+<div id="metaLine" class="meta-line">0/15</div>
+<div id="votesLine" class="votes-line">0 votos</div>
+
+<div class="bar">
+<div id="fill" class="fill"></div>
+</div>
+
+<button id="btn" class="btn">CLICK</button>
+<div id="msg" class="msg"></div>
+</div>
+
+<!-- AVATAR -->
+<div id="avatarOverlay" aria-hidden="true">
+<div class="screen-noise"></div>
+<div class="glitch-burst">ANUNCIO</div>
+
+<div class="avatar-container" id="avatarContainer">
+<img id="avatarImg" src="assets/1.png" alt="Avatar">
+<div class="speech-bubble" id="speechBubble">
+<span id="speechText"></span>
+</div>
+</div>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="countdownPopup">
+<div class="countdown-time" id="countdownTime">10:00</div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  runTransaction,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+  authDomain: "gorflacos.firebaseapp.com",
+  projectId: "gorflacos"
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const progressRef = doc(db, "progress", "kode_main");
+const announcementRef = doc(db, "system", "globalAnnouncement");
+
+const btn = document.getElementById("btn");
+const msg = document.getElementById("msg");
+const fill = document.getElementById("fill");
+const metaLine = document.getElementById("metaLine");
+const votesLine = document.getElementById("votesLine");
+
+const avatarOverlay = document.getElementById("avatarOverlay");
+const avatarContainer = document.getElementById("avatarContainer");
+const avatarImg = document.getElementById("avatarImg");
+const speechBubble = document.getElementById("speechBubble");
+const speechText = document.getElementById("speechText");
+
+const countdownPopup = document.getElementById("countdownPopup");
+const countdownTime = document.getElementById("countdownTime");
+
+const LOCAL_KEY = "kode_voted";
+
+let typingInterval = null;
+let countdownInterval = null;
+let glitchTimeout = null;
+let revealTimeout = null;
+let currentAnnouncementText = "";
+let avatarVisible = false;
+
+/* =========================
+   UTILIDADES
+========================= */
+function normalizeText(text){
+  return String(text || "").trim();
+}
+
+function lock(){
+  btn.disabled = true;
+  btn.style.opacity = ".5";
+  msg.textContent = "Ya votaste";
+}
+
+function unlock(){
+  btn.disabled = false;
+  btn.style.opacity = "1";
+  msg.textContent = "";
+}
+
+if(localStorage.getItem(LOCAL_KEY)){
+  lock();
+}
+
+/* =========================
+   CLICK / VOTO
+========================= */
+btn.onclick = async () => {
+  if(localStorage.getItem(LOCAL_KEY)) return;
+
+  lock();
+  msg.textContent = "Enviando...";
+
+  try{
+    await runTransaction(db, async (t) => {
+      const snap = await t.get(progressRef);
+      const data = snap.exists() ? (snap.data() || {}) : {};
+      let c = Number(data.current || 0);
+      c++;
+
+      t.set(progressRef, { current: c }, { merge: true });
+    });
+
+    localStorage.setItem(LOCAL_KEY, "1");
+    msg.textContent = "Voto registrado";
+  }catch(err){
+    console.error("Error al votar:", err);
+    localStorage.removeItem(LOCAL_KEY);
+    unlock();
+    msg.textContent = "Error al registrar";
+  }
+};
+
+/* =========================
+   PROGRESO
+========================= */
+onSnapshot(progressRef, (snap) => {
+  const d = snap.data() || {};
+  const c = Number(d.current || 0);
+  const t = Number(d.total || 15);
+
+  metaLine.textContent = `${c}/${t}`;
+  votesLine.textContent = `${c} votos`;
+  fill.style.width = `${Math.max(0, Math.min(100, (c / t) * 100))}%`;
+
+  if(localStorage.getItem(LOCAL_KEY)){
+    lock();
+  }
+
+  if(d.countdownActive && d.countdownEndsAt){
+    startCountdown(resolveCountdownValue(d.countdownEndsAt));
+  }else{
+    stopCountdown();
+  }
+}, (err) => {
+  console.error("Error al leer progreso:", err);
+});
+
+/* =========================
+   COUNTDOWN
+========================= */
+function resolveCountdownValue(value){
+  if(!value) return 0;
+
+  if(typeof value === "number") return value;
+
+  if(typeof value?.toMillis === "function") return value.toMillis();
+
+  if(typeof value?.seconds === "number"){
+    return value.seconds * 1000;
+  }
+
+  return Number(value) || 0;
+}
+
+function stopCountdown(){
+  countdownPopup.classList.remove("active");
+  if(countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = null;
+}
+
+function startCountdown(endAt){
+  countdownPopup.classList.add("active");
+
+  if(countdownInterval) clearInterval(countdownInterval);
+
+  const tick = () => {
+    const remaining = endAt - Date.now();
+
+    if(remaining <= 0){
+      countdownTime.textContent = "00:00";
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      setTimeout(() => {
+        countdownPopup.classList.remove("active");
+      }, 800);
+      return;
+    }
+
+    const totalSeconds = Math.floor(remaining / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    countdownTime.textContent =
+      `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+  };
+
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+}
+
+/* =========================
+   TYPEWRITER
+========================= */
+function clearTyping(){
+  if(typingInterval) clearInterval(typingInterval);
+  typingInterval = null;
+}
+
+function typeText(text){
+  clearTyping();
+  speechText.textContent = "";
+
+  let i = 0;
+  typingInterval = setInterval(() => {
+    speechText.textContent += text[i];
+    i++;
+
+    if(i >= text.length){
+      clearTyping();
+    }
+  }, 40);
+}
+
+/* =========================
+   AVATAR / ANUNCIOS
+========================= */
+function clearAnnouncementTimers(){
+  if(glitchTimeout) clearTimeout(glitchTimeout);
+  if(revealTimeout) clearTimeout(revealTimeout);
+  glitchTimeout = null;
+  revealTimeout = null;
+  clearTyping();
+}
+
+function showAnnouncement(text, avatarFile){
+  const clean = normalizeText(text);
+  if(!clean){
+    hideAnnouncement();
+    return;
+  }
+
+  if(avatarVisible && currentAnnouncementText === clean && avatarImg.getAttribute("src") === ("assets/" + avatarFile)){
+    return;
+  }
+
+  clearAnnouncementTimers();
+
+  currentAnnouncementText = clean;
+  avatarVisible = true;
+
+  avatarImg.src = "assets/" + (avatarFile || "1.png");
+  avatarImg.onerror = () => {
+    avatarImg.src = "assets/1.png";
+  };
+
+  avatarOverlay.classList.add("active");
+  avatarOverlay.classList.add("glitching");
+
+  avatarContainer.classList.remove("show");
+  speechBubble.classList.remove("show");
+  speechText.textContent = "";
+
+  glitchTimeout = setTimeout(() => {
+    avatarOverlay.classList.remove("glitching");
+    avatarContainer.classList.add("show");
+
+    revealTimeout = setTimeout(() => {
+      speechBubble.classList.add("show");
+      typeText(clean);
+    }, 250);
+  }, 1000);
+}
+
+function hideAnnouncement(){
+  clearAnnouncementTimers();
+  avatarVisible = false;
+  currentAnnouncementText = "";
+  avatarOverlay.classList.remove("active");
+  avatarOverlay.classList.remove("glitching");
+  avatarContainer.classList.remove("show");
+  speechBubble.classList.remove("show");
+  speechText.textContent = "";
+}
+
+/* =========================
+   FIREBASE ANUNCIOS
+========================= */
+onSnapshot(announcementRef, (snap) => {
+  const d = snap.data() || {};
+
+  const active = d.active === true;
+  const text = normalizeText(d.text);
+  const avatar = d.avatar || "1.png";
+
+  if(active && text){
+    showAnnouncement(text, avatar);
+  }else{
+    hideAnnouncement();
+  }
+}, (err) => {
+  console.error("Error al escuchar anuncio:", err);
+});
+</script>
+
+</body>
+</html>
