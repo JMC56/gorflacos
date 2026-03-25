@@ -1207,22 +1207,23 @@
                 }
 
                 const data = docSnap.data() || {};
-                const active = data.active === true;
-                const text = normalizeText(data.text);
-                const avatarEnabled = data.avatarEnabled !== false;
-                const avatarFile = data.avatar || "1.png"; // 🔥 NUEVO
+const active = data.active === true;
+const text = normalizeText(data.text);
+const avatarFile = data.avatar || "1.png";
 
-                if (active && text) {
+if (active && text) {
 
     const avatarImg = document.getElementById("avatarImg");
 
-    // 🔥 CAMBIO DINÁMICO DE PERSONAJE
-    avatarImg.src = "assets/" + avatarFile;
+    if (avatarImg) {
+        avatarImg.src = "assets/" + avatarFile;
+    }
 
     showAvatarAnnouncement(text);
+
+} else {
+    hideAvatarAnnouncement();
 }
-                } else {
-                    hideAvatarAnnouncement();
                 }
             },
             (error) => {
