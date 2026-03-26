@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gorflacos Shop</title>
+<style>
+:root {
+--black: #000;
+--white: #fff;
+--gray: #f3f3f3;
+--soft: #f7f7f7;
+--border: #000;
+--overlay: rgba(0, 0, 0, 0.25);
+}
+
+* {
+box-sizing: border-box;
+}
+
+body {
+margin: 0;
+font-family: 'Inter', Arial, Helvetica, sans-serif;
+background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
+background-size: 20px 20px;
+background-color: #fafafa;
+}
+
+header {
+padding: 20px 40px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: white;
+border-bottom: 2px solid #000;
+position: sticky;
+top: 0;
+z-index: 100;
+}
+
+.login-link {
+text-decoration: none;
+color: #000;
+font-weight: bold;
+border: 2px solid #000;
+padding: 8px 14px;
+border-radius: 10px;
+background: #fff;
+transition: 0.2s;
+}
+
+.login-link:hover {
+transform: translateY(-2px);
+box-shadow: 4px 4px 0 #000;
+}
+
+.cart-toggle {
+cursor: pointer;
+font-weight: bold;
+border: 2px solid #000;
+padding: 8px 14px;
+border-radius: 10px;
+background: #fff;
+user-select: none;
+}
+
+#store {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+gap: 30px;
+padding: 40px;
+}
+
+.card {
+background: white;
+border: 2px solid #000;
+border-radius: 20px;
+overflow: hidden;
+box-shadow: 8px 8px 0px #000;
+transition: 0.3s;
+cursor: pointer;
+position: relative;
+}
+
+.card:hover {
+transform: translate(-4px, -4px);
+box-shadow: 12px 12px 0px #000;
+}
+
+.card img {
+width: 100%;
+height: 220px;
+object-fit: cover;
+border-bottom: 2px solid #000;
+background: #eee;
+}
+
+.card-info {
+padding: 15px;
+text-align: center;
+}
+
+.card-info h3 {
+margin: 0 0 10px;
+font-size: 1.1rem;
+}
+
+.card-info p {
+margin: 6px 0;
+}
+
+.no-stock {
+filter: grayscale(1);
+opacity: 0.6;
+cursor: not-allowed;
+}
+
+.lock {
+position: absolute;
+inset: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+background: rgba(255,255,255,0.78);
+font-size: 1.5rem;
+font-weight: 900;
+color: #000;
+text-align: center;
+padding: 20px;
+}
+
+#cart-panel {
+position: fixed;
+right: 20px;
+top: 100px;
+width: 320px;
+max-height: calc(100vh - 120px);
+overflow-y: auto;
+background: white;
+border: 3px solid #000;
+border-radius: 15px;
+padding: 20px;
+box-shadow: 10px 10px 0px #000;
+display: none;
+z-index: 500;
+}
+
+#cart-list .item {
+border-bottom: 1px solid #ddd;
+padding: 10px 0;
+}
+
+#cart-list .item:last-child {
+border-bottom: none;
+}
+
+.qty-box {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-top: 8px;
+flex-wrap: wrap;
+}
+
+.qty-btn,
+.remove-btn {
+border: 2px solid #000;
+background: #fff;
+border-radius: 8px;
+padding: 4px 10px;
+cursor: pointer;
+font-weight: bold;
+}
+
+.remove-btn {
+color: #c00;
+}
+
+.cart-total {
+margin-top: 15px;
+font-weight: bold;
+font-size: 1.1rem;
+}
+
+.modal {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.9);
+display: none;
+align-items: center;
+justify-content: center;
+z-index: 1000;
+padding: 20px;
+}
+
+.m-box {
+background: white;
+padding: 30px;
+border-radius: 20px;
+border: 4px solid #000;
+width: 100%;
+max-width: 380px;
+text-align: center;
+}
+
+input {
+width: 100%;
+padding: 12px;
+margin: 10px 0;
+border: 2px solid #000;
+border-radius: 8px;
+box-sizing: border-box;
+font-size: 1rem;
+}
+
+.btn {
+background: #000;
+color: #fff;
+border: none;
+padding: 15px;
+width: 100%;
+border-radius: 10px;
+cursor: pointer;
+font-weight: bold;
+margin-top: 10px;
+}
+
+.btn.light {
+background: #fff;
+color: #000;
+border: 2px solid #000;
+}
+
+.empty-msg {
+padding: 50px;
+text-align: center;
+font-size: 1.1rem;
+font-weight: bold;
+}
+
+.small {
+font-size: 0.9rem;
+opacity: 0.8;
+}
+
+/* CAPA GLOBAL BLOQUEANTE */
+#avatarAnnouncementOverlay {
+position: fixed;
+inset: 0;
+z-index: 999999;
+display: none;
+pointer-events: auto;
+background:
+radial-gradient(circle at center, rgba(255,255,255,0.04), transparent 35%),
+rgba(0,0,0,0.38);
+overflow: hidden;
+}
+
+#avatarAnnouncementOverlay.active {
+display: block;
+}
+
+#avatarAnnouncementOverlay * {
+pointer-events: none;
+user-select: none;
+}
+
+.screen-noise {
+position: absolute;
+inset: 0;
+opacity: 0;
+background-image:
+linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+background-size: 100% 4px, 4px 100%;
+}
+
+#avatarAnnouncementOverlay.glitching .screen-noise {
+animation: screenNoise .12s steps(2) infinite,
+glitchFlash 1s linear forwards;
+opacity: 1;
+}
+
+@keyframes screenNoise {
+0% { transform: translate(0,0); }
+25% { transform: translate(2px,-1px); }
+50% { transform: translate(-2px,1px); }
+75% { transform: translate(1px,2px); }
+100% { transform: translate(0,0); }
+}
+
+@keyframes glitchFlash {
+0% { opacity: 0; }
+15% { opacity: 0.95; }
+25% { opacity: 0.2; }
+35% { opacity: 0.85; }
+50% { opacity: 0.15; }
+70% { opacity: 0.7; }
+100% { opacity: 0; }
+}
+
+.glitch-burst {
+position: absolute;
+left: 50%;
+top: 14%;
+transform: translateX(-50%);
+font-weight: 900;
+font-size: clamp(2rem, 6vw, 4.2rem);
+letter-spacing: 4px;
+color: #fff;
+text-transform: uppercase;
+opacity: 0;
+text-shadow:
+0 0 10px rgba(255,255,255,.4),
+4px 0 0 rgba(255,0,90,.6),
+-4px 0 0 rgba(0,200,255,.45);
+}
+
+#avatarAnnouncementOverlay.glitching .glitch-burst {
+animation: burstGlitch 1s ease forwards;
+}
+
+@keyframes burstGlitch {
+0% {
+opacity: 0;
+transform: translateX(-50%) scale(0.7) skewX(0deg);
+filter: blur(10px);
+}
+20% {
+opacity: 1;
+transform: translateX(-49%) scale(1.05) skewX(12deg);
+filter: blur(0);
+}
+35% {
+transform: translateX(-51%) scale(0.98) skewX(-8deg);
+}
+55% {
+transform: translateX(-50%) scale(1.03) skewX(5deg);
+}
+100% {
+opacity: 0;
+transform: translateX(-50%) scale(1) skewX(0deg);
+}
+}
+
+.avatar-wrap {
+position: absolute;
+left: 14px;
+bottom: 14px;
+display: flex;
+align-items: flex-end;
+gap: 16px;
+opacity: 0;
+transform: translateY(30px);
+}
+
+.avatar-wrap.show {
+opacity: 1;
+transform: translateY(0);
+transition: opacity .35s ease, transform .35s ease;
+}
+
+.avatar-fall {
+animation: avatarDrop 1s cubic-bezier(.18,.89,.32,1.28) forwards;
+}
+
+@keyframes avatarDrop {
+0% {
+transform: translateY(-120vh) scale(.35) rotate(-12deg);
+opacity: 0;
+filter: blur(8px);
+}
+65% {
+transform: translateY(22px) scale(1.02) rotate(2deg);
+opacity: 1;
+filter: blur(0);
+}
+82% {
+transform: translateY(-8px) scale(.99) rotate(-1deg);
+opacity: 1;
+}
+100% {
+transform: translateY(0) scale(1) rotate(0deg);
+opacity: 1;
+}
+}
+
+.avatar-box {
+width: min(950px, 34vw);
+min-width: 220px;
+max-width: 670px;
+filter: drop-shadow(0 25px 40px rgba(0,0,0,.6));
+}
+
+.avatar-box img {
+width: 100%;
+height: auto;
+display: block;
+image-rendering: auto;
+}
+
+.speech-bubble {
+position: relative;
+max-width: 340px;
+background: #fff;
+border: 4px solid #000;
+border-radius: 30px;
+padding: 16px 20px;
+
+font-weight: 900;
+font-size: 1.3rem;
+text-transform: uppercase;
+
+display: flex;
+align-items: center;
+
+box-shadow: 6px 6px 0 #000;
+
+opacity: 0;
+transform: scale(.8);
+}
+
+.speech-bubble.show {
+opacity: 1;
+transform: scale(1);
+transition: .25s ease;
+}
+
+
+
+@keyframes bubblePop {
+0% {
+opacity: 0;
+transform: scale(.65) translateY(20px);
+}
+70% {
+opacity: 1;
+transform: scale(1.04) translateY(-2px);
+}
+100% {
+opacity: 1;
+transform: scale(1) translateY(0);
+}
+}
+
+.speech-bubble::before {
+content: "";
+position: absolute;
+left: -20px;
+bottom: 25px;
+width: 25px;
+height: 25px;
+background: #fff;
+border-left: 4px solid #000;
+border-bottom: 4px solid #000;
+transform: rotate(45deg);
+}
+
+.speech-bubble::after {
+content: "";
+position: absolute;
+left: -35px;
+bottom: 15px;
+width: 14px;
+height: 14px;
+background: #fff;
+border: 4px solid #000;
+border-radius: 50%;
+}
+
+@media (max-width: 900px) {
+.avatar-wrap {
+position: absolute;
+left: 20px;
+bottom: 20px;
+display: flex;
+align-items: center; /* 🔥 ALINEA PERFECTO */
+gap: 10px; /* 🔥 MÁS PEGADO */
+}
+
+.avatar-box {
+width: 140px;
+min-width: 110px;
+}
+
+.speech-bubble {
+max-width: calc(100vw - 170px);
+min-width: 0;
+padding: 16px 16px;
+border-radius: 20px;
+box-shadow: 7px 7px 0 #000;
+}
+
+.speech-bubble::before {
+left: -18px;
+width: 24px;
+height: 24px;
+bottom: 26px;
+}
+
+.speech-bubble::after {
+left: -28px;
+bottom: 12px;
+width: 14px;
+height: 14px;
+}
+}
+
+@media (max-width: 700px) {
+header {
+padding: 16px;
+}
+
+#store {
+padding: 20px;
+gap: 20px;
+}
+
+#cart-panel {
+right: 10px;
+left: 10px;
+width: auto;
+top: 86px;
+}
+
+.avatar-wrap {
+left: 8px;
+right: 8px;
+bottom: 8px;
+}
+
+.avatar-box {
+width: 110px;
+min-width: 90px;
+}
+
+.speech-bubble {
+max-width: calc(100vw - 118px);
+font-size: .95rem;
+line-height: 1.15;
+}
+}
+</style>
+</head>
+<body>
+<header>
+<a href="login.html" class="login-link">LOGIN</a>
+<div class="cart-toggle" onclick="toggleCart()">🛒 CARRITO (<span id="count">0</span>)</div>
+</header>
+
+<div id="store"></div>
+
+<div id="cart-panel">
+<h3>TU PEDIDO</h3>
+<div id="cart-list"></div>
+<div class="cart-total">TOTAL: $<span id="cart-total">0</span></div>
+<hr>
+<button class="btn" onclick="openModalCompra()">COMPRAR</button>
+<button class="btn light" onclick="toggleCart(false)">CERRAR</button>
+</div>
+
+<div id="modal-buy" class="modal">
+<div class="m-box">
+<h2 id="m-title">FINALIZAR</h2>
+
+<div id="m-form">
+<input type="text" id="user-n" placeholder="Tu Nombre">
+<input type="text" id="user-g" placeholder="Tu Grado">
+<button class="btn" onclick="confirmarCompra()">CONFIRMAR</button>
+<button class="btn light" onclick="cerrarModalCompra()">CANCELAR</button>
+</div>
+
+<div id="m-thanks" style="display:none;">
+<p><strong>¡Gracias por tu compra!</strong></p>
+<p>Se te entregará lo más pronto posible.</p>
+<p>No olvides llevar el dinero exacto de tu pedido.</p>
+<button class="btn" onclick="location.reload()">CERRAR</button>
+</div>
+</div>
+</div>
+
+<!-- AVATAR GLOBAL BLOQUEANTE -->
+<div id="avatarAnnouncementOverlay" aria-hidden="true">
+<div class="screen-noise"></div>
+<div class="glitch-burst">ANUNCIO</div>
+
+<div class="avatar-wrap" id="avatarWrap">
+<div class="avatar-box avatar-fall" id="avatarBox">
+<img src="assets/1.png" alt="Avatar global">
+</div>
+<div class="speech-bubble" id="speechBubble">
+<span id="speechText"></span>
+</div>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+authDomain: "gorflacos.firebaseapp.com",
+projectId: "gorflacos",
+storageBucket: "gorflacos.firebasestorage.app",
+messagingSenderId: "507648872448",
+appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
+};
+
+if (!firebase.apps.length) {
+firebase.initializeApp(firebaseConfig);
+}
+
+const db = firebase.firestore();
+
+let cart = [];
+const store = document.getElementById("store");
+const cartList = document.getElementById("cart-list");
+const count = document.getElementById("count");
+const cartTotal = document.getElementById("cart-total");
+
+const overlay = document.getElementById("avatarAnnouncementOverlay");
+const avatarWrap = document.getElementById("avatarWrap");
+const avatarBox = document.getElementById("avatarBox");
+const speechBubble = document.getElementById("speechBubble");
+const speechText = document.getElementById("speechText");
+
+let avatarVisible = false;
+let currentAnnouncementText = "";
+let glitchTimer = null;
+let revealTimer = null;
+let bubbleTimer = null;
+
+function escapeHtml(text) {
+if (text === null || text === undefined) return "";
+return String(text)
+.replace(/&/g, "&amp;")
+.replace(/</g, "&lt;")
+.replace(/>/g, "&gt;")
+.replace(/"/g, "&quot;")
+.replace(/'/g, "&#039;");
+}
+
+function normalizeText(text) {
+return String(text || "").trim();
+}
+
+function toggleCart(force) {
+if (avatarVisible) return;
+
+const panel = document.getElementById("cart-panel");
+if (typeof force === "boolean") {
+panel.style.display = force ? "block" : "none";
+} else {
+panel.style.display = panel.style.display === "block" ? "none" : "block";
+}
+}
+
+function renderStore(snapshot) {
+store.innerHTML = "";
+
+if (snapshot.empty) {
+store.innerHTML = `<div class="empty-msg">No hay productos todavía.</div>`;
+return;
+}
+
+snapshot.forEach(docSnap => {
+const p = docSnap.data();
+const nombre = p.nombre || "Sin nombre";
+const imagen = p.imagen || "";
+const precio = Number(p.precio || 0);
+const stock = Number(p.stock || 0);
+const agotado = stock <= 0;
+
+const card = document.createElement("div");
+card.className = `card ${agotado ? "no-stock" : ""}`;
+
+card.innerHTML = `
+<img src="${escapeHtml(imagen)}" alt="${escapeHtml(nombre)}">
+<div class="card-info">
+<h3>${escapeHtml(nombre)}</h3>
+<p><strong>$${precio}</strong></p>
+<p class="small">Stock: ${stock}</p>
+</div>
+${agotado ? '<div class="lock">⛔ NO DISPONIBLE</div>' : ''}
+`;
+
+if (!agotado) {
+card.addEventListener("click", () => {
+if (avatarVisible) return;
+agregarAlCarrito(docSnap.id, nombre, precio, stock);
+});
+}
+
+store.appendChild(card);
+});
+}
+
+function agregarAlCarrito(id, nombre, precio, stock) {
+if (avatarVisible) return;
+
+const item = cart.find(x => x.id === id);
+
+if (item) {
+if (item.qty < item.stock) {
+item.qty++;
+} else {
+alert("Sin más stock disponible");
+}
+} else {
+cart.push({
+id,
+nombre,
+precio,
+qty: 1,
+stock
+});
+}
+
+renderCart();
+}
+
+function aumentarCantidad(index) {
+if (avatarVisible) return;
+
+const item = cart[index];
+if (!item) return;
+
+if (item.qty < item.stock) {
+item.qty++;
+renderCart();
+} else {
+alert("No hay más stock disponible");
+}
+}
+
+function disminuirCantidad(index) {
+if (avatarVisible) return;
+
+const item = cart[index];
+if (!item) return;
+
+item.qty--;
+
+if (item.qty <= 0) {
+cart.splice(index, 1);
+}
+
+renderCart();
+}
+
+function eliminarDelCarrito(index) {
+if (avatarVisible) return;
+cart.splice(index, 1);
+renderCart();
+}
+
+function renderCart() {
+cartList.innerHTML = "";
+
+if (cart.length === 0) {
+cartList.innerHTML = `<p>Tu carrito está vacío.</p>`;
+count.textContent = "0";
+cartTotal.textContent = "0";
+return;
+}
+
+let total = 0;
+let cantidadTotal = 0;
+
+cart.forEach((item, index) => {
+const subtotal = item.precio * item.qty;
+total += subtotal;
+cantidadTotal += item.qty;
+
+const div = document.createElement("div");
+div.className = "item";
+div.innerHTML = `
+<strong>${escapeHtml(item.nombre)}</strong><br>
+<span class="small">Precio: $${item.precio}</span><br>
+<span class="small">Subtotal: $${subtotal}</span>
+<div class="qty-box">
+<button class="qty-btn" onclick="disminuirCantidad(${index})">-</button>
+<span><strong>${item.qty}</strong></span>
+<button class="qty-btn" onclick="aumentarCantidad(${index})">+</button>
+<button class="remove-btn" onclick="eliminarDelCarrito(${index})">x</button>
+</div>
+`;
+cartList.appendChild(div);
+});
+
+count.textContent = cantidadTotal;
+cartTotal.textContent = total;
+}
+
+function openModalCompra() {
+if (avatarVisible) return;
+
+if (cart.length === 0) {
+alert("No hay productos en el carrito");
+return;
+}
+document.getElementById("modal-buy").style.display = "flex";
+}
+
+function cerrarModalCompra() {
+if (avatarVisible) return;
+document.getElementById("modal-buy").style.display = "none";
+}
+
+async function confirmarCompra() {
+if (avatarVisible) return;
+
+const nombreCliente = document.getElementById("user-n").value.trim();
+const gradoCliente = document.getElementById("user-g").value.trim();
+
+if (!nombreCliente || !gradoCliente) {
+alert("Completa los datos");
+return;
+}
+
+try {
+const total = cart.reduce((acc, item) => acc + (item.precio * item.qty), 0);
+const pedidoTexto = cart.map(item => `${item.nombre} (x${item.qty})`).join(", ");
+
+const batch = db.batch();
+const compraRef = db.collection("compras").doc();
+
+batch.set(compraRef, {
+cliente: nombreCliente,
+grado: gradoCliente,
+pedido: pedidoTexto,
+total: total,
+items: cart.map(item => ({
+id: item.id,
+nombre: item.nombre,
+precio: item.precio,
+qty: item.qty
+})),
+fecha: firebase.firestore.Timestamp.now()
+});
+
+cart.forEach(item => {
+const productoRef = db.collection("productos").doc(item.id);
+batch.update(productoRef, {
+stock: firebase.firestore.FieldValue.increment(-item.qty)
+});
+});
+
+await batch.commit();
+
+document.getElementById("m-form").style.display = "none";
+document.getElementById("m-thanks").style.display = "block";
+} catch (error) {
+console.error("Error al confirmar compra:", error);
+alert("No se pudo completar la compra");
+}
+}
+
+function clearAvatarTimers() {
+if (glitchTimer) clearTimeout(glitchTimer);
+if (revealTimer) clearTimeout(revealTimer);
+if (bubbleTimer) clearTimeout(bubbleTimer);
+glitchTimer = null;
+revealTimer = null;
+bubbleTimer = null;
+}
+
+function showAvatarAnnouncement(text) {
+const clean = normalizeText(text);
+if (!clean) {
+hideAvatarAnnouncement();
+return;
+}
+
+if (avatarVisible && currentAnnouncementText === clean) {
+return;
+}
+
+clearAvatarTimers();
+currentAnnouncementText = clean;
+avatarVisible = true;
+
+speechText.textContent = clean;
+overlay.classList.add("active");
+overlay.classList.add("glitching");
+
+avatarWrap.classList.remove("show");
+speechBubble.classList.remove("show");
+avatarBox.classList.remove("avatar-fall");
+
+glitchTimer = setTimeout(() => {
+overlay.classList.remove("glitching");
+
+avatarWrap.classList.add("show");
+
+// reinicia animación de caída
+void avatarBox.offsetWidth;
+avatarBox.classList.add("avatar-fall");
+
+revealTimer = setTimeout(() => {
+speechBubble.classList.add("show");
+}, 450);
+}, 1000);
+}
+
+function hideAvatarAnnouncement() {
+clearAvatarTimers();
+avatarVisible = false;
+currentAnnouncementText = "";
+
+overlay.classList.remove("active");
+overlay.classList.remove("glitching");
+avatarWrap.classList.remove("show");
+speechBubble.classList.remove("show");
+avatarBox.classList.remove("avatar-fall");
+speechText.textContent = "";
+}
+
+db.collection("productos").onSnapshot(
+(snapshot) => {
+renderStore(snapshot);
+},
+(error) => {
+console.error("Error al leer productos:", error);
+store.innerHTML = `<div class="empty-msg">No se pudieron cargar los productos.</div>`;
+}
+);
+
+db.collection("system").doc("globalAnnouncement").onSnapshot(
+(docSnap) => {
+if (!docSnap.exists) {
+hideAvatarAnnouncement();
+return;
+}
+
+const data = docSnap.data() || {};
+const active = data.active === true;
+const text = normalizeText(data.text);
+const avatarEnabled = data.avatarEnabled !== false;
+
+if (active && text && avatarEnabled) {
+showAvatarAnnouncement(text);
+} else {
+hideAvatarAnnouncement();
+}
+},
+(error) => {
+console.error("Error al escuchar anuncio global:", error);
+}
+);
+
+window.toggleCart = toggleCart;
+window.openModalCompra = openModalCompra;
+window.cerrarModalCompra = cerrarModalCompra;
+window.confirmarCompra = confirmarCompra;
+window.aumentarCantidad = aumentarCantidad;
+window.disminuirCantidad = disminuirCantidad;
+window.eliminarDelCarrito = eliminarDelCarrito;
+</script>
+</body>
+</html>
+
