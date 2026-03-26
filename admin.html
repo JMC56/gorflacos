@@ -1,306 +1,1314 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EL ORFANATO</title>
 
-        body {
-            font-family: sans-serif;
-            padding: 30px;
-            margin: 0;
-            background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
-            background-size: 20px 20px;
-            background-color: #fafafa;
-        }
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
 
-        h1 {
-            margin-top: 0;
-        }
+:root{
+  --verde:#00ff9f;
+  --verde2:#b5ffe3;
+  --verde3:#7cffca;
+  --fondo:#000;
+  --panel:rgba(0,0,0,.82);
+  --borde:rgba(0,255,159,.25);
+  --brillo:0 0 20px rgba(0,255,159,.22);
+  --rojo:#ff6b6b;
+}
 
-        .box {
-            background: white;
-            padding: 25px;
-            border: 3px solid #000;
-            border-radius: 15px;
-            box-shadow: 10px 10px 0px #000;
-            margin-bottom: 30px;
-        }
+html,body{
+  width:100%;
+  min-height:100%;
+}
 
-        input {
-            padding: 12px;
-            border: 2px solid #000;
-            border-radius: 8px;
-            margin: 5px;
-            min-width: 180px;
-        }
+body{
+  background:
+    radial-gradient(circle at center, rgba(0,255,159,.08), transparent 45%),
+    linear-gradient(rgba(0,255,159,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,159,.03) 1px, transparent 1px),
+    #000;
+  background-size:cover, 100% 3px, 3px 100%, cover;
+  color:var(--verde);
+  font-family:Consolas, monospace;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  overflow:hidden;
+  position:relative;
+  padding:18px;
+}
 
-        .row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            border-bottom: 1px solid #eee;
-            padding: 12px 0;
-            flex-wrap: wrap;
-        }
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.025) 0px,
+      rgba(255,255,255,.025) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+  mix-blend-mode:screen;
+  opacity:.18;
+  animation:scan 8s linear infinite;
+}
 
-        .btn-add,
-        .btn {
-            background: #000;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.15) 55%, rgba(0,0,0,.55) 100%);
+}
 
-        .btn-danger {
-            background: #c00;
-            color: #fff;
-            padding: 8px 14px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+@keyframes scan{
+  0%{transform:translateY(-12px)}
+  100%{transform:translateY(12px)}
+}
 
-        .btn-light {
-            background: #fff;
-            color: #000;
-            border: 2px solid #000;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+.wrap{
+  position:relative;
+  z-index:2;
+  background:var(--panel);
+  border:1px solid var(--borde);
+  padding:34px 22px 24px;
+  border-radius:22px;
+  text-align:center;
+  width:100%;
+  max-width:780px;
+  box-shadow:
+    0 0 40px rgba(0,255,159,.10),
+    inset 0 0 20px rgba(0,255,159,.03);
+  backdrop-filter:blur(8px);
+}
 
-        .venta {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-            border-left: 5px solid #000;
-            cursor: pointer;
-        }
+.top-tags{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
 
-        .venta small {
-            display: block;
-            margin-top: 5px;
-        }
+.chip{
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid rgba(0,255,159,.18);
+  background:rgba(0,255,159,.05);
+  color:var(--verde2);
+  font-size:.72rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
 
-        .top-actions {
-            margin-bottom: 20px;
-        }
+.title{
+  font-size:clamp(2.5rem, 8vw, 4.8rem);
+  font-weight:900;
+  letter-spacing:6px;
+  text-shadow:
+    0 0 10px rgba(0,255,159,.8),
+    0 0 24px rgba(0,255,159,.35);
+  animation:glitch 2s infinite;
+}
 
-        .product-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-    </style>
+@keyframes glitch{
+  0%,100%{transform:translate(0)}
+  20%{transform:translate(2px,-2px)}
+  40%{transform:translate(-2px,2px)}
+  60%{transform:translate(2px,1px)}
+  80%{transform:translate(-2px,-1px)}
+}
+
+.sub{
+  margin-top:10px;
+  color:var(--verde2);
+  opacity:.92;
+  font-size:.96rem;
+  letter-spacing:1px;
+}
+
+.date-line{
+  margin-top:8px;
+  color:var(--verde3);
+  font-size:.84rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+}
+
+.live-line{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  margin-top:14px;
+  color:#d8ffee;
+  letter-spacing:2px;
+  font-weight:900;
+  font-size:.84rem;
+}
+
+.live-dot{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#1d1d1d;
+  border:1px solid rgba(255,255,255,.14);
+}
+
+.live-dot.on{
+  background:var(--verde);
+  box-shadow:0 0 14px rgba(0,255,159,.75);
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.17)}
+  100%{transform:scale(1)}
+}
+
+.timer{
+  display:flex;
+  justify-content:center;
+  gap:16px;
+  margin-top:24px;
+  flex-wrap:wrap;
+}
+
+.time{
+  min-width:110px;
+  background:rgba(0,255,159,.07);
+  padding:18px 16px;
+  border-radius:16px;
+  border:1px solid rgba(0,255,159,.22);
+  box-shadow:var(--brillo);
+}
+
+.num{
+  font-size:2.1rem;
+  font-weight:900;
+  line-height:1;
+}
+
+.lab{
+  margin-top:8px;
+  font-size:.78rem;
+  letter-spacing:2px;
+  color:var(--verde2);
+}
+
+.img-box{
+  margin-top:26px;
+  border:1px solid rgba(0,255,159,.2);
+  border-radius:20px;
+  overflow:hidden;
+  position:relative;
+  background:#020202;
+}
+
+.img-box img{
+  width:100%;
+  display:block;
+  max-height:420px;
+  object-fit:cover;
+  filter:brightness(.82) contrast(1.08);
+}
+
+.input-area{
+  position:absolute;
+  left:50%;
+  bottom:20px;
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  width:min(85%, 360px);
+}
+
+#secretInput{
+  width:100%;
+  padding:14px 16px;
+  border-radius:12px;
+  border:1px solid rgba(0,255,159,.35);
+  background:rgba(0,0,0,.82);
+  color:var(--verde);
+  text-align:center;
+  font-size:1.1rem;
+  font-weight:900;
+  letter-spacing:2px;
+  outline:none;
+  box-shadow:0 0 18px rgba(0,255,159,.12);
+}
+
+#secretInput::placeholder{
+  color:rgba(159,255,216,.65);
+  letter-spacing:1px;
+}
+
+#secretBtn{
+  padding:12px 22px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(180deg, #00ff9f, #00b96f);
+  color:#00140c;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(0,255,159,.22);
+}
+
+#secretBtn:hover{
+  transform:translateY(-1px);
+}
+
+#inputMsg{
+  min-height:22px;
+  font-weight:900;
+  font-size:.95rem;
+  text-shadow:0 0 10px rgba(0,255,159,.28);
+}
+
+#inputMsg.ok{
+  color:#b6ffd9;
+}
+
+#inputMsg.bad{
+  color:var(--rojo);
+  text-shadow:0 0 12px rgba(255,0,0,.28);
+}
+
+.status{
+  margin-top:18px;
+  min-height:44px;
+  color:var(--verde2);
+  font-size:.9rem;
+  opacity:.95;
+  line-height:1.45;
+  white-space:pre-line;
+}
+
+.hidden{
+  display:none !important;
+}
+
+/* AVATAR */
+#avatarOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.88);
+  display:none;
+  z-index:9999;
+}
+
+#avatarOverlay.active{
+  display:block;
+}
+
+.avatar{
+  position:absolute;
+  bottom:30px;
+  left:30px;
+  display:flex;
+  gap:20px;
+  align-items:flex-end;
+}
+
+.avatar img{
+  width:220px;
+  max-width:38vw;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 14px 24px rgba(0,0,0,.55));
+}
+
+.bubble{
+  background:#fff;
+  color:#000;
+  padding:16px 18px;
+  border-radius:22px;
+  font-weight:bold;
+  max-width:320px;
+  box-shadow:0 12px 24px rgba(0,0,0,.28);
+}
+
+/* POPUP */
+#popup{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.92);
+  z-index:9998;
+}
+
+#popup.active{
+  display:flex;
+}
+
+.big{
+  font-size:clamp(2.2rem, 7vw, 4.5rem);
+  text-shadow:
+    0 0 10px rgba(0,255,159,.8),
+    0 0 24px rgba(0,255,159,.35);
+  text-align:center;
+  padding:20px;
+}
+
+/* MENSAJE FINAL GLOBAL */
+#finalOverlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.94);
+  z-index:10000;
+  padding:20px;
+}
+
+#finalOverlay.active{
+  display:flex;
+}
+
+.final-box{
+  text-align:center;
+  max-width:760px;
+  padding:34px 24px;
+  border:1px solid rgba(0,255,159,.28);
+  border-radius:24px;
+  background:rgba(0,0,0,.84);
+  box-shadow:0 0 40px rgba(0,255,159,.12);
+}
+
+.final-title{
+  font-size:clamp(2rem, 6vw, 4.2rem);
+  font-weight:900;
+  color:#d6ffec;
+  letter-spacing:3px;
+  text-shadow:
+    0 0 12px rgba(0,255,159,.8),
+    0 0 28px rgba(0,255,159,.28);
+}
+
+.final-sub{
+  margin-top:14px;
+  font-size:1.05rem;
+  color:var(--verde2);
+}
+
+/* ENTRADA UNICA */
+#enterOverlay{
+  position:fixed;
+  inset:0;
+  z-index:11000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.96);
+  padding:20px;
+}
+
+#enterOverlay.hidden{
+  display:none !important;
+}
+
+.enter-box{
+  width:min(92%, 560px);
+  text-align:center;
+  border:1px solid rgba(0,255,159,.25);
+  border-radius:24px;
+  padding:30px 20px;
+  background:rgba(0,0,0,.85);
+  box-shadow:0 0 36px rgba(0,255,159,.12);
+}
+
+.enter-title{
+  font-size:clamp(1.8rem, 6vw, 3rem);
+  font-weight:900;
+  color:#e5fff3;
+  letter-spacing:3px;
+  text-shadow:0 0 12px rgba(0,255,159,.5);
+}
+
+.enter-sub{
+  margin-top:12px;
+  color:var(--verde2);
+  line-height:1.6;
+  font-size:.98rem;
+}
+
+#enterBtn{
+  margin-top:20px;
+  padding:14px 26px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(180deg, #00ff9f, #00b96f);
+  color:#00140c;
+  font-weight:900;
+  font-size:1rem;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(0,255,159,.24);
+}
+
+#enterMode{
+  margin-top:14px;
+  color:var(--verde3);
+  font-size:.82rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+audio{
+  width:0;
+  height:0;
+  opacity:0;
+  pointer-events:none;
+}
+
+@media (max-width:700px){
+  .wrap{
+    padding:24px 14px;
+  }
+
+  .timer{
+    gap:10px;
+  }
+
+  .time{
+    min-width:88px;
+    padding:16px 10px;
+  }
+
+  .num{
+    font-size:1.7rem;
+  }
+
+  .avatar{
+    left:14px;
+    right:14px;
+    bottom:14px;
+    gap:12px;
+  }
+
+  .avatar img{
+    width:120px;
+    max-width:none;
+  }
+
+  .bubble{
+    max-width:calc(100vw - 170px);
+    font-size:.92rem;
+    padding:12px 14px;
+  }
+
+  .input-area{
+    width:min(92%, 320px);
+    bottom:14px;
+  }
+}
+</style>
 </head>
+
 <body>
-    <div class="top-actions">
-        <button class="btn-light" onclick="location.href='index.html'">IR A LA TIENDA</button>
+
+<div class="wrap">
+  <div class="top-tags">
+    <div class="chip">sistema global</div>
+    <div class="chip" id="roleChip">modo visitante</div>
+  </div>
+
+  <h1 class="title">EL ORFANATO</h1>
+  <div class="sub">Temporizador global activo</div>
+  <div class="date-line">26 DE MARZO</div>
+
+  <div class="live-line">
+    <span class="live-dot" id="voiceDot"></span>
+    <span id="voiceState">AUDIO EN ESPERA</span>
+  </div>
+
+  <div class="timer" id="timerBox">
+    <div class="time">
+      <div class="num" id="h">00</div>
+      <div class="lab">HORAS</div>
     </div>
-
-    <h1>ADMIN DASHBOARD</h1>
-
-    <div class="box">
-        <h3>AÑADIR PRODUCTO</h3>
-        <input type="text" id="n" placeholder="Nombre">
-        <input type="text" id="i" placeholder="URL Imagen">
-        <input type="number" id="p" placeholder="Precio" step="0.01">
-        <input type="number" id="s" placeholder="Stock">
-        <button class="btn-add" onclick="crear()">GUARDAR</button>
+    <div class="time">
+      <div class="num" id="m">00</div>
+      <div class="lab">MINUTOS</div>
     </div>
-
-    <div class="box">
-        <h3>INVENTARIO Y STOCK</h3>
-        <div id="inv"></div>
+    <div class="time">
+      <div class="num" id="s">00</div>
+      <div class="lab">SEGUNDOS</div>
     </div>
+  </div>
 
-    <div class="box">
-        <h3>HISTORIAL DE COMPRAS</h3>
-        <div id="ventas"></div>
+  <div class="img-box">
+    <img src="assets/imagen.png" alt="Imagen principal">
+
+    <div class="input-area" id="inputArea">
+      <input id="secretInput" type="text" maxlength="4" placeholder="ESCRIBE LA PALABRA">
+      <button id="secretBtn" type="button">ENVIAR</button>
+      <div id="inputMsg"></div>
     </div>
+  </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script>
-        if (!localStorage.getItem("admin_auth")) {
-            window.location.href = "login.html";
+  <div class="status" id="status">Conectando con el sistema global...</div>
+</div>
+
+<!-- AUDIO REMOTO -->
+<audio id="remoteAudio" autoplay playsinline></audio>
+
+<!-- ENTRADA -->
+<div id="enterOverlay">
+  <div class="enter-box">
+    <div class="enter-title">EL ORFANATO</div>
+    <div class="enter-sub">
+      Pulsa entrar para activar permisos del navegador.
+    </div>
+    <button id="enterBtn">ENTRAR</button>
+    <div id="enterMode">detectando modo...</div>
+  </div>
+</div>
+
+<!-- AVATAR -->
+<div id="avatarOverlay">
+  <div class="avatar">
+    <img id="avatarImg" src="assets/1.png" alt="Avatar">
+    <div class="bubble" id="text"></div>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup">
+  <div class="big" id="popupTime">00:00</div>
+</div>
+
+<!-- FINAL -->
+<div id="finalOverlay">
+  <div class="final-box">
+    <div class="final-title">FELICIDADES</div>
+    <div class="final-sub">LO HAN ENCONTRADO</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  collection,
+  addDoc,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+/* =========================
+   CONFIG
+========================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+  authDomain: "gorflacos.firebaseapp.com",
+  projectId: "gorflacos"
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* =========================
+   REFERENCIAS
+========================= */
+const timerRef = doc(db, "global", "timer");
+const anuncioRef = doc(db, "system", "globalAnnouncement");
+
+const ROOM_ID = "orfanato_main_voice_room";
+const roomRef = doc(db, "voiceRooms", ROOM_ID);
+const listenersCol = collection(db, "voiceRooms", ROOM_ID, "listeners");
+
+/* =========================
+   ELEMENTOS
+========================= */
+const hEl = document.getElementById("h");
+const mEl = document.getElementById("m");
+const sEl = document.getElementById("s");
+const statusEl = document.getElementById("status");
+const roleChip = document.getElementById("roleChip");
+const voiceDot = document.getElementById("voiceDot");
+const voiceState = document.getElementById("voiceState");
+
+const overlay = document.getElementById("avatarOverlay");
+const text = document.getElementById("text");
+const avatar = document.getElementById("avatarImg");
+
+const popup = document.getElementById("popup");
+const popupTime = document.getElementById("popupTime");
+
+const finalOverlay = document.getElementById("finalOverlay");
+const inputArea = document.getElementById("inputArea");
+const secretInput = document.getElementById("secretInput");
+const secretBtn = document.getElementById("secretBtn");
+const inputMsg = document.getElementById("inputMsg");
+
+const enterOverlay = document.getElementById("enterOverlay");
+const enterBtn = document.getElementById("enterBtn");
+const enterMode = document.getElementById("enterMode");
+
+const remoteAudio = document.getElementById("remoteAudio");
+
+/* =========================
+   ESTADO GENERAL
+========================= */
+const isAdmin = new URLSearchParams(location.search).get("admin") === "1";
+const DEFAULT_DURATION_MS = 5 * 60 * 1000;
+
+let timerInterval = null;
+let popupInterval = null;
+let currentEndTime = null;
+let alreadyFound = false;
+
+/* =========================
+   WEBRTC ESTADO
+========================= */
+const ICE_SERVERS = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" }
+  ]
+};
+
+let hasEntered = false;
+let localStream = null;
+let isBroadcasting = false;
+let isListening = false;
+
+let broadcasterUnsubListeners = null;
+const broadcasterPeers = new Map();
+
+let listenerPeer = null;
+let listenerDocRef = null;
+let listenerUnsubDoc = null;
+let listenerUnsubOfferCandidates = null;
+
+/* =========================
+   UI HELPERS
+========================= */
+function format(n){
+  return String(n).padStart(2, "0");
+}
+
+function setVoiceState(textValue, on = false){
+  voiceState.textContent = textValue;
+  voiceDot.classList.toggle("on", on);
+}
+
+function setStatus(textValue){
+  statusEl.textContent = textValue;
+}
+
+roleChip.textContent = isAdmin ? "modo emisor" : "modo oyente";
+enterMode.textContent = isAdmin ? "este dispositivo transmitirá" : "este dispositivo escuchará";
+
+/* =========================
+   TIMER GLOBAL
+========================= */
+function stopMainTimer(){
+  if(timerInterval){
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function renderZeros(){
+  hEl.textContent = "00";
+  mEl.textContent = "00";
+  sEl.textContent = "00";
+}
+
+function startTimerLoop(){
+  stopMainTimer();
+
+  const tick = () => {
+    if(alreadyFound){
+      renderZeros();
+      return;
+    }
+
+    const t = Number(currentEndTime || 0) - Date.now();
+
+    if(t <= 0){
+      renderZeros();
+      return;
+    }
+
+    const h = Math.floor(t / 1000 / 60 / 60);
+    const m = Math.floor((t / 1000 / 60) % 60);
+    const s = Math.floor((t / 1000) % 60);
+
+    hEl.textContent = format(h);
+    mEl.textContent = format(m);
+    sEl.textContent = format(s);
+  };
+
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
+
+async function initTimer(){
+  try{
+    const snap = await getDoc(timerRef);
+
+    if(snap.exists()){
+      const data = snap.data() || {};
+      currentEndTime = data.endTime || (Date.now() + DEFAULT_DURATION_MS);
+      alreadyFound = data.found === true;
+    }else{
+      currentEndTime = Date.now() + DEFAULT_DURATION_MS;
+
+      await setDoc(timerRef, {
+        endTime: currentEndTime,
+        found: false,
+        foundMessage: "",
+        foundAt: null,
+        createdAt: Date.now()
+      });
+    }
+
+    if(alreadyFound){
+      renderFoundState();
+    }else{
+      startTimerLoop();
+      setStatus("Temporizador global cargado.");
+    }
+  }catch(error){
+    console.error("Error initTimer:", error);
+    setStatus("Error al conectar con Firebase.");
+  }
+}
+
+function renderFoundState(){
+  alreadyFound = true;
+  stopMainTimer();
+  renderZeros();
+  inputArea.classList.add("hidden");
+  finalOverlay.classList.add("active");
+  setStatus("El código ya fue encontrado.");
+}
+
+function renderNotFoundState(){
+  alreadyFound = false;
+  finalOverlay.classList.remove("active");
+  inputArea.classList.remove("hidden");
+  startTimerLoop();
+}
+
+onSnapshot(timerRef, (snap) => {
+  const data = snap.data() || {};
+
+  currentEndTime = data.endTime || currentEndTime;
+  const found = data.found === true;
+
+  if(found){
+    renderFoundState();
+  }else{
+    if(alreadyFound){
+      finalOverlay.classList.remove("active");
+    }
+    renderNotFoundState();
+    setStatus("Temporizador global sincronizado.");
+  }
+}, (err) => {
+  console.error("Error escuchando timer:", err);
+});
+
+/* =========================
+   INPUT SECRETO
+========================= */
+function setInputMessage(message, ok = false){
+  inputMsg.textContent = message;
+  inputMsg.className = ok ? "ok" : "bad";
+}
+
+async function trySecret(){
+  if(alreadyFound){
+    setInputMessage("YA FUE ENCONTRADO", true);
+    return;
+  }
+
+  const value = (secretInput.value || "").trim().toUpperCase();
+
+  if(value === "BOLO"){
+    try{
+      await updateDoc(timerRef, {
+        found: true,
+        foundMessage: "FELICIDADES LO HAN ENCONTRADO",
+        foundAt: Date.now()
+      });
+
+      setInputMessage("CORRECTO", true);
+      secretInput.value = "";
+    }catch(error){
+      console.error("Error actualizando found:", error);
+      setInputMessage("ERROR");
+    }
+  }else{
+    setInputMessage("INCORRECTO");
+    secretInput.value = "";
+  }
+}
+
+secretBtn.addEventListener("click", trySecret);
+
+secretInput.addEventListener("keydown", (e) => {
+  if(e.key === "Enter"){
+    trySecret();
+  }
+});
+
+/* =========================
+   ANUNCIOS
+========================= */
+onSnapshot(anuncioRef, (snap) => {
+  const d = snap.data() || {};
+
+  if(d.active){
+    overlay.classList.add("active");
+    text.textContent = d.text || "";
+    avatar.src = "assets/" + (d.avatar || "1.png");
+  }else{
+    overlay.classList.remove("active");
+  }
+}, (err) => {
+  console.error("Error anuncio:", err);
+});
+
+/* =========================
+   COUNTDOWN POPUP
+========================= */
+function stopPopup(){
+  popup.classList.remove("active");
+  if(popupInterval){
+    clearInterval(popupInterval);
+    popupInterval = null;
+  }
+}
+
+function startPopup(end){
+  stopPopup();
+  popup.classList.add("active");
+
+  const tick = () => {
+    const t = end - Date.now();
+
+    if(t <= 0){
+      popupTime.textContent = "00:00";
+      stopPopup();
+      return;
+    }
+
+    const m = Math.floor(t / 1000 / 60);
+    const s = Math.floor((t / 1000) % 60);
+
+    popupTime.textContent = `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  };
+
+  tick();
+  popupInterval = setInterval(tick, 1000);
+}
+
+window.startPopup = startPopup;
+
+/* =========================
+   WEBRTC HELPERS
+========================= */
+async function clearRoomListeners(){
+  const snap = await getDocs(listenersCol);
+  const tasks = [];
+  snap.forEach(d => tasks.push(deleteDoc(d.ref)));
+  await Promise.allSettled(tasks);
+}
+
+function randomId(){
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+/* =========================
+   EMISOR
+========================= */
+async function startBroadcast(){
+  if(isBroadcasting) return;
+
+  try{
+    localStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      },
+      video: false
+    });
+
+    isBroadcasting = true;
+    setVoiceState("MICRÓFONO EN VIVO", true);
+    setStatus("Micrófono activo.\nTransmitiendo automáticamente a la sala global.");
+
+    await setDoc(roomRef, {
+      active: true,
+      broadcasterRole: "admin",
+      updatedAt: Date.now()
+    }, { merge: true });
+
+    await clearRoomListeners();
+
+    if(broadcasterUnsubListeners){
+      broadcasterUnsubListeners();
+      broadcasterUnsubListeners = null;
+    }
+
+    broadcasterUnsubListeners = onSnapshot(listenersCol, async (snapshot) => {
+      for(const change of snapshot.docChanges()){
+        if(change.type === "added"){
+          const listenerId = change.doc.id;
+          const data = change.doc.data() || {};
+          if(data.offer) continue;
+          if(broadcasterPeers.has(listenerId)) continue;
+          await handleNewListener(listenerId, change.doc.ref);
         }
+      }
+    });
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
-            authDomain: "gorflacos.firebaseapp.com",
-            projectId: "gorflacos",
-            storageBucket: "gorflacos.firebasestorage.app",
-            messagingSenderId: "507648872448",
-            appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
-        };
+  }catch(error){
+    console.error("Error startBroadcast:", error);
+    setVoiceState("MICRÓFONO BLOQUEADO", false);
+    setStatus("No se pudo abrir el micrófono.\nRevisa permisos y HTTPS.");
+  }
+}
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+async function handleNewListener(listenerId, listenerRef){
+  try{
+    const pc = new RTCPeerConnection(ICE_SERVERS);
+
+    localStream.getTracks().forEach(track => {
+      pc.addTrack(track, localStream);
+    });
+
+    const offerCandidatesCol = collection(db, "voiceRooms", ROOM_ID, "listeners", listenerId, "offerCandidates");
+    const answerCandidatesCol = collection(db, "voiceRooms", ROOM_ID, "listeners", listenerId, "answerCandidates");
+
+    pc.onicecandidate = async (event) => {
+      if(event.candidate){
+        await addDoc(offerCandidatesCol, event.candidate.toJSON());
+      }
+    };
+
+    const answerCandidatesUnsub = onSnapshot(answerCandidatesCol, (snap) => {
+      snap.docChanges().forEach(async (change) => {
+        if(change.type === "added"){
+          try{
+            await pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+          }catch(e){
+            console.error("Error ICE broadcaster:", e);
+          }
         }
+      });
+    });
 
-        const db = firebase.firestore();
+    const docUnsub = onSnapshot(listenerRef, async (snap) => {
+      const data = snap.data();
+      if(!data) return;
 
-        function formatFecha(fecha) {
-            try {
-                if (!fecha) return "Sin fecha";
-                if (fecha.toDate) {
-                    return fecha.toDate().toLocaleString();
-                }
-                return String(fecha);
-            } catch (e) {
-                return "Fecha inválida";
-            }
+      if(data.answer && !pc.currentRemoteDescription){
+        try{
+          await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+        }catch(e){
+          console.error("Error setRemoteDescription broadcaster:", e);
         }
+      }
+    });
 
-        async function crear() {
-            const nom = document.getElementById("n").value.trim();
-            const img = document.getElementById("i").value.trim();
-            const pre = parseFloat(document.getElementById("p").value);
-            const stk = parseInt(document.getElementById("s").value, 10);
+    pc.onconnectionstatechange = () => {
+      const state = pc.connectionState;
+      if(state === "disconnected" || state === "failed" || state === "closed"){
+        cleanupBroadcasterPeer(listenerId);
+      }
+    };
 
-            if (!nom || !img || isNaN(pre) || isNaN(stk)) {
-                alert("Completa todos los campos correctamente");
-                return;
-            }
+    const offer = await pc.createOffer({
+      offerToReceiveAudio: false,
+      offerToReceiveVideo: false
+    });
 
-            try {
-                await db.collection("productos").add({
-                    nombre: nom,
-                    imagen: img,
-                    precio: pre,
-                    stock: stk
-                });
+    await pc.setLocalDescription(offer);
 
-                document.getElementById("n").value = "";
-                document.getElementById("i").value = "";
-                document.getElementById("p").value = "";
-                document.getElementById("s").value = "";
+    await updateDoc(listenerRef, {
+      offer: {
+        type: offer.type,
+        sdp: offer.sdp
+      },
+      updatedAt: Date.now()
+    });
 
-                alert("Producto añadido");
-            } catch (error) {
-                console.error("Error al crear producto:", error);
-                alert("No se pudo guardar el producto");
-            }
+    broadcasterPeers.set(listenerId, {
+      pc,
+      docUnsub,
+      answerCandidatesUnsub
+    });
+
+  }catch(error){
+    console.error("Error handleNewListener:", error);
+  }
+}
+
+function cleanupBroadcasterPeer(listenerId){
+  const item = broadcasterPeers.get(listenerId);
+  if(!item) return;
+
+  try{ item.docUnsub && item.docUnsub(); }catch{}
+  try{ item.answerCandidatesUnsub && item.answerCandidatesUnsub(); }catch{}
+  try{ item.pc && item.pc.close(); }catch{}
+
+  broadcasterPeers.delete(listenerId);
+}
+
+async function stopBroadcast(){
+  try{
+    if(broadcasterUnsubListeners){
+      broadcasterUnsubListeners();
+      broadcasterUnsubListeners = null;
+    }
+
+    for(const [listenerId] of broadcasterPeers){
+      cleanupBroadcasterPeer(listenerId);
+    }
+
+    if(localStream){
+      localStream.getTracks().forEach(t => t.stop());
+      localStream = null;
+    }
+
+    await setDoc(roomRef, {
+      active: false,
+      updatedAt: Date.now()
+    }, { merge: true });
+
+    await clearRoomListeners();
+  }catch(error){
+    console.error("Error stopBroadcast:", error);
+  }
+
+  isBroadcasting = false;
+  setVoiceState("AUDIO EN ESPERA", false);
+}
+
+/* =========================
+   OYENTE
+========================= */
+async function startListening(){
+  if(isListening) return;
+
+  try{
+    const roomSnap = await getDoc(roomRef);
+    const roomData = roomSnap.data() || {};
+
+    if(!roomData.active){
+      setVoiceState("SIN TRANSMISIÓN ACTIVA", false);
+      setStatus("No hay un emisor activo todavía.");
+      return;
+    }
+
+    const listenerId = randomId();
+    listenerDocRef = doc(db, "voiceRooms", ROOM_ID, "listeners", listenerId);
+
+    await setDoc(listenerDocRef, {
+      createdAt: Date.now(),
+      answer: null
+    });
+
+    listenerPeer = new RTCPeerConnection(ICE_SERVERS);
+
+    const answerCandidatesCol = collection(db, "voiceRooms", ROOM_ID, "listeners", listenerId, "answerCandidates");
+    const offerCandidatesCol = collection(db, "voiceRooms", ROOM_ID, "listeners", listenerId, "offerCandidates");
+
+    listenerPeer.ontrack = (event) => {
+      remoteAudio.srcObject = event.streams[0];
+      const playPromise = remoteAudio.play();
+      if(playPromise){
+        playPromise.catch(() => {});
+      }
+      setVoiceState("AUDIO EN VIVO", true);
+      setStatus("Audio global conectado.");
+    };
+
+    listenerPeer.onicecandidate = async (event) => {
+      if(event.candidate){
+        await addDoc(answerCandidatesCol, event.candidate.toJSON());
+      }
+    };
+
+    listenerPeer.onconnectionstatechange = () => {
+      const state = listenerPeer.connectionState;
+      if(state === "connected"){
+        isListening = true;
+        setVoiceState("AUDIO EN VIVO", true);
+      }else if(state === "disconnected" || state === "failed" || state === "closed"){
+        stopListening("Conexión de audio cerrada.");
+      }
+    };
+
+    listenerUnsubOfferCandidates = onSnapshot(offerCandidatesCol, (snap) => {
+      snap.docChanges().forEach(async (change) => {
+        if(change.type === "added"){
+          try{
+            await listenerPeer.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+          }catch(e){
+            console.error("Error ICE listener:", e);
+          }
         }
+      });
+    });
 
-        db.collection("productos").onSnapshot(
-            (snap) => {
-                const div = document.getElementById("inv");
-                div.innerHTML = "";
+    listenerUnsubDoc = onSnapshot(listenerDocRef, async (snap) => {
+      const data = snap.data();
+      if(!data){
+        stopListening("La transmisión fue detenida.");
+        return;
+      }
 
-                if (snap.empty) {
-                    div.innerHTML = "<p>No hay productos registrados.</p>";
-                    return;
-                }
+      if(data.offer && !listenerPeer.currentRemoteDescription){
+        try{
+          await listenerPeer.setRemoteDescription(new RTCSessionDescription(data.offer));
+          const answer = await listenerPeer.createAnswer();
+          await listenerPeer.setLocalDescription(answer);
 
-                snap.forEach(doc => {
-                    const data = doc.data();
-
-                    div.innerHTML += `
-                        <div class="row">
-                            <span>
-                                <b>${data.nombre || "Sin nombre"}</b><br>
-                                <small>Precio: $${Number(data.precio || 0)}</small>
-                            </span>
-
-                            <div class="product-actions">
-                                <span>Stock:</span>
-                                <input type="number" id="stk-${doc.id}" value="${Number(data.stock || 0)}" style="width:80px">
-                                <button class="btn" onclick="upd('${doc.id}')">Actualizar</button>
-                                <button class="btn-danger" onclick="del('${doc.id}')">Eliminar</button>
-                            </div>
-                        </div>
-                    `;
-                });
+          await updateDoc(listenerDocRef, {
+            answer: {
+              type: answer.type,
+              sdp: answer.sdp
             },
-            (error) => {
-                console.error("Error al leer inventario:", error);
-                document.getElementById("inv").innerHTML = "<p>Error cargando inventario.</p>";
-            }
-        );
+            updatedAt: Date.now()
+          });
 
-        async function upd(id) {
-            const val = parseInt(document.getElementById("stk-" + id).value, 10);
-
-            if (isNaN(val) || val < 0) {
-                alert("Stock inválido");
-                return;
-            }
-
-            try {
-                await db.collection("productos").doc(id).update({
-                    stock: val
-                });
-                alert("Stock actualizado");
-            } catch (error) {
-                console.error("Error actualizando stock:", error);
-                alert("No se pudo actualizar el stock");
-            }
+        }catch(e){
+          console.error("Error creando answer:", e);
+          setStatus("No se pudo completar el enlace de audio.");
         }
+      }
+    });
 
-        async function del(id) {
-            if (!confirm("¿Borrar este producto?")) return;
+    setVoiceState("CONECTANDO AUDIO...", false);
+    setStatus("Buscando señal del emisor...");
 
-            try {
-                await db.collection("productos").doc(id).delete();
-            } catch (error) {
-                console.error("Error eliminando producto:", error);
-                alert("No se pudo eliminar");
-            }
-        }
+  }catch(error){
+    console.error("Error startListening:", error);
+    setStatus("Error iniciando el audio global.");
+  }
+}
 
-        db.collection("compras").orderBy("fecha", "desc").onSnapshot(
-            (snap) => {
-                const vDiv = document.getElementById("ventas");
-                vDiv.innerHTML = "";
+async function stopListening(message = "Audio detenido."){
+  try{
+    if(listenerUnsubDoc){
+      listenerUnsubDoc();
+      listenerUnsubDoc = null;
+    }
 
-                if (snap.empty) {
-                    vDiv.innerHTML = "<p>No hay compras registradas.</p>";
-                    return;
-                }
+    if(listenerUnsubOfferCandidates){
+      listenerUnsubOfferCandidates();
+      listenerUnsubOfferCandidates = null;
+    }
 
-                snap.forEach(doc => {
-                    const v = doc.data();
-                    const items = Array.isArray(v.items) ? v.items : [];
+    if(listenerPeer){
+      try{ listenerPeer.close(); }catch{}
+      listenerPeer = null;
+    }
 
-                    vDiv.innerHTML += `
-                        <details class="venta">
-                            <summary>
-                                <b>${v.cliente || "Sin nombre"}</b> (${v.grado || "Sin grado"}) - Total: $${Number(v.total || 0)}
-                                <small>${formatFecha(v.fecha)}</small>
-                            </summary>
-                            <div style="margin-top:10px;">
-                                ${
-                                    items.length
-                                    ? items.map(i => `<p>${i.nombre} x${i.qty} - $${i.precio}</p>`).join("")
-                                    : `<p>${v.pedido || "Sin detalle"}</p>`
-                                }
-                            </div>
-                        </details>
-                    `;
-                });
-            },
-            (error) => {
-                console.error("Error al leer compras:", error);
-                document.getElementById("ventas").innerHTML = "<p>Error cargando compras.</p>";
-            }
-        );
+    if(remoteAudio.srcObject){
+      try{
+        const tracks = remoteAudio.srcObject.getTracks();
+        tracks.forEach(t => t.stop());
+      }catch{}
+      remoteAudio.srcObject = null;
+    }
 
-        window.crear = crear;
-        window.upd = upd;
-        window.del = del;
-    </script>
+    if(listenerDocRef){
+      try{ await deleteDoc(listenerDocRef); }catch{}
+      listenerDocRef = null;
+    }
+  }catch(error){
+    console.error("Error stopListening:", error);
+  }
+
+  isListening = false;
+  setVoiceState("AUDIO EN ESPERA", false);
+  setStatus(message);
+}
+
+/* =========================
+   AUTO ROOM WATCH
+========================= */
+onSnapshot(roomRef, (snap) => {
+  const data = snap.data() || {};
+
+  if(!hasEntered) return;
+
+  if(isAdmin){
+    if(data.active){
+      setVoiceState("MICRÓFONO EN VIVO", true);
+    }
+  }else{
+    if(data.active && !isListening){
+      startListening();
+    }else if(!data.active && isListening){
+      stopListening("La transmisión fue detenida por el emisor.");
+    }else if(!data.active && !isListening){
+      setVoiceState("SIN TRANSMISIÓN ACTIVA", false);
+    }
+  }
+});
+
+/* =========================
+   ENTRAR
+========================= */
+async function handleEnter(){
+  if(hasEntered) return;
+  hasEntered = true;
+  enterOverlay.classList.add("hidden");
+
+  if(isAdmin){
+    await startBroadcast();
+  }else{
+    await startListening();
+  }
+}
+
+enterBtn.addEventListener("click", handleEnter);
+
+/* =========================
+   INICIO
+========================= */
+initTimer();
+
+/* =========================
+   LIMPIEZA
+========================= */
+window.addEventListener("beforeunload", async () => {
+  try{
+    if(isAdmin && isBroadcasting){
+      await stopBroadcast();
+    }
+    if(!isAdmin && listenerDocRef){
+      await deleteDoc(listenerDocRef);
+    }
+  }catch{}
+});
+</script>
+
 </body>
 </html>
