@@ -865,6 +865,21 @@ revealTimer = null;
 bubbleTimer = null;
 }
 
+function typeWriter(text, speed = 135) {
+    speechText.textContent = "";
+    let i = 0;
+
+    function escribir() {
+        if (i < text.length) {
+            speechText.textContent += text.charAt(i);
+            i++;
+            setTimeout(escribir, speed);
+        }
+    }
+
+    escribir();
+}
+
 function showAvatarAnnouncement(text) {
 const clean = normalizeText(text);
 if (!clean) {
@@ -880,7 +895,7 @@ clearAvatarTimers();
 currentAnnouncementText = clean;
 avatarVisible = true;
 
-speechText.textContent = clean;
+typeWriter(clean, 135);
 overlay.classList.add("active");
 overlay.classList.add("glitching");
 
