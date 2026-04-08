@@ -194,7 +194,7 @@ body::after{
   padding:14px;
   cursor:pointer;
   position:relative;
-  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, opacity .15s ease;
   box-shadow:0 0 0 2px #000;
 }
 
@@ -324,6 +324,99 @@ body::after{
 @keyframes toastIn{
   from{transform:translateY(10px);opacity:0}
   to{transform:translateY(0);opacity:1}
+}
+
+/* respuesta escrita */
+.text-answer-wrap{
+  margin-top:22px;
+  border:2px solid rgba(77,232,255,.45);
+  background:linear-gradient(180deg,#09111a,#0a0f16);
+  padding:16px;
+  box-shadow:0 0 0 2px #000;
+}
+
+.text-answer-title{
+  font-size:10px;
+  color:#fff;
+  line-height:1.8;
+  margin-bottom:12px;
+}
+
+.text-answer-sub{
+  font-size:8px;
+  color:#89dfff;
+  line-height:1.8;
+  margin-bottom:12px;
+}
+
+.text-answer-input{
+  width:100%;
+  min-height:120px;
+  resize:vertical;
+  border:2px solid #1bff93;
+  background:#07110d;
+  color:#fff;
+  padding:14px;
+  font-family:'Press Start 2P', monospace;
+  font-size:9px;
+  line-height:1.8;
+  outline:none;
+  box-shadow:inset 0 0 14px rgba(27,255,147,.08);
+}
+
+.text-answer-input:disabled{
+  opacity:.65;
+  cursor:not-allowed;
+}
+
+.text-answer-actions{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin-top:14px;
+  flex-wrap:wrap;
+}
+
+.text-answer-btn{
+  border:2px solid #1bff93;
+  background:#0b1017;
+  color:#fff;
+  padding:12px 16px;
+  font-family:'Press Start 2P', monospace;
+  font-size:8px;
+  line-height:1.8;
+  cursor:pointer;
+  box-shadow:0 0 0 2px #000;
+  transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+
+.text-answer-btn:hover{
+  transform:translate(-2px,-2px);
+  box-shadow:0 0 0 2px #000, 6px 6px 0 rgba(27,255,147,.18);
+}
+
+.text-answer-btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:0 0 0 2px #000;
+}
+
+.text-answer-state{
+  font-size:8px;
+  line-height:1.8;
+  color:#9fffc7;
+}
+
+.text-answer-preview{
+  margin-top:12px;
+  padding:12px;
+  border:2px dashed rgba(36,255,138,.35);
+  background:rgba(0,0,0,.20);
+  font-size:8px;
+  line-height:1.9;
+  color:#d8ffe9;
+  word-break:break-word;
 }
 
 /* overlay anuncio global */
@@ -510,6 +603,13 @@ body::after{
     font-size:.8rem;
     padding:14px;
   }
+  .text-answer-actions{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .text-answer-btn{
+    width:100%;
+  }
 }
 </style>
 </head>
@@ -517,7 +617,6 @@ body::after{
   <div class="topbar">
     <div class="brand">
       ENCUESTAS ShadowByte<br>
-      
     </div>
     <div class="status" id="systemStatus">
       CONECTANDO...<br>
@@ -537,7 +636,7 @@ body::after{
       <div class="panel-head">
         <div>
           <div class="panel-title">ENCUESTA ACTIVA</div>
-          <div class="panel-sub">Pregunta, opciones y conteo en tiempo real</div>
+          <div class="panel-sub">Pregunta, opciones, conteo y respuesta escrita en tiempo real</div>
         </div>
       </div>
 
@@ -567,12 +666,12 @@ body::after{
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script>
 const firebaseConfig = {
-apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
-authDomain: "gorflacos.firebaseapp.com",
-projectId: "gorflacos",
-storageBucket: "gorflacos.firebasestorage.app",
-messagingSenderId: "507648872448",
-appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
+  apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+  authDomain: "gorflacos.firebaseapp.com",
+  projectId: "gorflacos",
+  storageBucket: "gorflacos.firebasestorage.app",
+  messagingSenderId: "507648872448",
+  appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
 };
 
 if (!firebase.apps.length) {
@@ -593,6 +692,11 @@ const speechText = document.getElementById("speechText");
 let currentSurveyId = null;
 let currentSurveyData = null;
 let userVoteRecord = null;
+let userTextResponse = null;
+
+let activeSurveyUnsubscribe = null;
+let activeVoteUnsubscribe = null;
+let activeTextResponseUnsubscribe = null;
 
 let avatarVisible = false;
 let currentAnnouncementText = "";
@@ -643,10 +747,29 @@ function setLocalVote(surveyId) {
   localStorage.setItem(getVoteKey(surveyId), "1");
 }
 
+function getTextResponseKey(surveyId) {
+  return "text_answered_survey_" + surveyId;
+}
+
+function hasLocalTextResponse(surveyId) {
+  return localStorage.getItem(getTextResponseKey(surveyId)) === "1";
+}
+
+function setLocalTextResponse(surveyId) {
+  localStorage.setItem(getTextResponseKey(surveyId), "1");
+}
+
 function clearOldVoteIfSurveyChanged(surveyId) {
   const lastSurveyId = localStorage.getItem("last_active_survey_id");
   if (lastSurveyId !== surveyId) {
     localStorage.setItem("last_active_survey_id", surveyId);
+  }
+}
+
+function clearOldTextIfSurveyChanged(surveyId) {
+  const lastTextSurveyId = localStorage.getItem("last_text_survey_id");
+  if (lastTextSurveyId !== surveyId) {
+    localStorage.setItem("last_text_survey_id", surveyId);
   }
 }
 
@@ -657,12 +780,19 @@ function totalVotes(options) {
 function renderSurvey(surveyId, survey) {
   currentSurveyId = surveyId;
   currentSurveyData = survey;
+
   clearOldVoteIfSurveyChanged(surveyId);
+  clearOldTextIfSurveyChanged(surveyId);
 
   const options = Array.isArray(survey.options) ? survey.options : [];
   const total = totalVotes(options);
+
   const localVoted = hasLocalVote(surveyId);
-  const blocked = localVoted || !!userVoteRecord;
+  const voteBlocked = localVoted || !!userVoteRecord;
+
+  const allowText = survey.allowTextAnswer === true;
+  const localTextAnswered = hasLocalTextResponse(surveyId);
+  const textBlocked = localTextAnswered || !!userTextResponse;
 
   let html = `
     <div class="question-box">
@@ -678,7 +808,7 @@ function renderSurvey(surveyId, survey) {
     const selected = userVoteRecord && Number(userVoteRecord.optionIndex) === index;
 
     html += `
-      <div class="option-card ${blocked ? 'disabled' : ''} ${selected ? 'selected' : ''}" data-index="${index}">
+      <div class="option-card ${voteBlocked ? 'disabled' : ''} ${selected ? 'selected' : ''}" data-index="${index}">
         <div class="option-top">
           <div class="option-name">${escapeHtml(opt.text || ('Opción ' + (index + 1)))}</div>
           <div class="option-votes">${votes} voto${votes === 1 ? '' : 's'}</div>
@@ -693,6 +823,45 @@ function renderSurvey(surveyId, survey) {
 
   html += `</div>`;
 
+  if (allowText) {
+    html += `
+      <div class="text-answer-wrap">
+        <div class="text-answer-title">RESPUESTA ESCRITA ACTIVADA</div>
+        <div class="text-answer-sub">
+          El administrador habilitó una respuesta libre para esta encuesta.
+        </div>
+
+        <textarea
+          id="textAnswerInput"
+          class="text-answer-input"
+          placeholder="Escribe tu respuesta aquí..."
+          ${textBlocked ? 'disabled' : ''}
+        >${userTextResponse ? escapeHtml(userTextResponse.text || "") : ""}</textarea>
+
+        <div class="text-answer-actions">
+          <button
+            id="sendTextAnswerBtn"
+            class="text-answer-btn"
+            onclick="sendTextAnswer()"
+            ${textBlocked ? 'disabled' : ''}
+          >
+            ENVIAR RESPUESTA
+          </button>
+
+          <div class="text-answer-state">
+            ${textBlocked
+              ? 'YA ENVIASTE UNA RESPUESTA ESCRITA EN ESTA ENCUESTA.'
+              : 'PUEDES ENVIAR UNA RESPUESTA ESCRITA UNA SOLA VEZ.'}
+          </div>
+        </div>
+
+        ${userTextResponse
+          ? `<div class="text-answer-preview"><strong>TU RESPUESTA:</strong><br>${escapeHtml(userTextResponse.text || "")}</div>`
+          : ''}
+      </div>
+    `;
+  }
+
   html += `
     <div class="meta">
       <div class="meta-box">
@@ -705,19 +874,22 @@ function renderSurvey(surveyId, survey) {
       </div>
       <div class="meta-box">
         <div class="meta-label">ESTADO</div>
-        <div class="meta-value">${blocked ? 'YA VOTASTE' : 'PUEDES VOTAR'}</div>
+        <div class="meta-value">${voteBlocked ? 'YA VOTASTE' : 'PUEDES VOTAR'}</div>
       </div>
     </div>
     <div class="note">
-      ${blocked
+      ${voteBlocked
         ? 'Tu voto ya fue registrado en esta encuesta. Espera a que publiquen una nueva.'
         : 'Selecciona una opción. Solo podrás votar una vez en esta encuesta.'}
+      ${allowText
+        ? '<br><br>Además, esta encuesta permite una respuesta escrita independiente.'
+        : ''}
     </div>
   `;
 
   surveyContainer.innerHTML = html;
 
-  if (!blocked) {
+  if (!voteBlocked) {
     document.querySelectorAll(".option-card").forEach(card => {
       card.addEventListener("click", async () => {
         const index = Number(card.dataset.index);
@@ -729,6 +901,7 @@ function renderSurvey(surveyId, survey) {
 
 async function voteSurvey(surveyId, optionIndex) {
   if (!currentSurveyData) return;
+
   if (hasLocalVote(surveyId) || userVoteRecord) {
     showToast("Ya votaste en esta encuesta.");
     return;
@@ -780,11 +953,61 @@ async function voteSurvey(surveyId, optionIndex) {
   }
 }
 
-function listenVoteRecord(surveyId) {
+async function sendTextAnswer() {
+  if (!currentSurveyId || !currentSurveyData) return;
+
+  if (hasLocalTextResponse(currentSurveyId) || userTextResponse) {
+    showToast("Ya enviaste una respuesta escrita en esta encuesta.");
+    return;
+  }
+
+  const input = document.getElementById("textAnswerInput");
+  if (!input) return;
+
+  const text = normalizeText(input.value);
+  if (!text) {
+    showToast("Escribe una respuesta primero.");
+    input.focus();
+    return;
+  }
+
   const deviceId = getDeviceId();
-  db.collection("surveys").doc(surveyId).collection("votes").doc(deviceId)
+  const responseRef = db.collection("surveys")
+    .doc(currentSurveyId)
+    .collection("responses")
+    .doc(deviceId);
+
+  try {
+    await responseRef.set({
+      deviceId: deviceId,
+      text: text,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    setLocalTextResponse(currentSurveyId);
+    showToast("Respuesta escrita enviada correctamente.");
+  } catch (error) {
+    console.error("Error al enviar respuesta escrita:", error);
+    showToast("No se pudo enviar la respuesta escrita.");
+  }
+}
+
+function listenVoteRecord(surveyId) {
+  if (activeVoteUnsubscribe) {
+    activeVoteUnsubscribe();
+    activeVoteUnsubscribe = null;
+  }
+
+  const deviceId = getDeviceId();
+
+  activeVoteUnsubscribe = db.collection("surveys")
+    .doc(surveyId)
+    .collection("votes")
+    .doc(deviceId)
     .onSnapshot((docSnap) => {
       userVoteRecord = docSnap.exists ? docSnap.data() : null;
+
       if (currentSurveyData && currentSurveyId === surveyId) {
         renderSurvey(surveyId, currentSurveyData);
       }
@@ -793,8 +1016,31 @@ function listenVoteRecord(surveyId) {
     });
 }
 
+function listenTextResponseRecord(surveyId) {
+  if (activeTextResponseUnsubscribe) {
+    activeTextResponseUnsubscribe();
+    activeTextResponseUnsubscribe = null;
+  }
+
+  const deviceId = getDeviceId();
+
+  activeTextResponseUnsubscribe = db.collection("surveys")
+    .doc(surveyId)
+    .collection("responses")
+    .doc(deviceId)
+    .onSnapshot((docSnap) => {
+      userTextResponse = docSnap.exists ? docSnap.data() : null;
+
+      if (currentSurveyData && currentSurveyId === surveyId) {
+        renderSurvey(surveyId, currentSurveyData);
+      }
+    }, (error) => {
+      console.error("Error escuchando respuesta escrita:", error);
+    });
+}
+
 function listenActiveSurvey() {
-  db.collection("system").doc("activeSurvey").onSnapshot(async (docSnap) => {
+  db.collection("system").doc("activeSurvey").onSnapshot((docSnap) => {
     if (!docSnap.exists) {
       surveyContainer.innerHTML = `<div class="empty">NO HAY ENCUESTA ACTIVA TODAVÍA.</div>`;
       return;
@@ -810,7 +1056,12 @@ function listenActiveSurvey() {
 
     systemStatus.innerHTML = `SISTEMA ONLINE<br>ENCUESTA: ${escapeHtml(surveyId)}`;
 
-    db.collection("surveys").doc(surveyId).onSnapshot((surveySnap) => {
+    if (activeSurveyUnsubscribe) {
+      activeSurveyUnsubscribe();
+      activeSurveyUnsubscribe = null;
+    }
+
+    activeSurveyUnsubscribe = db.collection("surveys").doc(surveyId).onSnapshot((surveySnap) => {
       if (!surveySnap.exists) {
         surveyContainer.innerHTML = `<div class="empty">LA ENCUESTA ACTIVA FUE ELIMINADA.</div>`;
         return;
@@ -818,6 +1069,7 @@ function listenActiveSurvey() {
 
       const survey = surveySnap.data() || {};
       currentSurveyData = survey;
+      currentSurveyId = surveyId;
       renderSurvey(surveyId, survey);
     }, (error) => {
       console.error("Error leyendo encuesta:", error);
@@ -825,6 +1077,7 @@ function listenActiveSurvey() {
     });
 
     listenVoteRecord(surveyId);
+    listenTextResponseRecord(surveyId);
   }, (error) => {
     console.error("Error leyendo activeSurvey:", error);
     surveyContainer.innerHTML = `<div class="empty">ERROR CONECTANDO CON FIREBASE.</div>`;
@@ -842,6 +1095,7 @@ function clearAvatarTimers() {
 function typeWriter(text, speed = 135) {
   speechText.textContent = "";
   let i = 0;
+
   function write() {
     if (i < text.length) {
       speechText.textContent += text.charAt(i);
@@ -849,6 +1103,7 @@ function typeWriter(text, speed = 135) {
       setTimeout(write, speed);
     }
   }
+
   write();
 }
 
@@ -906,19 +1161,12 @@ db.collection("system").doc("globalAnnouncement").onSnapshot((docSnap) => {
   const active = data.active === true;
   const text = normalizeText(data.text);
   const avatarEnabled = data.avatarEnabled !== false;
-const avatarPath = data.avatar || "assets/1.png";
+  const avatarPath = data.avatar || "assets/1.png";
 
-// 🔥 CAMBIAR IMAGEN DINÁMICAMENTE
-const avatarImg = document.querySelector("#avatarBox img");
-if (avatarImg) {
-  avatarImg.src = avatarPath;
-}
-
-if (active && text && avatarEnabled) {
-  showAvatarAnnouncement(text);
-} else {
-  hideAvatarAnnouncement();
-}
+  const avatarImg = document.querySelector("#avatarBox img");
+  if (avatarImg) {
+    avatarImg.src = avatarPath;
+  }
 
   if (active && text && avatarEnabled) {
     showAvatarAnnouncement(text);
@@ -930,6 +1178,8 @@ if (active && text && avatarEnabled) {
 });
 
 listenActiveSurvey();
+
+window.sendTextAnswer = sendTextAnswer;
 </script>
 </body>
 </html>
