@@ -2,43 +2,35 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADMIN ENCUESTAS PRO</title>
+<title>ADMIN ENCUESTAS</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
 body{
   background:#05070a;
   color:#24ff8a;
-  font-family:'Press Start 2P', monospace;
-  margin:0;
-}
-
-.container{
-  max-width:1100px;
-  margin:auto;
+  font-family:monospace;
   padding:20px;
 }
 
-.panel{
-  border:2px solid #24ff8a;
-  padding:20px;
-  margin-bottom:20px;
-  background:#0a1016;
+h1{
+  color:white;
 }
 
-input,textarea,button{
+input,textarea,select{
   width:100%;
+  margin:5px 0;
   padding:10px;
-  margin-top:10px;
   background:black;
   color:#24ff8a;
-  border:2px solid #24ff8a;
-  font-family:inherit;
+  border:1px solid #24ff8a;
 }
 
 button{
+  padding:10px;
+  margin-top:5px;
+  background:black;
+  color:#24ff8a;
+  border:1px solid #24ff8a;
   cursor:pointer;
 }
 
@@ -50,44 +42,60 @@ button{
 .option input{
   flex:1;
 }
+
+.panel{
+  border:1px solid #24ff8a;
+  padding:15px;
+  margin-top:20px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<h1>ADMIN ENCUESTAS</h1>
 
-<h2>CREAR ENCUESTA</h2>
+<div class="panel">
 
-<textarea id="question" placeholder="Pregunta"></textarea>
+<h3>PREGUNTA</h3>
+<textarea id="question"></textarea>
 
+<h3>OPCIONES</h3>
 <div id="options"></div>
 
-<button onclick="addOption()">+ OPCION</button>
+<button onclick="addOption()">AGREGAR OPCION</button>
+
+<br><br>
 
 <label>
 <input type="checkbox" id="allowText">
- PERMITIR RESPUESTA ESCRITA
+ Permitir respuesta escrita
 </label>
 
-<button onclick="publish()">PUBLICAR</button>
+<br><br>
 
-<hr>
+<button onclick="publish()">PUBLICAR ENCUESTA</button>
 
-<h2>RESPUESTAS EN VIVO</h2>
-<div id="responses"></div>
+</div>
 
-<hr>
+<div class="panel">
 
-<h2>ANUNCIO GLOBAL</h2>
+<h3>RESPUESTAS EN VIVO</h3>
+<div id="responses">SIN RESPUESTAS</div>
+
+</div>
+
+<div class="panel">
+
+<h3>ANUNCIO GLOBAL</h3>
 
 <textarea id="msg"></textarea>
 
 <select id="avatar">
-<option value="assets/1.png">Avatar 1</option>
-<option value="assets/2.png">Avatar 2</option>
-<option value="assets/3.png">Avatar 3</option>
-<option value="assets/4.png">Avatar 4</option>
+<option value="assets/1.png">1.png</option>
+<option value="assets/2.png">2.png</option>
+<option value="assets/3.png">3.png</option>
+<option value="assets/4.png">4.png</option>
 </select>
 
 <button onclick="send()">ENVIAR</button>
@@ -100,9 +108,9 @@ button{
 
 <script>
 const firebaseConfig = {
-apiKey: "AIzaSyB685...",
-authDomain: "gorflacos.firebaseapp.com",
-projectId: "gorflacos"
+  apiKey: "AIzaSyB685...",
+  authDomain: "gorflacos.firebaseapp.com",
+  projectId: "gorflacos"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -110,15 +118,23 @@ const db = firebase.firestore();
 
 const optionsDiv = document.getElementById("options");
 
-function addOption(){
+function addOption(value=""){
   const div = document.createElement("div");
-  div.className = "option";
+  div.className="option";
 
-  div.innerHTML = `
-    <input placeholder="Opcion">
-    <button onclick="this.parentNode.remove()">X</button>
-  `;
+  const input = document.createElement("input");
+  input.value = value;
+  input.placeholder="Opcion";
 
+  const btn = document.createElement("button");
+  btn.textContent="X";
+
+  btn.onclick = ()=>{
+    div.remove();
+  };
+
+  div.appendChild(input);
+  div.appendChild(btn);
   optionsDiv.appendChild(div);
 }
 
@@ -127,20 +143,24 @@ addOption();
 
 async function publish(){
 
-  const q = document.getElementById("question").value;
+  const q = document.getElementById("question").value.trim();
   const allowText = document.getElementById("allowText").checked;
 
   const opts = [...document.querySelectorAll(".option input")]
-    .map(i=>i.value)
-    .filter(Boolean);
+    .map(i=>i.value.trim())
+    .filter(v=>v);
 
-  if(!q || opts.length < 2) return;
+  if(!q || opts.length < 2){
+    alert("ERROR");
+    return;
+  }
 
   const id = "survey_"+Date.now();
 
   await db.collection("surveys").doc(id).set({
     question:q,
     options: opts.map(t=>({text:t,votes:0})),
+    totalVotes:0,
     allowTextAnswer: allowText
   });
 
@@ -149,6 +169,8 @@ async function publish(){
   });
 
   listenResponses(id);
+
+  alert("ENCUESTA PUBLICADA");
 }
 
 function listenResponses(id){
@@ -158,18 +180,19 @@ function listenResponses(id){
     .collection("responses")
     .onSnapshot(snap=>{
 
-      const box = document.getElementById("responses");
-      let html = "";
+      let html="";
 
       snap.forEach(doc=>{
-        html += `<div style="border:1px solid red;padding:10px;margin:5px;">${doc.data().text}</div>`;
+        html += `<div style="border:1px solid red;margin:5px;padding:10px;">${doc.data().text}</div>`;
       });
 
-      box.innerHTML = html || "SIN RESPUESTAS";
+      document.getElementById("responses").innerHTML = html || "SIN RESPUESTAS";
+
     });
 }
 
 function send(){
+
   const text = document.getElementById("msg").value;
   const avatar = document.getElementById("avatar").value;
 
@@ -182,6 +205,7 @@ function send(){
 }
 
 function remove(){
+
   db.collection("system").doc("globalAnnouncement").set({
     active:false
   });
