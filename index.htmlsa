@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENCUESTAS // ARCARAZ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root{
+  --bg:#05070a;
+  --panel:#0b0f14;
+  --panel-2:#111823;
+  --line:#24ff8a;
+  --line-soft:rgba(36,255,138,.25);
+  --text:#d8ffe9;
+  --danger:#ff3b6b;
+  --cyan:#4de8ff;
+  --shadow:0 0 0 2px #000, 0 0 0 4px #1bff93;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:'Press Start 2P', monospace;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(36,255,138,.08), transparent 25%),
+    radial-gradient(circle at 80% 10%, rgba(77,232,255,.08), transparent 25%),
+    linear-gradient(180deg,#030507,#04070b 35%,#020304 100%);
+  overflow-x:hidden;
+}
+
+/* fondo pixel/glitch */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size:100% 4px, 4px 100%;
+  opacity:.22;
+  mix-blend-mode:screen;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0) 0px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,255,140,.03) 3px,
+      rgba(0,0,0,0) 4px
+    );
+  opacity:.45;
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:30;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:16px;
+  background:rgba(4,8,12,.92);
+  border-bottom:2px solid var(--line);
+  box-shadow:0 0 25px rgba(0,255,140,.12);
+  backdrop-filter:blur(8px);
+}
+
+.brand{
+  font-size:12px;
+  line-height:1.6;
+  color:#fff;
+  text-shadow:0 0 8px rgba(36,255,138,.5);
+}
+
+.status{
+  font-size:10px;
+  color:var(--cyan);
+  text-align:right;
+  line-height:1.7;
+}
+
+.wrap{
+  width:min(960px, calc(100% - 24px));
+  margin:22px auto 70px;
+}
+
+.hero{
+  border:2px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(36,255,138,.08), rgba(255,255,255,0) 55%),
+    linear-gradient(180deg,#091018,#0a1119);
+  box-shadow:0 0 0 3px #000, 0 0 30px rgba(36,255,138,.18);
+  padding:20px;
+  margin-bottom:20px;
+  position:relative;
+  overflow:hidden;
+}
+
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.04), transparent);
+  transform:translateX(-100%);
+  animation:scan 5s linear infinite;
+}
+
+@keyframes scan{
+  to{transform:translateX(100%)}
+}
+
+.hero h1{
+  margin:0 0 14px;
+  font-size:18px;
+  line-height:1.6;
+  color:#fff;
+}
+
+.hero p{
+  margin:0;
+  font-size:10px;
+  line-height:1.9;
+  color:#bfffdc;
+}
+
+.panel{
+  border:2px solid var(--line);
+  background:linear-gradient(180deg,#0a0f16,#0b121b);
+  box-shadow:var(--shadow);
+  padding:18px;
+  position:relative;
+}
+
+.panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:18px;
+}
+
+.panel-title{
+  font-size:12px;
+  color:#fff;
+  line-height:1.8;
+}
+
+.panel-sub{
+  font-size:9px;
+  color:#8affc0;
+  line-height:1.8;
+  margin-top:10px;
+}
+
+.question-box{
+  margin:16px 0 20px;
+  padding:16px;
+  border:2px solid rgba(36,255,138,.55);
+  background:rgba(0,0,0,.26);
+  box-shadow:inset 0 0 15px rgba(36,255,138,.08);
+}
+
+#questionText{
+  margin:0;
+  font-size:14px;
+  line-height:1.8;
+  color:#ffffff;
+  word-break:break-word;
+}
+
+.options{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+
+.option-card{
+  border:2px solid #1bff93;
+  background:
+    linear-gradient(180deg, rgba(27,255,147,.12), rgba(27,255,147,.03)),
+    #0b1017;
+  padding:14px;
+  cursor:pointer;
+  position:relative;
+  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  box-shadow:0 0 0 2px #000;
+}
+
+.option-card:hover{
+  transform:translate(-2px,-2px);
+  box-shadow:0 0 0 2px #000, 6px 6px 0 rgba(27,255,147,.2);
+}
+
+.option-card.disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  filter:grayscale(.15);
+}
+
+.option-card.selected{
+  border-color:var(--cyan);
+  box-shadow:0 0 0 2px #000, 0 0 18px rgba(77,232,255,.35);
+}
+
+.option-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.option-name{
+  font-size:11px;
+  line-height:1.8;
+  color:#fff;
+  word-break:break-word;
+}
+
+.option-votes{
+  font-size:9px;
+  color:#9fffc7;
+  white-space:nowrap;
+}
+
+.bar{
+  height:14px;
+  border:2px solid #143e28;
+  background:#05090c;
+  position:relative;
+  overflow:hidden;
+}
+
+.bar-fill{
+  height:100%;
+  width:0%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #24ff8a 0 10px,
+      #10cc69 10px 20px
+    );
+  transition:width .35s ease;
+  box-shadow:0 0 14px rgba(36,255,138,.28);
+}
+
+.meta{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:20px;
+}
+
+.meta-box{
+  border:2px solid rgba(77,232,255,.45);
+  background:#09111a;
+  padding:14px;
+}
+
+.meta-label{
+  font-size:8px;
+  color:#89dfff;
+  margin-bottom:10px;
+  line-height:1.8;
+}
+
+.meta-value{
+  font-size:11px;
+  color:#fff;
+  line-height:1.7;
+  word-break:break-word;
+}
+
+.note{
+  margin-top:18px;
+  font-size:9px;
+  line-height:1.9;
+  color:#ffc2d1;
+}
+
+.empty{
+  padding:28px;
+  text-align:center;
+  border:2px dashed rgba(36,255,138,.35);
+  background:rgba(0,0,0,.22);
+  color:#a8ffcf;
+  font-size:10px;
+  line-height:1.9;
+}
+
+.toast{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  z-index:999999;
+  background:#07110d;
+  color:#d9ffe8;
+  border:2px solid #1bff93;
+  box-shadow:0 0 0 3px #000, 0 0 18px rgba(27,255,147,.18);
+  padding:14px 16px;
+  max-width:320px;
+  font-size:9px;
+  line-height:1.8;
+  display:none;
+}
+
+.toast.show{
+  display:block;
+  animation:toastIn .18s ease;
+}
+
+@keyframes toastIn{
+  from{transform:translateY(10px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+
+/* overlay anuncio global */
+#avatarAnnouncementOverlay{
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  display:none;
+  pointer-events:auto;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,0.04), transparent 35%),
+    rgba(0,0,0,0.45);
+  overflow:hidden;
+}
+
+#avatarAnnouncementOverlay.active{display:block}
+#avatarAnnouncementOverlay *{
+  pointer-events:none;
+  user-select:none;
+}
+
+.screen-noise{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size:100% 4px, 4px 100%;
+}
+
+#avatarAnnouncementOverlay.glitching .screen-noise{
+  animation:screenNoise .12s steps(2) infinite, glitchFlash 1s linear forwards;
+  opacity:1;
+}
+
+@keyframes screenNoise{
+  0%{transform:translate(0,0)}
+  25%{transform:translate(2px,-1px)}
+  50%{transform:translate(-2px,1px)}
+  75%{transform:translate(1px,2px)}
+  100%{transform:translate(0,0)}
+}
+
+@keyframes glitchFlash{
+  0%{opacity:0}
+  15%{opacity:.95}
+  25%{opacity:.2}
+  35%{opacity:.85}
+  50%{opacity:.15}
+  70%{opacity:.7}
+  100%{opacity:0}
+}
+
+.glitch-burst{
+  position:absolute;
+  left:50%;
+  top:14%;
+  transform:translateX(-50%);
+  font-weight:900;
+  font-size:clamp(1.5rem,5vw,3rem);
+  letter-spacing:4px;
+  color:#fff;
+  text-transform:uppercase;
+  opacity:0;
+  text-shadow:
+    0 0 10px rgba(255,255,255,.4),
+    4px 0 0 rgba(255,0,90,.6),
+    -4px 0 0 rgba(0,200,255,.45);
+}
+
+#avatarAnnouncementOverlay.glitching .glitch-burst{
+  animation:burstGlitch 1s ease forwards;
+}
+
+@keyframes burstGlitch{
+  0%{opacity:0;transform:translateX(-50%) scale(.7) skewX(0deg);filter:blur(10px)}
+  20%{opacity:1;transform:translateX(-49%) scale(1.05) skewX(12deg);filter:blur(0)}
+  35%{transform:translateX(-51%) scale(.98) skewX(-8deg)}
+  55%{transform:translateX(-50%) scale(1.03) skewX(5deg)}
+  100%{opacity:0;transform:translateX(-50%) scale(1) skewX(0deg)}
+}
+
+.avatar-wrap{
+  position:absolute;
+  left:14px;
+  bottom:14px;
+  display:flex;
+  align-items:flex-end;
+  gap:16px;
+  opacity:0;
+  transform:translateY(30px);
+}
+
+.avatar-wrap.show{
+  opacity:1;
+  transform:translateY(0);
+  transition:opacity .35s ease, transform .35s ease;
+}
+
+.avatar-fall{
+  animation:avatarDrop 1s cubic-bezier(.18,.89,.32,1.28) forwards;
+}
+
+@keyframes avatarDrop{
+  0%{transform:translateY(-120vh) scale(.35) rotate(-12deg);opacity:0;filter:blur(8px)}
+  65%{transform:translateY(22px) scale(1.02) rotate(2deg);opacity:1;filter:blur(0)}
+  82%{transform:translateY(-8px) scale(.99) rotate(-1deg);opacity:1}
+  100%{transform:translateY(0) scale(1) rotate(0deg);opacity:1}
+}
+
+.avatar-box{
+  width:min(380px,30vw);
+  min-width:180px;
+  max-width:420px;
+  filter:drop-shadow(0 25px 40px rgba(0,0,0,.6));
+}
+
+.avatar-box img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+.speech-bubble{
+  position:relative;
+  max-width:340px;
+  background:#fff;
+  color:#000;
+  border:4px solid #000;
+  border-radius:30px;
+  padding:16px 20px;
+  font-weight:900;
+  font-size:1rem;
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  box-shadow:6px 6px 0 #000;
+  opacity:0;
+  transform:scale(.8);
+}
+
+.speech-bubble.show{
+  opacity:1;
+  transform:scale(1);
+  transition:.25s ease;
+}
+
+.speech-bubble::before{
+  content:"";
+  position:absolute;
+  left:-20px;
+  bottom:25px;
+  width:25px;
+  height:25px;
+  background:#fff;
+  border-left:4px solid #000;
+  border-bottom:4px solid #000;
+  transform:rotate(45deg);
+}
+
+.speech-bubble::after{
+  content:"";
+  position:absolute;
+  left:-35px;
+  bottom:15px;
+  width:14px;
+  height:14px;
+  background:#fff;
+  border:4px solid #000;
+  border-radius:50%;
+}
+
+@media (max-width:768px){
+  .brand{font-size:10px}
+  .status{font-size:8px}
+  .hero h1{font-size:14px}
+  #questionText{font-size:11px}
+  .option-name{font-size:9px}
+  .meta{grid-template-columns:1fr}
+  .avatar-box{width:120px;min-width:100px}
+  .speech-bubble{
+    max-width:calc(100vw - 150px);
+    font-size:.8rem;
+    padding:14px;
+  }
+}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      ENCUESTAS ShadowByte<br>
+      
+    </div>
+    <div class="status" id="systemStatus">
+      CONECTANDO...<br>
+      Base de datos
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="hero">
+      <h1>VOTA UNA SOLA VEZ POR CADA ENCUESTA</h1>
+      <p>
+        Cada vez que ShadowByte publique una nueva encuesta, tu voto se desbloquea para esa nueva pregunta.
+      </p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">ENCUESTA ACTIVA</div>
+          <div class="panel-sub">Pregunta, opciones y conteo en tiempo real</div>
+        </div>
+      </div>
+
+      <div id="surveyContainer">
+        <div class="empty">CARGANDO ENCUESTA...</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- ANUNCIO GLOBAL -->
+  <div id="avatarAnnouncementOverlay" aria-hidden="true">
+    <div class="screen-noise"></div>
+    <div class="glitch-burst">ANUNCIO</div>
+    <div class="avatar-wrap" id="avatarWrap">
+      <div class="avatar-box avatar-fall" id="avatarBox">
+        <img src="assets/avatar.png" alt="Avatar global">
+      </div>
+      <div class="speech-bubble" id="speechBubble">
+        <span id="speechText"></span>
+      </div>
+    </div>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "PON_TU_API_KEY",
+  authDomain: "TU-PROYECTO.firebaseapp.com",
+  projectId: "TU-PROYECTO",
+  storageBucket: "TU-PROYECTO.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "TU_APP_ID"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+const surveyContainer = document.getElementById("surveyContainer");
+const systemStatus = document.getElementById("systemStatus");
+const toast = document.getElementById("toast");
+
+const overlay = document.getElementById("avatarAnnouncementOverlay");
+const avatarWrap = document.getElementById("avatarWrap");
+const avatarBox = document.getElementById("avatarBox");
+const speechBubble = document.getElementById("speechBubble");
+const speechText = document.getElementById("speechText");
+
+let currentSurveyId = null;
+let currentSurveyData = null;
+let userVoteRecord = null;
+
+let avatarVisible = false;
+let currentAnnouncementText = "";
+let glitchTimer = null;
+let revealTimer = null;
+
+function escapeHtml(text) {
+  if (text === null || text === undefined) return "";
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function normalizeText(text) {
+  return String(text || "").trim();
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2500);
+}
+
+function getDeviceId() {
+  let id = localStorage.getItem("encuesta_device_id");
+  if (!id) {
+    id = "dev_" + Math.random().toString(36).slice(2) + "_" + Date.now();
+    localStorage.setItem("encuesta_device_id", id);
+  }
+  return id;
+}
+
+function getVoteKey(surveyId) {
+  return "voted_survey_" + surveyId;
+}
+
+function hasLocalVote(surveyId) {
+  return localStorage.getItem(getVoteKey(surveyId)) === "1";
+}
+
+function setLocalVote(surveyId) {
+  localStorage.setItem(getVoteKey(surveyId), "1");
+}
+
+function clearOldVoteIfSurveyChanged(surveyId) {
+  const lastSurveyId = localStorage.getItem("last_active_survey_id");
+  if (lastSurveyId !== surveyId) {
+    localStorage.setItem("last_active_survey_id", surveyId);
+  }
+}
+
+function totalVotes(options) {
+  return (options || []).reduce((acc, opt) => acc + Number(opt.votes || 0), 0);
+}
+
+function renderSurvey(surveyId, survey) {
+  currentSurveyId = surveyId;
+  currentSurveyData = survey;
+  clearOldVoteIfSurveyChanged(surveyId);
+
+  const options = Array.isArray(survey.options) ? survey.options : [];
+  const total = totalVotes(options);
+  const localVoted = hasLocalVote(surveyId);
+  const blocked = localVoted || !!userVoteRecord;
+
+  let html = `
+    <div class="question-box">
+      <p id="questionText">${escapeHtml(survey.question || "Sin pregunta")}</p>
+    </div>
+
+    <div class="options">
+  `;
+
+  options.forEach((opt, index) => {
+    const votes = Number(opt.votes || 0);
+    const percent = total > 0 ? Math.round((votes / total) * 100) : 0;
+    const selected = userVoteRecord && Number(userVoteRecord.optionIndex) === index;
+
+    html += `
+      <div class="option-card ${blocked ? 'disabled' : ''} ${selected ? 'selected' : ''}" data-index="${index}">
+        <div class="option-top">
+          <div class="option-name">${escapeHtml(opt.text || ('Opción ' + (index + 1)))}</div>
+          <div class="option-votes">${votes} voto${votes === 1 ? '' : 's'}</div>
+        </div>
+        <div class="bar">
+          <div class="bar-fill" style="width:${percent}%"></div>
+        </div>
+        <div class="panel-sub" style="margin-top:10px;">${percent}%</div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+
+  html += `
+    <div class="meta">
+      <div class="meta-box">
+        <div class="meta-label">ID ENCUESTA</div>
+        <div class="meta-value">${escapeHtml(surveyId)}</div>
+      </div>
+      <div class="meta-box">
+        <div class="meta-label">TOTAL DE VOTOS</div>
+        <div class="meta-value">${total}</div>
+      </div>
+      <div class="meta-box">
+        <div class="meta-label">ESTADO</div>
+        <div class="meta-value">${blocked ? 'YA VOTASTE' : 'PUEDES VOTAR'}</div>
+      </div>
+    </div>
+    <div class="note">
+      ${blocked
+        ? 'Tu voto ya fue registrado en esta encuesta. Espera a que publiquen una nueva.'
+        : 'Selecciona una opción. Solo podrás votar una vez en esta encuesta.'}
+    </div>
+  `;
+
+  surveyContainer.innerHTML = html;
+
+  if (!blocked) {
+    document.querySelectorAll(".option-card").forEach(card => {
+      card.addEventListener("click", async () => {
+        const index = Number(card.dataset.index);
+        await voteSurvey(surveyId, index);
+      });
+    });
+  }
+}
+
+async function voteSurvey(surveyId, optionIndex) {
+  if (!currentSurveyData) return;
+  if (hasLocalVote(surveyId) || userVoteRecord) {
+    showToast("Ya votaste en esta encuesta.");
+    return;
+  }
+
+  const deviceId = getDeviceId();
+  const surveyRef = db.collection("surveys").doc(surveyId);
+  const voteRef = surveyRef.collection("votes").doc(deviceId);
+
+  try {
+    await db.runTransaction(async (tx) => {
+      const voteSnap = await tx.get(voteRef);
+      if (voteSnap.exists) {
+        throw new Error("Ya existe un voto para este dispositivo.");
+      }
+
+      const surveySnap = await tx.get(surveyRef);
+      if (!surveySnap.exists) {
+        throw new Error("La encuesta ya no existe.");
+      }
+
+      const data = surveySnap.data() || {};
+      const options = Array.isArray(data.options) ? data.options : [];
+
+      if (!options[optionIndex]) {
+        throw new Error("Opción inválida.");
+      }
+
+      options[optionIndex].votes = Number(options[optionIndex].votes || 0) + 1;
+
+      tx.update(surveyRef, {
+        options: options,
+        totalVotes: firebase.firestore.FieldValue.increment(1),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      tx.set(voteRef, {
+        deviceId: deviceId,
+        optionIndex: optionIndex,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+
+    setLocalVote(surveyId);
+    showToast("Voto guardado correctamente.");
+  } catch (error) {
+    console.error("Error al votar:", error);
+    showToast(error.message || "No se pudo guardar el voto.");
+  }
+}
+
+function listenVoteRecord(surveyId) {
+  const deviceId = getDeviceId();
+  db.collection("surveys").doc(surveyId).collection("votes").doc(deviceId)
+    .onSnapshot((docSnap) => {
+      userVoteRecord = docSnap.exists ? docSnap.data() : null;
+      if (currentSurveyData && currentSurveyId === surveyId) {
+        renderSurvey(surveyId, currentSurveyData);
+      }
+    }, (error) => {
+      console.error("Error escuchando voto:", error);
+    });
+}
+
+function listenActiveSurvey() {
+  db.collection("system").doc("activeSurvey").onSnapshot(async (docSnap) => {
+    if (!docSnap.exists) {
+      surveyContainer.innerHTML = `<div class="empty">NO HAY ENCUESTA ACTIVA TODAVÍA.</div>`;
+      return;
+    }
+
+    const data = docSnap.data() || {};
+    const surveyId = data.surveyId;
+
+    if (!surveyId) {
+      surveyContainer.innerHTML = `<div class="empty">NO HAY ENCUESTA ACTIVA TODAVÍA.</div>`;
+      return;
+    }
+
+    systemStatus.innerHTML = `SISTEMA ONLINE<br>ENCUESTA: ${escapeHtml(surveyId)}`;
+
+    db.collection("surveys").doc(surveyId).onSnapshot((surveySnap) => {
+      if (!surveySnap.exists) {
+        surveyContainer.innerHTML = `<div class="empty">LA ENCUESTA ACTIVA FUE ELIMINADA.</div>`;
+        return;
+      }
+
+      const survey = surveySnap.data() || {};
+      currentSurveyData = survey;
+      renderSurvey(surveyId, survey);
+    }, (error) => {
+      console.error("Error leyendo encuesta:", error);
+      surveyContainer.innerHTML = `<div class="empty">NO SE PUDO CARGAR LA ENCUESTA.</div>`;
+    });
+
+    listenVoteRecord(surveyId);
+  }, (error) => {
+    console.error("Error leyendo activeSurvey:", error);
+    surveyContainer.innerHTML = `<div class="empty">ERROR CONECTANDO CON FIREBASE.</div>`;
+  });
+}
+
+/* ===== ANUNCIOS GLOBALES ===== */
+function clearAvatarTimers() {
+  if (glitchTimer) clearTimeout(glitchTimer);
+  if (revealTimer) clearTimeout(revealTimer);
+  glitchTimer = null;
+  revealTimer = null;
+}
+
+function typeWriter(text, speed = 135) {
+  speechText.textContent = "";
+  let i = 0;
+  function write() {
+    if (i < text.length) {
+      speechText.textContent += text.charAt(i);
+      i++;
+      setTimeout(write, speed);
+    }
+  }
+  write();
+}
+
+function showAvatarAnnouncement(text) {
+  const clean = normalizeText(text);
+  if (!clean) {
+    hideAvatarAnnouncement();
+    return;
+  }
+
+  if (avatarVisible && currentAnnouncementText === clean) return;
+
+  clearAvatarTimers();
+  currentAnnouncementText = clean;
+  avatarVisible = true;
+
+  typeWriter(clean, 60);
+  overlay.classList.add("active");
+  overlay.classList.add("glitching");
+
+  avatarWrap.classList.remove("show");
+  speechBubble.classList.remove("show");
+  avatarBox.classList.remove("avatar-fall");
+
+  glitchTimer = setTimeout(() => {
+    overlay.classList.remove("glitching");
+    avatarWrap.classList.add("show");
+    void avatarBox.offsetWidth;
+    avatarBox.classList.add("avatar-fall");
+
+    revealTimer = setTimeout(() => {
+      speechBubble.classList.add("show");
+    }, 450);
+  }, 1000);
+}
+
+function hideAvatarAnnouncement() {
+  clearAvatarTimers();
+  avatarVisible = false;
+  currentAnnouncementText = "";
+  overlay.classList.remove("active", "glitching");
+  avatarWrap.classList.remove("show");
+  speechBubble.classList.remove("show");
+  avatarBox.classList.remove("avatar-fall");
+  speechText.textContent = "";
+}
+
+db.collection("system").doc("globalAnnouncement").onSnapshot((docSnap) => {
+  if (!docSnap.exists) {
+    hideAvatarAnnouncement();
+    return;
+  }
+
+  const data = docSnap.data() || {};
+  const active = data.active === true;
+  const text = normalizeText(data.text);
+  const avatarEnabled = data.avatarEnabled !== false;
+
+  if (active && text && avatarEnabled) {
+    showAvatarAnnouncement(text);
+  } else {
+    hideAvatarAnnouncement();
+  }
+}, (error) => {
+  console.error("Error al escuchar anuncio global:", error);
+});
+
+listenActiveSurvey();
+</script>
+</body>
+</html>
