@@ -567,12 +567,12 @@ body::after{
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script>
 const firebaseConfig = {
-  apiKey: "PON_TU_API_KEY",
-  authDomain: "TU-PROYECTO.firebaseapp.com",
-  projectId: "TU-PROYECTO",
-  storageBucket: "TU-PROYECTO.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "TU_APP_ID"
+apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+authDomain: "gorflacos.firebaseapp.com",
+projectId: "gorflacos",
+storageBucket: "gorflacos.firebasestorage.app",
+messagingSenderId: "507648872448",
+appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
 };
 
 if (!firebase.apps.length) {
