@@ -3,497 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADMIN ENCUESTAS // ARCARAZ</title>
+<title>ADMIN ENCUESTAS PRO</title>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-:root{
-  --bg:#05070a;
-  --panel:#0a1016;
-  --panel2:#0f1823;
-  --green:#24ff8a;
-  --cyan:#50e9ff;
-  --pink:#ff477e;
-  --text:#ddffeb;
-}
-
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
 body{
-  min-height:100vh;
+  background:#05070a;
+  color:#24ff8a;
   font-family:'Press Start 2P', monospace;
-  color:var(--text);
-  background:
-    radial-gradient(circle at 20% 20%, rgba(36,255,138,.08), transparent 20%),
-    radial-gradient(circle at 80% 0%, rgba(80,233,255,.08), transparent 20%),
-    linear-gradient(180deg,#020406,#05080d 35%,#030507);
-}
-
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  background-image:
-    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-  background-size:100% 4px, 4px 100%;
-  opacity:.2;
-}
-
-.wrap{
-  width:min(1000px, calc(100% - 24px));
-  margin:20px auto 50px;
-}
-
-.hero, .panel{
-  border:2px solid var(--green);
-  background:linear-gradient(180deg,#0a1017,#0a1119);
-  box-shadow:0 0 0 3px #000, 0 0 26px rgba(36,255,138,.15);
-  padding:18px;
-}
-
-.hero{
-  margin-bottom:18px;
-}
-
-.hero h1{
-  margin:0 0 12px;
-  font-size:16px;
-  color:#fff;
-  line-height:1.7;
-}
-
-.hero p{
   margin:0;
-  font-size:9px;
-  line-height:1.9;
-  color:#bfffdc;
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:1.2fr .8fr;
-  gap:18px;
-  margin-top:18px;
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
 }
 
-.section-title{
-  margin:0 0 14px;
-  font-size:11px;
-  line-height:1.8;
-  color:#fff;
+.panel{
+  border:2px solid #24ff8a;
+  padding:20px;
+  margin-bottom:20px;
+  background:#0a1016;
 }
 
-.label{
-  font-size:8px;
-  line-height:1.8;
-  color:#97ffd1;
-  margin:12px 0 8px;
-  display:block;
-}
-
-.input, .textarea{
+input,textarea,button{
   width:100%;
-  border:2px solid rgba(36,255,138,.55);
-  background:#091019;
-  color:#fff;
-  padding:14px;
-  font-family:'Press Start 2P', monospace;
-  outline:none;
-  box-shadow:inset 0 0 10px rgba(36,255,138,.05);
-}
-
-.input{
-  height:48px;
-  font-size:10px;
-}
-
-.textarea{
-  min-height:120px;
-  resize:vertical;
-  font-size:10px;
-  line-height:1.8;
-}
-
-.options-list{
-  display:grid;
-  gap:10px;
+  padding:10px;
   margin-top:10px;
+  background:black;
+  color:#24ff8a;
+  border:2px solid #24ff8a;
+  font-family:inherit;
 }
 
-.option-row{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:10px;
-  align-items:center;
-}
-
-.btn{
-  border:none;
+button{
   cursor:pointer;
-  font-family:'Press Start 2P', monospace;
-  padding:14px 16px;
-  font-size:9px;
-  line-height:1.7;
-  color:#fff;
-  background:#0f1d2a;
-  border:2px solid var(--green);
-  box-shadow:0 0 0 2px #000;
-  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
 
-.btn:hover{
-  transform:translate(-2px,-2px);
-  box-shadow:0 0 0 2px #000, 6px 6px 0 rgba(36,255,138,.14);
-}
-
-.btn.full{width:100%}
-.btn.cyan{border-color:var(--cyan)}
-.btn.pink{border-color:var(--pink)}
-.btn.small{
-  padding:12px 12px;
-  font-size:8px;
-  white-space:nowrap;
-}
-
-.actions{
-  display:grid;
+.option{
+  display:flex;
   gap:10px;
-  margin-top:16px;
 }
 
-.preview{
-  border:2px dashed rgba(80,233,255,.35);
-  background:rgba(0,0,0,.22);
-  padding:16px;
-  min-height:240px;
-}
-
-.preview .q{
-  font-size:11px;
-  color:#fff;
-  line-height:1.8;
-  margin-bottom:14px;
-  word-break:break-word;
-}
-
-.preview .o{
-  border:2px solid rgba(36,255,138,.4);
-  background:#0a1017;
-  padding:12px;
-  margin-bottom:10px;
-  font-size:9px;
-  line-height:1.8;
-  color:#c9ffe3;
-}
-
-.muted{
-  font-size:8px;
-  line-height:1.9;
-  color:#9effc6;
-}
-
-.log{
-  margin-top:18px;
-  border:2px solid rgba(255,71,126,.4);
-  background:#0b0f14;
-  padding:14px;
-  font-size:8px;
-  line-height:1.9;
-  min-height:56px;
-  color:#ffd2df;
-  word-break:break-word;
-}
-
-@media (max-width:900px){
-  .grid{grid-template-columns:1fr}
+.option input{
+  flex:1;
 }
 </style>
 </head>
+
 <body>
-<div class="wrap">
-  <section class="hero">
-    <h1>ADMINISTRADOR DE ENCUESTAS Y ANUNCIOS</h1>
-    <p>Publica preguntas nuevas, agrega 2 o más opciones, activa la encuesta global y manda anuncios estilo hacker terrorífico.</p>
-  </section>
 
-  <div class="grid">
-    <section class="panel">
-      <h2 class="section-title">CREAR NUEVA ENCUESTA</h2>
+<div class="container">
 
-      <label class="label">PREGUNTA</label>
-      <textarea id="questionInput" class="textarea" placeholder="Escribe la pregunta..."></textarea>
+<h2>CREAR ENCUESTA</h2>
 
-      <label class="label">OPCIONES</label>
-      <div id="optionsList" class="options-list"></div>
+<textarea id="question" placeholder="Pregunta"></textarea>
 
-      <div class="actions">
-        <button class="btn cyan full" id="addOptionBtn">+ AGREGAR OPCIÓN</button>
-        <button class="btn full" id="publishSurveyBtn">PUBLICAR ENCUESTA</button>
-      </div>
+<div id="options"></div>
 
-      <div class="log" id="surveyLog">LISTO PARA CREAR UNA NUEVA ENCUESTA.</div>
-    </section>
+<button onclick="addOption()">+ OPCION</button>
 
-    <section class="panel">
-      <h2 class="section-title">VISTA PREVIA</h2>
-      <div class="preview" id="previewBox">
-        <div class="muted">AQUÍ VERÁS LA PREGUNTA Y LAS OPCIONES ANTES DE PUBLICAR.</div>
-      </div>
-    </section>
-  </div>
+<label>
+<input type="checkbox" id="allowText">
+ PERMITIR RESPUESTA ESCRITA
+</label>
 
-  <div class="grid">
-    <section class="panel">
-      <h2 class="section-title">ANUNCIO GLOBAL</h2>
+<button onclick="publish()">PUBLICAR</button>
 
-      <label class="label">MENSAJE DEL ANUNCIO</label>
-      <textarea id="announcementInput" class="textarea" placeholder="Escribe el anuncio global..."></textarea>
+<hr>
 
-      <div class="actions">
-        <button class="btn cyan full" id="sendAnnouncementBtn">ENVIAR ANUNCIO</button>
-        <button class="btn pink full" id="removeAnnouncementBtn">QUITAR ANUNCIO</button>
-      </div>
+<h2>RESPUESTAS EN VIVO</h2>
+<div id="responses"></div>
 
-      <div class="log" id="announcementLog">AQUÍ PUEDES ACTIVAR O DESACTIVAR EL ANUNCIO GLOBAL.</div>
-    </section>
+<hr>
 
-    <section class="panel">
-      <h2 class="section-title">ENCUESTA ACTIVA</h2>
-      <div class="preview" id="activeSurveyBox">
-        <div class="muted">CARGANDO ENCUESTA ACTIVA...</div>
-      </div>
-    </section>
-  </div>
+<h2>ANUNCIO GLOBAL</h2>
+
+<textarea id="msg"></textarea>
+
+<select id="avatar">
+<option value="assets/1.png">Avatar 1</option>
+<option value="assets/2.png">Avatar 2</option>
+<option value="assets/3.png">Avatar 3</option>
+<option value="assets/4.png">Avatar 4</option>
+</select>
+
+<button onclick="send()">ENVIAR</button>
+<button onclick="remove()">QUITAR</button>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
 <script>
 const firebaseConfig = {
-apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+apiKey: "AIzaSyB685...",
 authDomain: "gorflacos.firebaseapp.com",
-projectId: "gorflacos",
-storageBucket: "gorflacos.firebasestorage.app",
-messagingSenderId: "507648872448",
-appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
+projectId: "gorflacos"
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const questionInput = document.getElementById("questionInput");
-const optionsList = document.getElementById("optionsList");
-const previewBox = document.getElementById("previewBox");
-const surveyLog = document.getElementById("surveyLog");
-const activeSurveyBox = document.getElementById("activeSurveyBox");
+const optionsDiv = document.getElementById("options");
 
-const announcementInput = document.getElementById("announcementInput");
-const announcementLog = document.getElementById("announcementLog");
+function addOption(){
+  const div = document.createElement("div");
+  div.className = "option";
 
-let optionCount = 0;
-
-function escapeHtml(text) {
-  if (text === null || text === undefined) return "";
-  return String(text)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function addOption(value = "") {
-  optionCount++;
-  const row = document.createElement("div");
-  row.className = "option-row";
-  row.innerHTML = `
-    <input class="input option-input" type="text" placeholder="Opción ${optionCount}" value="${escapeHtml(value)}">
-    <button class="btn small pink remove-option-btn">QUITAR</button>
+  div.innerHTML = `
+    <input placeholder="Opcion">
+    <button onclick="this.parentNode.remove()">X</button>
   `;
 
-  row.querySelector(".remove-option-btn").addEventListener("click", () => {
-    row.remove();
-    updatePreview();
-  });
-
-  row.querySelector(".option-input").addEventListener("input", updatePreview);
-  optionsList.appendChild(row);
-  updatePreview();
+  optionsDiv.appendChild(div);
 }
 
-function getOptionValues() {
-  return Array.from(document.querySelectorAll(".option-input"))
-    .map(input => input.value.trim())
+addOption();
+addOption();
+
+async function publish(){
+
+  const q = document.getElementById("question").value;
+  const allowText = document.getElementById("allowText").checked;
+
+  const opts = [...document.querySelectorAll(".option input")]
+    .map(i=>i.value)
     .filter(Boolean);
-}
 
-function updatePreview() {
-  const question = questionInput.value.trim();
-  const options = getOptionValues();
+  if(!q || opts.length < 2) return;
 
-  if (!question && options.length === 0) {
-    previewBox.innerHTML = `<div class="muted">AQUÍ VERÁS LA PREGUNTA Y LAS OPCIONES ANTES DE PUBLICAR.</div>`;
-    return;
-  }
+  const id = "survey_"+Date.now();
 
-  let html = `<div class="q">${escapeHtml(question || "SIN PREGUNTA")}</div>`;
-  if (options.length === 0) {
-    html += `<div class="muted">AGREGA AL MENOS 2 OPCIONES.</div>`;
-  } else {
-    options.forEach((opt) => {
-      html += `<div class="o">${escapeHtml(opt)}</div>`;
-    });
-  }
-
-  previewBox.innerHTML = html;
-}
-
-async function publishSurvey() {
-  const question = questionInput.value.trim();
-  const options = getOptionValues();
-
-  if (!question) {
-    surveyLog.textContent = "DEBES ESCRIBIR UNA PREGUNTA.";
-    return;
-  }
-
-  if (options.length < 2) {
-    surveyLog.textContent = "DEBES AGREGAR AL MENOS 2 OPCIONES.";
-    return;
-  }
-
-  const surveyId = "survey_" + Date.now();
-
-  const payload = {
-    question,
-    options: options.map(text => ({ text, votes: 0 })),
-    totalVotes: 0,
-    active: true,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  try {
-    const batch = db.batch();
-
-    const surveyRef = db.collection("surveys").doc(surveyId);
-    const activeSurveyRef = db.collection("system").doc("activeSurvey");
-
-    batch.set(surveyRef, payload);
-    batch.set(activeSurveyRef, {
-      surveyId,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    await batch.commit();
-
-    surveyLog.textContent = "ENCUESTA PUBLICADA CORRECTAMENTE: " + surveyId;
-    questionInput.value = "";
-    optionsList.innerHTML = "";
-    optionCount = 0;
-    addOption();
-    addOption();
-    updatePreview();
-  } catch (error) {
-    console.error(error);
-    surveyLog.textContent = "ERROR PUBLICANDO ENCUESTA: " + (error.message || error);
-  }
-}
-
-async function sendAnnouncement() {
-  const text = announcementInput.value.trim();
-
-  if (!text) {
-    announcementLog.textContent = "ESCRIBE EL MENSAJE DEL ANUNCIO.";
-    return;
-  }
-
-  try {
-    await db.collection("system").doc("globalAnnouncement").set({
-      active: true,
-      text,
-      avatarEnabled: true,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-
-    announcementLog.textContent = "ANUNCIO GLOBAL ENVIADO.";
-  } catch (error) {
-    console.error(error);
-    announcementLog.textContent = "ERROR ENVIANDO ANUNCIO: " + (error.message || error);
-  }
-}
-
-async function removeAnnouncement() {
-  try {
-    await db.collection("system").doc("globalAnnouncement").set({
-      active: false,
-      text: "",
-      avatarEnabled: false,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-
-    announcementLog.textContent = "ANUNCIO GLOBAL DESACTIVADO.";
-  } catch (error) {
-    console.error(error);
-    announcementLog.textContent = "ERROR QUITANDO ANUNCIO: " + (error.message || error);
-  }
-}
-
-function renderActiveSurvey(surveyId, data) {
-  const options = Array.isArray(data.options) ? data.options : [];
-  let html = `<div class="q">${escapeHtml(data.question || "SIN PREGUNTA")}</div>`;
-  options.forEach(opt => {
-    html += `<div class="o">${escapeHtml(opt.text || "")} — ${Number(opt.votes || 0)} voto(s)</div>`;
+  await db.collection("surveys").doc(id).set({
+    question:q,
+    options: opts.map(t=>({text:t,votes:0})),
+    allowTextAnswer: allowText
   });
-  html += `<div class="muted">ID: ${escapeHtml(surveyId)}</div>`;
-  activeSurveyBox.innerHTML = html;
+
+  await db.collection("system").doc("activeSurvey").set({
+    surveyId:id
+  });
+
+  listenResponses(id);
 }
 
-function listenActiveSurvey() {
-  db.collection("system").doc("activeSurvey").onSnapshot((docSnap) => {
-    if (!docSnap.exists) {
-      activeSurveyBox.innerHTML = `<div class="muted">NO HAY ENCUESTA ACTIVA.</div>`;
-      return;
-    }
+function listenResponses(id){
 
-    const data = docSnap.data() || {};
-    const surveyId = data.surveyId;
-    if (!surveyId) {
-      activeSurveyBox.innerHTML = `<div class="muted">NO HAY ENCUESTA ACTIVA.</div>`;
-      return;
-    }
+  db.collection("surveys")
+    .doc(id)
+    .collection("responses")
+    .onSnapshot(snap=>{
 
-    db.collection("surveys").doc(surveyId).onSnapshot((surveySnap) => {
-      if (!surveySnap.exists) {
-        activeSurveyBox.innerHTML = `<div class="muted">LA ENCUESTA ACTIVA YA NO EXISTE.</div>`;
-        return;
-      }
+      const box = document.getElementById("responses");
+      let html = "";
 
-      renderActiveSurvey(surveyId, surveySnap.data() || {});
-    }, (error) => {
-      console.error(error);
-      activeSurveyBox.innerHTML = `<div class="muted">ERROR LEYENDO ENCUESTA ACTIVA.</div>`;
+      snap.forEach(doc=>{
+        html += `<div style="border:1px solid red;padding:10px;margin:5px;">${doc.data().text}</div>`;
+      });
+
+      box.innerHTML = html || "SIN RESPUESTAS";
     });
-  }, (error) => {
-    console.error(error);
-    activeSurveyBox.innerHTML = `<div class="muted">ERROR CONECTANDO A FIREBASE.</div>`;
+}
+
+function send(){
+  const text = document.getElementById("msg").value;
+  const avatar = document.getElementById("avatar").value;
+
+  db.collection("system").doc("globalAnnouncement").set({
+    active:true,
+    text:text,
+    avatar:avatar,
+    avatarEnabled:true
   });
 }
 
-document.getElementById("addOptionBtn").addEventListener("click", () => addOption());
-document.getElementById("publishSurveyBtn").addEventListener("click", publishSurvey);
-document.getElementById("sendAnnouncementBtn").addEventListener("click", sendAnnouncement);
-document.getElementById("removeAnnouncementBtn").addEventListener("click", removeAnnouncement);
-questionInput.addEventListener("input", updatePreview);
-
-addOption();
-addOption();
-updatePreview();
-listenActiveSurvey();
+function remove(){
+  db.collection("system").doc("globalAnnouncement").set({
+    active:false
+  });
+}
 </script>
+
 </body>
 </html>
