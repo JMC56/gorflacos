@@ -906,6 +906,19 @@ db.collection("system").doc("globalAnnouncement").onSnapshot((docSnap) => {
   const active = data.active === true;
   const text = normalizeText(data.text);
   const avatarEnabled = data.avatarEnabled !== false;
+const avatarPath = data.avatar || "assets/1.png";
+
+// 🔥 CAMBIAR IMAGEN DINÁMICAMENTE
+const avatarImg = document.querySelector("#avatarBox img");
+if (avatarImg) {
+  avatarImg.src = avatarPath;
+}
+
+if (active && text && avatarEnabled) {
+  showAvatarAnnouncement(text);
+} else {
+  hideAvatarAnnouncement();
+}
 
   if (active && text && avatarEnabled) {
     showAvatarAnnouncement(text);
