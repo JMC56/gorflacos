@@ -527,7 +527,7 @@ audio{
 
   <h1 class="title">EL ORFANATO</h1>
   <div class="sub">Temporizador global activo</div>
-  <div class="date-line">7 DE ABRIL</div>
+  <div class="date-line">8 DE ABRIL</div>
 
   <div class="live-line">
     <span class="live-dot" id="voiceDot"></span>
@@ -553,7 +553,7 @@ audio{
     <img src="assets/imagen.jpg" alt="Imagen principal">
 
     <div class="input-area" id="inputArea">
-      <input id="secretInput" type="text" maxlength="11" placeholder="ESCRIBE LA PALABRA">
+      <input id="secretInput" type="text" maxlength="12" placeholder="ESCRIBE LA PALABRA">
       <button id="secretBtn" type="button">ENVIAR</button>
       <div id="inputMsg"></div>
     </div>
@@ -670,7 +670,7 @@ const remoteAudio = document.getElementById("remoteAudio");
 ========================= */
 const isAdmin = new URLSearchParams(location.search).get("admin") === "1";
 // 7 de abril 2026 a las 12:37 PM (hora local)
-const TARGET_DATE = new Date(2026, 3, 7, 12, 37, 0).getTime();
+const TARGET_DATE = new Date(2026, 4, 8, 10, 42, 0).getTime();
 
 let timerInterval = null;
 let popupInterval = null;
