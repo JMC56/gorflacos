@@ -288,6 +288,44 @@
             line-height:1.6;
         }
 
+        .upload-box{
+            margin-top:16px;
+            padding:16px;
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:14px;
+            background:rgba(255,255,255,.03);
+        }
+
+        .upload-box h3{
+            margin:0 0 12px;
+            font-size:1rem;
+            color:#ff5b7c;
+            text-transform:uppercase;
+            letter-spacing:1px;
+        }
+
+        .upload-box input[type="file"]{
+            width:100%;
+            border:1px solid var(--line);
+            border-radius:14px;
+            background:rgba(255,255,255,.04);
+            color:#fff;
+            padding:14px;
+            font-family:"Courier New", monospace;
+            margin-bottom:12px;
+        }
+
+        .upload-box button{
+            width:100%;
+        }
+
+        #estadoSubida{
+            margin:12px 0 0;
+            color:var(--muted);
+            line-height:1.5;
+            min-height:24px;
+        }
+
         @media (max-width:900px){
             .grid{
                 grid-template-columns:1fr;
@@ -348,6 +386,13 @@
                 </div>
 
                 <div id="statusBox" class="status">Esperando acción...</div>
+
+                <div class="upload-box">
+                    <h3>Subir Nuevo Anuncio</h3>
+                    <input type="file" id="archivoImagen" accept="image/*">
+                    <button id="btnSubir" type="button">Publicar Anuncio</button>
+                    <p id="estadoSubida"></p>
+                </div>
             </div>
         </div>
 
@@ -469,6 +514,63 @@ function apagarAlarma(){
 function estado(txt){
     document.getElementById("statusBox").textContent = txt;
 }
+</script>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
+const firebaseConfigModular = {
+  apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+  authDomain: "gorflacos.firebaseapp.com",
+  projectId: "gorflacos",
+  storageBucket: "gorflacos.firebasestorage.app",
+  messagingSenderId: "507648872448",
+  appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfigModular);
+const dbModular = getFirestore(app);
+const storage = getStorage(app);
+
+const archivoImagen = document.getElementById("archivoImagen");
+const btnSubir = document.getElementById("btnSubir");
+const estadoSubida = document.getElementById("estadoSubida");
+
+btnSubir.addEventListener("click", async () => {
+    const archivo = archivoImagen.files[0];
+
+    if (!archivo) {
+        estadoSubida.textContent = "Selecciona una imagen antes de publicar.";
+        return;
+    }
+
+    try {
+        estadoSubida.textContent = "Subiendo imagen...";
+        btnSubir.disabled = true;
+
+        const nombreSeguro = `${Date.now()}_${archivo.name.replace(/\s+/g, "_")}`;
+        const storageRef = ref(storage, `anuncios/${nombreSeguro}`);
+
+        await uploadBytes(storageRef, archivo);
+        const url = await getDownloadURL(storageRef);
+
+        await addDoc(collection(dbModular, "anuncios"), {
+            url: url,
+            timestamp: serverTimestamp()
+        });
+
+        estadoSubida.textContent = "✅ Anuncio enviado correctamente al index.";
+        archivoImagen.value = "";
+        alert("Anuncio publicado correctamente.");
+    } catch (error) {
+        console.error(error);
+        estadoSubida.textContent = "❌ Error al subir: " + error.message;
+    } finally {
+        btnSubir.disabled = false;
+    }
+});
 </script>
 
 </body>
