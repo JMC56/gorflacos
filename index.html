@@ -1328,12 +1328,26 @@
       currentAnnouncementText = clean;
       avatarVisible = true;
 
-      if (data && data.avatar) {
-        globalAvatarImg.src = data.avatar;
-      } else if (data && data.avatarUrl) {
-        globalAvatarImg.src = data.avatarUrl;
-      }
+      // DETECTA AUTOMÁTICAMENTE EL AVATAR
+let avatarPath = "assets/1.png"; // default
 
+if (data && data.avatar) {
+  let av = data.avatar.trim();
+
+  // si solo viene "2.png"
+  if (!av.startsWith("http") && !av.includes("assets/")) {
+    avatarPath = "assets/" + av;
+  } else {
+    avatarPath = av;
+  }
+}
+
+if (data && data.avatarUrl) {
+  avatarPath = data.avatarUrl;
+}
+
+globalAvatarImg.src = avatarPath;
+      
       typeWriter(clean, 135);
       overlay.classList.add("active");
       overlay.classList.add("glitching");
