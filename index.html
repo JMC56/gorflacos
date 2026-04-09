@@ -566,6 +566,45 @@
       100% { opacity: 0; }
     }
 
+    .login-btn-glass{
+  height:48px;
+  padding:0 20px;
+  border-radius:18px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-weight:900;
+  color:#fff;
+  text-decoration:none;
+
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(12px);
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.4),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+
+  transition:all .25s ease;
+}
+
+.login-btn-glass:hover{
+  transform:translateY(-2px) scale(1.02);
+
+  border-color:rgba(255,140,0,.4);
+
+  box-shadow:
+    0 0 20px rgba(255,140,0,.2),
+    0 10px 30px rgba(230,25,25,.2);
+}
+
+.login-btn-glass:active{
+  transform:scale(.95);
+}
+
     @keyframes burstGlitch {
       0% {
         opacity: 0;
@@ -584,6 +623,35 @@
         transform: translateX(-50%) scale(1) skewX(0deg);
       }
     }
+
+    #cursor-glow{
+  position:fixed;
+  top:0;
+  left:0;
+
+  width:300px;
+  height:300px;
+
+  pointer-events:none;
+  z-index:9999;
+
+  background:radial-gradient(circle, rgba(255,140,0,0.25), transparent 70%);
+  transform:translate(-50%, -50%);
+
+  mix-blend-mode:screen;
+
+  transition:
+    width .2s ease,
+    height .2s ease,
+    opacity .2s ease;
+}
+
+/* efecto más fuerte al pasar sobre cosas importantes */
+.glow-hover #cursor-glow{
+  width:420px;
+  height:420px;
+  background:radial-gradient(circle, rgba(230,25,25,0.35), transparent 70%);
+}
 
     @keyframes avatarDrop {
       0% {
@@ -696,8 +764,8 @@
       </div>
 
       <div class="flex items-center gap-2 md:gap-3 reveal-up" style="animation-delay:.18s">
-        <a href="login.html" class="h-12 px-5 rounded-2xl bg-[#0b0b0b] border border-white/10 hover:border-orange-500/30 transition flex items-center justify-center font-black text-white no-underline">
-          Login
+        <a href="login.html" class="login-btn-glass">
+        Login
         </a>
 
         <button id="openCartBtn" class="relative h-12 px-4 rounded-2xl bg-[#0b0b0b] border border-white/10 hover:border-orange-500/30 transition">
@@ -981,6 +1049,26 @@
         return !currentSearch || text.includes(currentSearch);
       });
     }
+
+const glow = document.getElementById("cursor-glow");
+
+document.addEventListener("mousemove", (e) => {
+  glow.style.left = e.clientX + "px";
+  glow.style.top = e.clientY + "px";
+});
+
+// detectar hover en elementos importantes
+const hoverTargets = document.querySelectorAll("button, a, .product-card");
+
+hoverTargets.forEach(el => {
+  el.addEventListener("mouseenter", () => {
+    document.body.classList.add("glow-hover");
+  });
+
+  el.addEventListener("mouseleave", () => {
+    document.body.classList.remove("glow-hover");
+  });
+});
 
     function renderStore() {
       loadingBox.classList.add("hidden");
@@ -1451,5 +1539,6 @@ globalAvatarImg.src = avatarPath;
     window.disminuirCantidad = disminuirCantidad;
     window.eliminarDelCarrito = eliminarDelCarrito;
   </script>
+  <div id="cursor-glow"></div>
 </body>
 </html>
