@@ -1,306 +1,346 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gorflacos Admin</title>
 
-        body {
-            font-family: sans-serif;
-            padding: 30px;
-            margin: 0;
-            background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
-            background-size: 20px 20px;
-            background-color: #fafafa;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
-        h1 {
-            margin-top: 0;
-        }
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
 
-        .box {
-            background: white;
-            padding: 25px;
-            border: 3px solid #000;
-            border-radius: 15px;
-            box-shadow: 10px 10px 0px #000;
-            margin-bottom: 30px;
-        }
+body{
+  background:#000;
+  color:#fff;
+  display:flex;
+  min-height:100vh;
+}
 
-        input {
-            padding: 12px;
-            border: 2px solid #000;
-            border-radius: 8px;
-            margin: 5px;
-            min-width: 180px;
-        }
+/* SIDEBAR */
+.sidebar{
+  width:260px;
+  background:rgba(10,10,10,.95);
+  border-right:1px solid rgba(255,255,255,.05);
+  padding:25px;
+}
 
-        .row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            border-bottom: 1px solid #eee;
-            padding: 12px 0;
-            flex-wrap: wrap;
-        }
+.logo{
+  font-size:22px;
+  font-weight:900;
+  margin-bottom:30px;
+  background:linear-gradient(135deg,#e61919,#ff8c00);
+  -webkit-background-clip:text;
+  color:transparent;
+}
 
-        .btn-add,
-        .btn {
-            background: #000;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+.menu button{
+  width:100%;
+  margin-bottom:10px;
+  padding:12px;
+  border:none;
+  background:#111;
+  color:#fff;
+  border-radius:10px;
+  cursor:pointer;
+}
 
-        .btn-danger {
-            background: #c00;
-            color: #fff;
-            padding: 8px 14px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+.menu button:hover{
+  background:#222;
+}
 
-        .btn-light {
-            background: #fff;
-            color: #000;
-            border: 2px solid #000;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+/* MAIN */
+.main{
+  flex:1;
+  padding:30px;
+}
 
-        .venta {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-            border-left: 5px solid #000;
-            cursor: pointer;
-        }
+/* CARDS */
+.card{
+  background:rgba(15,15,15,.8);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:20px;
+  margin-bottom:20px;
+}
 
-        .venta small {
-            display: block;
-            margin-top: 5px;
-        }
+/* METRICS */
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+}
 
-        .top-actions {
-            margin-bottom: 20px;
-        }
+.metric{
+  padding:20px;
+  border-radius:15px;
+  background:linear-gradient(135deg,#e61919,#ff8c00);
+  box-shadow:0 0 20px rgba(255,100,0,.3);
+}
 
-        .product-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-    </style>
+.metric h2{
+  font-size:28px;
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:12px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+tr:hover{
+  background:rgba(255,255,255,.05);
+}
+
+/* BUTTONS */
+.btn{
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.btn-danger{background:#c00;color:#fff}
+.btn-ok{background:#0a0;color:#fff}
+.btn-main{
+  background:linear-gradient(135deg,#e61919,#ff8c00);
+  color:#fff;
+}
+
+/* INPUT */
+input{
+  padding:10px;
+  margin:5px;
+  border-radius:8px;
+  border:none;
+  background:#111;
+  color:#fff;
+}
+</style>
 </head>
+
 <body>
-    <div class="top-actions">
-        <button class="btn-light" onclick="location.href='index.html'">IR A LA TIENDA</button>
+
+<div class="sidebar">
+  <div class="logo">GORFLACOS</div>
+  <div class="menu">
+    <button onclick="view('dashboard')">Dashboard</button>
+    <button onclick="view('inventory')">Inventario</button>
+    <button onclick="view('orders')">Pedidos</button>
+  </div>
+</div>
+
+<div class="main">
+
+<div id="dashboard">
+
+<div class="metrics">
+  <div class="metric">
+    <p>Ventas Totales</p>
+    <h2 id="ventasTotal">0</h2>
+  </div>
+  <div class="metric">
+    <p>Pedidos</p>
+    <h2 id="pedidosTotal">0</h2>
+  </div>
+  <div class="metric">
+    <p>Stock Bajo</p>
+    <h2 id="stockBajo">0</h2>
+  </div>
+</div>
+
+</div>
+
+<div id="inventory" style="display:none">
+
+<div class="card">
+<h3>Agregar Producto</h3>
+<input id="n" placeholder="Nombre">
+<input id="i" placeholder="Imagen URL">
+<input id="p" type="number" placeholder="Precio">
+<input id="s" type="number" placeholder="Stock">
+<button class="btn btn-main" onclick="crear()">Guardar</button>
+</div>
+
+<div class="card">
+<h3>Inventario</h3>
+<div id="inv"></div>
+</div>
+
+</div>
+
+<div id="orders" style="display:none">
+
+<div class="card">
+<h3>Pedidos</h3>
+<div id="ventas"></div>
+</div>
+
+</div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+
+/* SEGURIDAD */
+if(!localStorage.getItem("admin_auth")){
+  window.location.href="login.html"
+}
+
+/* FIREBASE */
+const firebaseConfig={
+  apiKey:"AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+  authDomain:"gorflacos.firebaseapp.com",
+  projectId:"gorflacos"
+}
+
+if(!firebase.apps.length){
+  firebase.initializeApp(firebaseConfig)
+}
+
+const db=firebase.firestore()
+
+/* ESTADO GLOBAL */
+let productos=[]
+let pedidos=[]
+
+/* VIEWS */
+function view(v){
+  document.getElementById("dashboard").style.display="none"
+  document.getElementById("inventory").style.display="none"
+  document.getElementById("orders").style.display="none"
+
+  document.getElementById(v).style.display="block"
+}
+
+/* CREAR PRODUCTO */
+async function crear(){
+  const nom=n.value.trim()
+  const img=i.value.trim()
+  const pre=parseFloat(p.value)
+  const stk=parseInt(s.value)
+
+  if(!nom||!img||isNaN(pre)||isNaN(stk)){
+    alert("Datos inválidos")
+    return
+  }
+
+  await db.collection("productos").add({
+    nombre:nom,
+    imagen:img,
+    precio:pre,
+    stock:stk
+  })
+
+  n.value=i.value=p.value=s.value=""
+}
+
+/* INVENTARIO */
+db.collection("productos").onSnapshot(snap=>{
+  productos=[]
+
+  inv.innerHTML=""
+
+  snap.forEach(doc=>{
+    const d=doc.data()
+    productos.push({...d,id:doc.id})
+
+    inv.innerHTML+=`
+    <div class="card">
+      <b>${d.nombre}</b> - $${d.precio}
+      <br>
+
+      Stock:
+      <input id="stk-${doc.id}" type="number" value="${d.stock}">
+      <button class="btn btn-ok" onclick="upd('${doc.id}')">OK</button>
+      <button class="btn btn-danger" onclick="del('${doc.id}')">X</button>
     </div>
+    `
+  })
 
-    <h1>ADMIN DASHBOARD</h1>
+  calcular()
+})
 
-    <div class="box">
-        <h3>AÑADIR PRODUCTO</h3>
-        <input type="text" id="n" placeholder="Nombre">
-        <input type="text" id="i" placeholder="URL Imagen">
-        <input type="number" id="p" placeholder="Precio" step="0.01">
-        <input type="number" id="s" placeholder="Stock">
-        <button class="btn-add" onclick="crear()">GUARDAR</button>
+/* UPDATE */
+async function upd(id){
+  const val=parseInt(document.getElementById("stk-"+id).value)
+
+  if(isNaN(val)||val<0){
+    alert("Stock inválido")
+    return
+  }
+
+  await db.collection("productos").doc(id).update({
+    stock:val
+  })
+}
+
+/* DELETE */
+async function del(id){
+  if(confirm("Eliminar?")){
+    await db.collection("productos").doc(id).delete()
+  }
+}
+
+/* PEDIDOS */
+db.collection("compras").onSnapshot(snap=>{
+  pedidos=[]
+  ventas.innerHTML=""
+
+  snap.forEach(doc=>{
+    const d=doc.data()
+    pedidos.push({...d,id:doc.id})
+
+    ventas.innerHTML+=`
+    <div class="card">
+      <b>${d.cliente}</b> - $${d.total}
+      <br>
+      ${d.pedido || ""}
+      <br><br>
+      <button class="btn btn-ok" onclick="entregado('${doc.id}')">Entregado</button>
+      <button class="btn btn-danger" onclick="delPedido('${doc.id}')">Eliminar</button>
     </div>
+    `
+  })
 
-    <div class="box">
-        <h3>INVENTARIO Y STOCK</h3>
-        <div id="inv"></div>
-    </div>
+  calcular()
+})
 
-    <div class="box">
-        <h3>HISTORIAL DE COMPRAS</h3>
-        <div id="ventas"></div>
-    </div>
+/* PEDIDO ACCIONES */
+async function entregado(id){
+  await db.collection("compras").doc(id).update({
+    estado:"entregado"
+  })
+}
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script>
-        if (!localStorage.getItem("admin_auth")) {
-            window.location.href = "login.html";
-        }
+async function delPedido(id){
+  if(confirm("Eliminar pedido?")){
+    await db.collection("compras").doc(id).delete()
+  }
+}
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
-            authDomain: "gorflacos.firebaseapp.com",
-            projectId: "gorflacos",
-            storageBucket: "gorflacos.firebasestorage.app",
-            messagingSenderId: "507648872448",
-            appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
-        };
+/* METRICAS */
+function calcular(){
+  let total=0
+  let bajo=0
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+  pedidos.forEach(p=> total+=Number(p.total||0))
+  productos.forEach(p=>{ if(p.stock<=5) bajo++ })
 
-        const db = firebase.firestore();
+  ventasTotal.innerText=total.toFixed(2)
+  pedidosTotal.innerText=pedidos.length
+  stockBajo.innerText=bajo
+}
 
-        function formatFecha(fecha) {
-            try {
-                if (!fecha) return "Sin fecha";
-                if (fecha.toDate) {
-                    return fecha.toDate().toLocaleString();
-                }
-                return String(fecha);
-            } catch (e) {
-                return "Fecha inválida";
-            }
-        }
+</script>
 
-        async function crear() {
-            const nom = document.getElementById("n").value.trim();
-            const img = document.getElementById("i").value.trim();
-            const pre = parseFloat(document.getElementById("p").value);
-            const stk = parseInt(document.getElementById("s").value, 10);
-
-            if (!nom || !img || isNaN(pre) || isNaN(stk)) {
-                alert("Completa todos los campos correctamente");
-                return;
-            }
-
-            try {
-                await db.collection("productos").add({
-                    nombre: nom,
-                    imagen: img,
-                    precio: pre,
-                    stock: stk
-                });
-
-                document.getElementById("n").value = "";
-                document.getElementById("i").value = "";
-                document.getElementById("p").value = "";
-                document.getElementById("s").value = "";
-
-                alert("Producto añadido");
-            } catch (error) {
-                console.error("Error al crear producto:", error);
-                alert("No se pudo guardar el producto");
-            }
-        }
-
-        db.collection("productos").onSnapshot(
-            (snap) => {
-                const div = document.getElementById("inv");
-                div.innerHTML = "";
-
-                if (snap.empty) {
-                    div.innerHTML = "<p>No hay productos registrados.</p>";
-                    return;
-                }
-
-                snap.forEach(doc => {
-                    const data = doc.data();
-
-                    div.innerHTML += `
-                        <div class="row">
-                            <span>
-                                <b>${data.nombre || "Sin nombre"}</b><br>
-                                <small>Precio: $${Number(data.precio || 0)}</small>
-                            </span>
-
-                            <div class="product-actions">
-                                <span>Stock:</span>
-                                <input type="number" id="stk-${doc.id}" value="${Number(data.stock || 0)}" style="width:80px">
-                                <button class="btn" onclick="upd('${doc.id}')">Actualizar</button>
-                                <button class="btn-danger" onclick="del('${doc.id}')">Eliminar</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            },
-            (error) => {
-                console.error("Error al leer inventario:", error);
-                document.getElementById("inv").innerHTML = "<p>Error cargando inventario.</p>";
-            }
-        );
-
-        async function upd(id) {
-            const val = parseInt(document.getElementById("stk-" + id).value, 10);
-
-            if (isNaN(val) || val < 0) {
-                alert("Stock inválido");
-                return;
-            }
-
-            try {
-                await db.collection("productos").doc(id).update({
-                    stock: val
-                });
-                alert("Stock actualizado");
-            } catch (error) {
-                console.error("Error actualizando stock:", error);
-                alert("No se pudo actualizar el stock");
-            }
-        }
-
-        async function del(id) {
-            if (!confirm("¿Borrar este producto?")) return;
-
-            try {
-                await db.collection("productos").doc(id).delete();
-            } catch (error) {
-                console.error("Error eliminando producto:", error);
-                alert("No se pudo eliminar");
-            }
-        }
-
-        db.collection("compras").orderBy("fecha", "desc").onSnapshot(
-            (snap) => {
-                const vDiv = document.getElementById("ventas");
-                vDiv.innerHTML = "";
-
-                if (snap.empty) {
-                    vDiv.innerHTML = "<p>No hay compras registradas.</p>";
-                    return;
-                }
-
-                snap.forEach(doc => {
-                    const v = doc.data();
-                    const items = Array.isArray(v.items) ? v.items : [];
-
-                    vDiv.innerHTML += `
-                        <details class="venta">
-                            <summary>
-                                <b>${v.cliente || "Sin nombre"}</b> (${v.grado || "Sin grado"}) - Total: $${Number(v.total || 0)}
-                                <small>${formatFecha(v.fecha)}</small>
-                            </summary>
-                            <div style="margin-top:10px;">
-                                ${
-                                    items.length
-                                    ? items.map(i => `<p>${i.nombre} x${i.qty} - $${i.precio}</p>`).join("")
-                                    : `<p>${v.pedido || "Sin detalle"}</p>`
-                                }
-                            </div>
-                        </details>
-                    `;
-                });
-            },
-            (error) => {
-                console.error("Error al leer compras:", error);
-                document.getElementById("ventas").innerHTML = "<p>Error cargando compras.</p>";
-            }
-        );
-
-        window.crear = crear;
-        window.upd = upd;
-        window.del = del;
-    </script>
 </body>
 </html>
