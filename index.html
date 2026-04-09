@@ -632,6 +632,29 @@
         opacity .2s ease;
     }
 
+    /* 🚨 ANIMACION */
+@keyframes alarmPulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.2)}
+}
+
+@keyframes glitch{
+  0%{transform:translate(0,0)}
+  20%{transform:translate(3px,-2px)}
+  40%{transform:translate(-3px,2px)}
+  60%{transform:translate(2px,1px)}
+  80%{transform:translate(-2px,-1px)}
+  100%{transform:translate(0,0)}
+}
+
+.alarm-active #alarmEmoji{
+  animation:alarmPulse .8s infinite, glitch .15s infinite;
+}
+
+.alarm-active{
+  opacity:1 !important;
+}
+
     .glow-hover #cursor-glow{
       width:420px;
       height:420px;
@@ -733,6 +756,30 @@
           </div>
         </div>
       </div>
+
+      <!-- 🚨 ALARMA GLOBAL -->
+<div id="globalAlarm" style="
+position:fixed;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:999999;
+pointer-events:none;
+opacity:0;
+transition:.3s;
+">
+
+  <div id="alarmEmoji" style="
+    font-size:120px;
+    position:relative;
+  ">
+    🚨
+  </div>
+
+</div>
+
+<audio id="alarmSound" src="assets/alarma.mp3" loop></audio>
 
       <div class="flex-1 hidden md:flex justify-center reveal-up" style="animation-delay:.12s">
         <div class="w-full max-w-2xl relative">
@@ -1324,6 +1371,35 @@
         btn.addEventListener("click", () => disminuirCantidad(Number(btn.dataset.index)));
       });
     }
+
+    // ============================
+// 🚨 ALARMA GLOBAL REALTIME
+// ============================
+
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+const rtdb = getDatabase(app);
+const alarmRef = ref(rtdb, "alarma");
+
+const alarmDiv = document.getElementById("globalAlarm");
+const alarmSound = document.getElementById("alarmSound");
+
+onValue(alarmRef, (snap) => {
+  const data = snap.val();
+
+  if(data && data.activa){
+    alarmDiv.classList.add("alarm-active");
+
+    alarmSound.currentTime = 0;
+    alarmSound.play().catch(()=>{});
+
+  }else{
+    alarmDiv.classList.remove("alarm-active");
+
+    alarmSound.pause();
+    alarmSound.currentTime = 0;
+  }
+});
 
     function openModalCompra() {
       if (avatarVisible) return;
