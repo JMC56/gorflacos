@@ -29,7 +29,7 @@
         radial-gradient(circle at top right, rgba(255,140,0,.10), transparent 24%),
         #000;
       color:var(--text);
-      font-family: Inter, system-ui, Arial, sans-serif;
+      font-family:Inter, system-ui, Arial, sans-serif;
       overflow-x:hidden;
     }
 
@@ -379,190 +379,146 @@
       border-bottom:1px solid rgba(255,255,255,.05);
     }
 
-    #avatarAnnouncementOverlay {
-      position: fixed;
-      inset: 0;
-      z-index: 999999;
-      display: none;
-      pointer-events: auto;
+    #avatarAnnouncementOverlay{
+      position:fixed;
+      inset:0;
+      z-index:999999;
+      display:none;
+      pointer-events:auto;
       background:
         radial-gradient(circle at center, rgba(255,255,255,0.04), transparent 35%),
         rgba(0,0,0,0.55);
-      overflow: hidden;
-      backdrop-filter: blur(8px);
+      overflow:hidden;
+      backdrop-filter:blur(8px);
     }
 
-    #avatarAnnouncementOverlay.active {
-      display: block;
+    #avatarAnnouncementOverlay.active{
+      display:block;
     }
 
-    #avatarAnnouncementOverlay * {
-      pointer-events: none;
-      user-select: none;
+    #avatarAnnouncementOverlay *{
+      pointer-events:none;
+      user-select:none;
     }
 
-    .screen-noise {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
+    .screen-noise{
+      position:absolute;
+      inset:0;
+      opacity:0;
       background-image:
         linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 100% 4px, 4px 100%;
+      background-size:100% 4px, 4px 100%;
     }
 
-    #avatarAnnouncementOverlay.glitching .screen-noise {
-      animation: screenNoise .12s steps(2) infinite, glitchFlash 1s linear forwards;
-      opacity: 1;
+    #avatarAnnouncementOverlay.glitching .screen-noise{
+      animation:screenNoise .12s steps(2) infinite, glitchFlash 1s linear forwards;
+      opacity:1;
     }
 
-    .glitch-burst {
-      position: absolute;
-      left: 50%;
-      top: 12%;
-      transform: translateX(-50%);
-      font-weight: 900;
-      font-size: clamp(2rem, 6vw, 4.2rem);
-      letter-spacing: 4px;
-      color: #fff;
-      text-transform: uppercase;
-      opacity: 0;
+    .glitch-burst{
+      position:absolute;
+      left:50%;
+      top:12%;
+      transform:translateX(-50%);
+      font-weight:900;
+      font-size:clamp(2rem, 6vw, 4.2rem);
+      letter-spacing:4px;
+      color:#fff;
+      text-transform:uppercase;
+      opacity:0;
       text-shadow:
         0 0 10px rgba(255,255,255,.4),
         4px 0 0 rgba(255,0,90,.6),
         -4px 0 0 rgba(0,200,255,.45);
     }
 
-    #avatarAnnouncementOverlay.glitching .glitch-burst {
-      animation: burstGlitch 1s ease forwards;
+    #avatarAnnouncementOverlay.glitching .glitch-burst{
+      animation:burstGlitch 1s ease forwards;
     }
 
-    .avatar-wrap {
-      position: absolute;
-      left: 14px;
-      bottom: 14px;
-      display: flex;
-      align-items: flex-end;
-      gap: 16px;
-      opacity: 0;
-      transform: translateY(30px);
+    .avatar-wrap{
+      position:absolute;
+      left:14px;
+      bottom:14px;
+      display:flex;
+      align-items:flex-end;
+      gap:16px;
+      opacity:0;
+      transform:translateY(30px);
     }
 
-    .avatar-wrap.show {
-      opacity: 1;
-      transform: translateY(0);
-      transition: opacity .35s ease, transform .35s ease;
+    .avatar-wrap.show{
+      opacity:1;
+      transform:translateY(0);
+      transition:opacity .35s ease, transform .35s ease;
     }
 
-    .avatar-fall {
-      animation: avatarDrop 1s cubic-bezier(.18,.89,.32,1.28) forwards;
+    .avatar-fall{
+      animation:avatarDrop 1s cubic-bezier(.18,.89,.32,1.28) forwards;
     }
 
-    .avatar-box {
-      width: min(950px, 34vw);
-      min-width: 220px;
-      max-width: 670px;
-      filter: drop-shadow(0 25px 40px rgba(0,0,0,.6));
+    .avatar-box{
+      width:min(950px, 34vw);
+      min-width:220px;
+      max-width:670px;
+      filter:drop-shadow(0 25px 40px rgba(0,0,0,.6));
     }
 
-    .avatar-box img {
-      width: 100%;
-      height: auto;
-      display: block;
-      image-rendering: auto;
+    .avatar-box img{
+      width:100%;
+      height:auto;
+      display:block;
+      image-rendering:auto;
     }
 
-    .speech-bubble {
-      position: relative;
-      max-width: 360px;
-      background: linear-gradient(180deg, #ffffff, #f5f5f5);
+    .speech-bubble{
+      position:relative;
+      max-width:360px;
+      background:linear-gradient(180deg, #ffffff, #f5f5f5);
       color:#000;
-      border: 4px solid #000;
-      border-radius: 30px;
-      padding: 16px 20px;
-      font-weight: 900;
-      font-size: 1.15rem;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      box-shadow: 6px 6px 0 #000;
-      opacity: 0;
-      transform: scale(.8);
+      border:4px solid #000;
+      border-radius:30px;
+      padding:16px 20px;
+      font-weight:900;
+      font-size:1.15rem;
+      text-transform:uppercase;
+      display:flex;
+      align-items:center;
+      box-shadow:6px 6px 0 #000;
+      opacity:0;
+      transform:scale(.8);
     }
 
-    .speech-bubble.show {
-      opacity: 1;
-      transform: scale(1);
-      transition: .25s ease;
+    .speech-bubble.show{
+      opacity:1;
+      transform:scale(1);
+      transition:.25s ease;
     }
 
-    .speech-bubble::before {
-      content: "";
-      position: absolute;
-      left: -20px;
-      bottom: 25px;
-      width: 25px;
-      height: 25px;
-      background: #fff;
-      border-left: 4px solid #000;
-      border-bottom: 4px solid #000;
-      transform: rotate(45deg);
+    .speech-bubble::before{
+      content:"";
+      position:absolute;
+      left:-20px;
+      bottom:25px;
+      width:25px;
+      height:25px;
+      background:#fff;
+      border-left:4px solid #000;
+      border-bottom:4px solid #000;
+      transform:rotate(45deg);
     }
 
-    .speech-bubble::after {
-      content: "";
-      position: absolute;
-      left: -35px;
-      bottom: 15px;
-      width: 14px;
-      height: 14px;
-      background: #fff;
-      border: 4px solid #000;
-      border-radius: 50%;
-    }
-
-    @keyframes pulseDot{
-      0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}
-      70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}
-      100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}
-    }
-
-    @keyframes cardIn{
-      to{
-        opacity:1;
-        transform:translateY(0) scale(1);
-      }
-    }
-
-    @keyframes revealUp{
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
-    }
-
-    @keyframes bump{
-      0%{transform:scale(1)}
-      40%{transform:scale(1.18)}
-      100%{transform:scale(1)}
-    }
-
-    @keyframes screenNoise {
-      0% { transform: translate(0,0); }
-      25% { transform: translate(2px,-1px); }
-      50% { transform: translate(-2px,1px); }
-      75% { transform: translate(1px,2px); }
-      100% { transform: translate(0,0); }
-    }
-
-    @keyframes glitchFlash {
-      0% { opacity: 0; }
-      15% { opacity: 0.95; }
-      25% { opacity: 0.2; }
-      35% { opacity: 0.85; }
-      50% { opacity: 0.15; }
-      70% { opacity: 0.7; }
-      100% { opacity: 0; }
+    .speech-bubble::after{
+      content:"";
+      position:absolute;
+      left:-35px;
+      bottom:15px;
+      width:14px;
+      height:14px;
+      background:#fff;
+      border:4px solid #000;
+      border-radius:50%;
     }
 
     .login-btn-glass{
@@ -596,25 +552,6 @@
       transform:scale(.95);
     }
 
-    @keyframes burstGlitch {
-      0% {
-        opacity: 0;
-        transform: translateX(-50%) scale(0.7) skewX(0deg);
-        filter: blur(10px);
-      }
-      20% {
-        opacity: 1;
-        transform: translateX(-49%) scale(1.05) skewX(12deg);
-        filter: blur(0);
-      }
-      35% { transform: translateX(-51%) scale(0.98) skewX(-8deg); }
-      55% { transform: translateX(-50%) scale(1.03) skewX(5deg); }
-      100% {
-        opacity: 0;
-        transform: translateX(-50%) scale(1) skewX(0deg);
-      }
-    }
-
     #cursor-glow{
       position:fixed;
       top:0;
@@ -632,118 +569,196 @@
         opacity .2s ease;
     }
 
-    /* 🚨 ANIMACION */
-@keyframes alarmPulse{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.2)}
-}
-
-@keyframes glitch{
-  0%{transform:translate(0,0)}
-  20%{transform:translate(3px,-2px)}
-  40%{transform:translate(-3px,2px)}
-  60%{transform:translate(2px,1px)}
-  80%{transform:translate(-2px,-1px)}
-  100%{transform:translate(0,0)}
-}
-
-.alarm-active #alarmEmoji{
-  animation:alarmPulse .8s infinite, glitch .15s infinite;
-}
-
-.alarm-active{
-  opacity:1 !important;
-}
-
     .glow-hover #cursor-glow{
       width:420px;
       height:420px;
       background:radial-gradient(circle, rgba(230,25,25,0.35), transparent 70%);
     }
 
-    @keyframes avatarDrop {
-      0% {
-        transform: translateY(-120vh) scale(.35) rotate(-12deg);
-        opacity: 0;
-        filter: blur(8px);
-      }
-      65% {
-        transform: translateY(22px) scale(1.02) rotate(2deg);
-        opacity: 1;
-        filter: blur(0);
-      }
-      82% {
-        transform: translateY(-8px) scale(.99) rotate(-1deg);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(0) scale(1) rotate(0deg);
-        opacity: 1;
+    #globalAlarm{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:999998;
+      pointer-events:none;
+      opacity:0;
+      transition:.3s;
+    }
+
+    .alarm-active{
+      opacity:1 !important;
+    }
+
+    .alarm-active #alarmEmoji{
+      animation:alarmPulse .8s infinite, glitch .15s infinite;
+    }
+
+    #alarmEmoji{
+      font-size:120px;
+      position:relative;
+    }
+
+    @keyframes pulseDot{
+      0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}
+      70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}
+      100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}
+    }
+
+    @keyframes cardIn{
+      to{
+        opacity:1;
+        transform:translateY(0) scale(1);
       }
     }
 
-    @media (max-width: 900px) {
-      .avatar-wrap {
-        left: 20px;
-        bottom: 20px;
-        gap: 10px;
+    @keyframes revealUp{
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    @keyframes bump{
+      0%{transform:scale(1)}
+      40%{transform:scale(1.18)}
+      100%{transform:scale(1)}
+    }
+
+    @keyframes screenNoise{
+      0%{ transform:translate(0,0); }
+      25%{ transform:translate(2px,-1px); }
+      50%{ transform:translate(-2px,1px); }
+      75%{ transform:translate(1px,2px); }
+      100%{ transform:translate(0,0); }
+    }
+
+    @keyframes glitchFlash{
+      0%{ opacity:0; }
+      15%{ opacity:.95; }
+      25%{ opacity:.2; }
+      35%{ opacity:.85; }
+      50%{ opacity:.15; }
+      70%{ opacity:.7; }
+      100%{ opacity:0; }
+    }
+
+    @keyframes burstGlitch{
+      0%{
+        opacity:0;
+        transform:translateX(-50%) scale(.7) skewX(0deg);
+        filter:blur(10px);
+      }
+      20%{
+        opacity:1;
+        transform:translateX(-49%) scale(1.05) skewX(12deg);
+        filter:blur(0);
+      }
+      35%{ transform:translateX(-51%) scale(.98) skewX(-8deg); }
+      55%{ transform:translateX(-50%) scale(1.03) skewX(5deg); }
+      100%{
+        opacity:0;
+        transform:translateX(-50%) scale(1) skewX(0deg);
+      }
+    }
+
+    @keyframes avatarDrop{
+      0%{
+        transform:translateY(-120vh) scale(.35) rotate(-12deg);
+        opacity:0;
+        filter:blur(8px);
+      }
+      65%{
+        transform:translateY(22px) scale(1.02) rotate(2deg);
+        opacity:1;
+        filter:blur(0);
+      }
+      82%{
+        transform:translateY(-8px) scale(.99) rotate(-1deg);
+        opacity:1;
+      }
+      100%{
+        transform:translateY(0) scale(1) rotate(0deg);
+        opacity:1;
+      }
+    }
+
+    @keyframes alarmPulse{
+      0%,100%{ transform:scale(1); }
+      50%{ transform:scale(1.2); }
+    }
+
+    @keyframes glitch{
+      0%{ transform:translate(0,0); }
+      20%{ transform:translate(3px,-2px); }
+      40%{ transform:translate(-3px,2px); }
+      60%{ transform:translate(2px,1px); }
+      80%{ transform:translate(-2px,-1px); }
+      100%{ transform:translate(0,0); }
+    }
+
+    @media (max-width:900px){
+      .avatar-wrap{
+        left:20px;
+        bottom:20px;
+        gap:10px;
       }
 
-      .avatar-box {
-        width: 140px;
-        min-width: 110px;
+      .avatar-box{
+        width:140px;
+        min-width:110px;
       }
 
-      .speech-bubble {
-        max-width: calc(100vw - 170px);
-        min-width: 0;
-        padding: 16px 16px;
-        border-radius: 20px;
-        box-shadow: 7px 7px 0 #000;
-        font-size: 1rem;
+      .speech-bubble{
+        max-width:calc(100vw - 170px);
+        min-width:0;
+        padding:16px 16px;
+        border-radius:20px;
+        box-shadow:7px 7px 0 #000;
+        font-size:1rem;
       }
 
-      .speech-bubble::before {
-        left: -18px;
-        width: 24px;
-        height: 24px;
-        bottom: 26px;
+      .speech-bubble::before{
+        left:-18px;
+        width:24px;
+        height:24px;
+        bottom:26px;
       }
 
-      .speech-bubble::after {
-        left: -28px;
-        bottom: 12px;
-        width: 14px;
-        height: 14px;
+      .speech-bubble::after{
+        left:-28px;
+        bottom:12px;
+        width:14px;
+        height:14px;
       }
     }
 
     @media (max-width:768px){
-      .thumb{height:190px}
+      .thumb{ height:190px; }
     }
 
     @media (max-width:700px){
-      .avatar-wrap {
-        left: 8px;
-        right: 8px;
-        bottom: 8px;
+      .avatar-wrap{
+        left:8px;
+        right:8px;
+        bottom:8px;
       }
 
-      .avatar-box {
-        width: 110px;
-        min-width: 90px;
+      .avatar-box{
+        width:110px;
+        min-width:90px;
       }
 
-      .speech-bubble {
-        max-width: calc(100vw - 118px);
-        font-size: .95rem;
-        line-height: 1.15;
+      .speech-bubble{
+        max-width:calc(100vw - 118px);
+        font-size:.95rem;
+        line-height:1.15;
       }
     }
   </style>
 </head>
 <body>
-
   <header class="sticky top-0 z-40 header-glass">
     <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center gap-4">
       <div class="flex items-center gap-3 min-w-fit reveal-up" style="animation-delay:.05s">
@@ -756,30 +771,6 @@
           </div>
         </div>
       </div>
-
-      <!-- 🚨 ALARMA GLOBAL -->
-<div id="globalAlarm" style="
-position:fixed;
-inset:0;
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:999999;
-pointer-events:none;
-opacity:0;
-transition:.3s;
-">
-
-  <div id="alarmEmoji" style="
-    font-size:120px;
-    position:relative;
-  ">
-    🚨
-  </div>
-
-</div>
-
-<audio id="alarmSound" src="assets/alarma.mp3" loop></audio>
 
       <div class="flex-1 hidden md:flex justify-center reveal-up" style="animation-delay:.12s">
         <div class="w-full max-w-2xl relative">
@@ -820,6 +811,12 @@ transition:.3s;
     </div>
   </header>
 
+  <div id="globalAlarm">
+    <div id="alarmEmoji">🚨</div>
+  </div>
+
+  <audio id="alarmSound" src="assets/alarma.mp3" loop preload="auto"></audio>
+
   <section class="max-w-7xl mx-auto px-4 md:px-6 pt-8 md:pt-10">
     <div class="hero-border reveal-up" style="animation-delay:.1s">
       <div class="gradient-main p-[1px] rounded-[32px]">
@@ -834,7 +831,7 @@ transition:.3s;
             <div class="mt-6 flex flex-wrap gap-3">
               <span class="px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm">Compra rápida</span>
               <span class="px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm">Stock siempre actualizado</span>
-              <span class="px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm">Atencion rapida y con buenos agentes</span>
+              <span class="px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm">Atención rápida y con buenos agentes</span>
             </div>
           </div>
         </div>
@@ -949,6 +946,7 @@ transition:.3s;
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
@@ -964,10 +962,29 @@ transition:.3s;
     }
 
     const db = firebase.firestore();
+    let rtdb = null;
+
+    try {
+      if (typeof firebase.database === "function") {
+        rtdb = firebase.database();
+      }
+    } catch (databaseError) {
+      console.warn("Realtime Database no disponible:", databaseError);
+    }
 
     let cart = [];
     let productsCache = [];
     let currentSearch = "";
+
+    let avatarVisible = false;
+    let currentAnnouncementText = "";
+    let glitchTimer = null;
+    let revealTimer = null;
+    let bubbleTimer = null;
+    let typeWriterTimer = null;
+    let productsUnsubscribe = null;
+    let announcementUnsubscribe = null;
+    let alarmUnsubscribe = null;
 
     const productsGrid = document.getElementById("productsGrid");
     const loadingBox = document.getElementById("loadingBox");
@@ -1001,14 +1018,8 @@ transition:.3s;
     const globalAvatarImg = document.getElementById("globalAvatarImg");
     const glow = document.getElementById("cursor-glow");
 
-    let avatarVisible = false;
-    let currentAnnouncementText = "";
-    let glitchTimer = null;
-    let revealTimer = null;
-    let bubbleTimer = null;
-    let typeWriterTimer = null;
-    let productsUnsubscribe = null;
-    let announcementUnsubscribe = null;
+    const alarmDiv = document.getElementById("globalAlarm");
+    const alarmSound = document.getElementById("alarmSound");
 
     function escapeHtml(text) {
       if (text === null || text === undefined) return "";
@@ -1208,11 +1219,11 @@ transition:.3s;
         if (!agotado) {
           btn.addEventListener("click", (e) => {
             e.stopPropagation();
-            agregarAlCarrito(docId, nombre, precio, stock, imagen, thumb);
+            agregarAlCarrito(docId, nombre, precio, imagen, thumb);
           });
 
           card.addEventListener("click", () => {
-            agregarAlCarrito(docId, nombre, precio, stock, imagen, thumb);
+            agregarAlCarrito(docId, nombre, precio, imagen, thumb);
           });
         }
 
@@ -1220,7 +1231,7 @@ transition:.3s;
       });
     }
 
-    function agregarAlCarrito(id, nombre, precio, stock, imagen, thumbEl) {
+    function agregarAlCarrito(id, nombre, precio, imagen, thumbEl) {
       if (avatarVisible) return;
 
       const liveStock = getLiveAvailableStock(id);
@@ -1241,12 +1252,12 @@ transition:.3s;
         }
       } else {
         cart.push({
-          id: id,
-          nombre: nombre,
-          precio: Number(precio || 0),
-          qty: 1,
-          stock: liveStock,
-          imagen: imagen || ""
+          id:id,
+          nombre:nombre,
+          precio:Number(precio || 0),
+          qty:1,
+          stock:liveStock,
+          imagen:imagen || ""
         });
       }
 
@@ -1314,7 +1325,7 @@ transition:.3s;
           </div>
         `;
         updateCartBadge();
-        cartTotal.textContent = "$0.00";
+        cartTotal.textContent = "C$0.00";
         checkoutBtn.disabled = true;
         return;
       }
@@ -1372,35 +1383,6 @@ transition:.3s;
       });
     }
 
-    // ============================
-// 🚨 ALARMA GLOBAL REALTIME
-// ============================
-
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
-
-const rtdb = getDatabase(app);
-const alarmRef = ref(rtdb, "alarma");
-
-const alarmDiv = document.getElementById("globalAlarm");
-const alarmSound = document.getElementById("alarmSound");
-
-onValue(alarmRef, (snap) => {
-  const data = snap.val();
-
-  if(data && data.activa){
-    alarmDiv.classList.add("alarm-active");
-
-    alarmSound.currentTime = 0;
-    alarmSound.play().catch(()=>{});
-
-  }else{
-    alarmDiv.classList.remove("alarm-active");
-
-    alarmSound.pause();
-    alarmSound.currentTime = 0;
-  }
-});
-
     function openModalCompra() {
       if (avatarVisible) return;
 
@@ -1436,7 +1418,13 @@ onValue(alarmRef, (snap) => {
       }
 
       try {
-        const cartSnapshot = [...cart];
+        const cartSnapshot = cart.map((item) => ({
+          id:item.id,
+          nombre:item.nombre,
+          precio:Number(item.precio || 0),
+          qty:Number(item.qty || 0),
+          imagen:item.imagen || ""
+        }));
 
         for (let i = 0; i < cartSnapshot.length; i++) {
           const item = cartSnapshot[i];
@@ -1482,24 +1470,26 @@ onValue(alarmRef, (snap) => {
           }
 
           transaction.set(compraRef, {
-            cliente: nombreCliente,
-            grado: gradoCliente,
-            pedido: pedidoTexto,
-            total: total,
-            items: cartSnapshot.map((item) => ({
-              id: item.id,
-              nombre: item.nombre,
-              precio: Number(item.precio || 0),
-              qty: Number(item.qty || 0)
+            cliente:nombreCliente,
+            grado:gradoCliente,
+            pedido:pedidoTexto,
+            total:total,
+            items:cartSnapshot.map((item) => ({
+              id:item.id,
+              nombre:item.nombre,
+              precio:Number(item.precio || 0),
+              qty:Number(item.qty || 0)
             })),
-            fecha: firebase.firestore.Timestamp.now()
+            fecha:firebase.firestore.Timestamp.now()
           });
 
           for (let i = 0; i < productRefs.length; i++) {
             const ref = productRefs[i];
             const item = cartSnapshot[i];
+            const currentDoc = productDocs[i];
+            const currentStock = Math.max(0, Number(currentDoc.data().stock || 0));
             transaction.update(ref, {
-              stock: firebase.firestore.FieldValue.increment(-Number(item.qty || 0))
+              stock: currentStock - Number(item.qty || 0)
             });
           }
         });
@@ -1544,12 +1534,9 @@ onValue(alarmRef, (snap) => {
     }
 
     function typeWriter(text, speed = 135) {
-      if (typeWriterTimer) {
-        clearTimeout(typeWriterTimer);
-        typeWriterTimer = null;
-      }
-
+      clearAvatarTimers();
       speechText.textContent = "";
+
       let i = 0;
 
       function escribir() {
@@ -1607,7 +1594,6 @@ onValue(alarmRef, (snap) => {
       avatarVisible = true;
 
       globalAvatarImg.src = resolveAvatarPath(data);
-
       overlay.classList.add("active");
       overlay.classList.add("glitching");
 
@@ -1623,7 +1609,7 @@ onValue(alarmRef, (snap) => {
         void avatarBox.offsetWidth;
         avatarBox.classList.add("avatar-fall");
 
-        bubbleTimer = setTimeout(() => {
+        revealTimer = setTimeout(() => {
           speechBubble.classList.add("show");
           typeWriter(clean, 135);
         }, 450);
@@ -1666,6 +1652,30 @@ onValue(alarmRef, (snap) => {
       });
     }
 
+    function initAlarmRealtime() {
+      if (!rtdb) return;
+
+      const alarmRef = rtdb.ref("alarma");
+
+      alarmUnsubscribe = alarmRef.on("value", (snapshot) => {
+        const data = snapshot.val() || {};
+
+        if (data && data.activa === true) {
+          alarmDiv.classList.add("alarm-active");
+          const playPromise = alarmSound.play();
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(() => {});
+          }
+        } else {
+          alarmDiv.classList.remove("alarm-active");
+          alarmSound.pause();
+          alarmSound.currentTime = 0;
+        }
+      }, (error) => {
+        console.error("Error escuchando alarma:", error);
+      });
+    }
+
     function attachStaticEvents() {
       searchDesktop.addEventListener("input", (e) => syncSearch(e.target.value));
       searchMobile.addEventListener("input", (e) => syncSearch(e.target.value));
@@ -1702,8 +1712,8 @@ onValue(alarmRef, (snap) => {
       productsUnsubscribe = db.collection("productos").onSnapshot(
         (snapshot) => {
           productsCache = snapshot.docs.map((docSnap) => ({
-            id: docSnap.id,
-            data: docSnap.data()
+            id:docSnap.id,
+            data:docSnap.data()
           }));
 
           updateCartStocksFromCache();
@@ -1746,9 +1756,10 @@ onValue(alarmRef, (snap) => {
     function init() {
       attachStaticEvents();
       initCursorGlow();
-      renderCart();
       resetCompraModal();
+      renderCart();
       startFirestoreListeners();
+      initAlarmRealtime();
 
       window.toggleCart = toggleCart;
       window.openModalCompra = openModalCompra;
