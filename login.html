@@ -4,73 +4,135 @@
 <meta charset="UTF-8">
 <title>Login | Admin</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
 <style>
-body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Inter', sans-serif;
-    background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
-    background-size: 20px 20px;
+:root{
+  --red:#e61919;
+  --orange:#ff8c00;
 }
 
-.login-box {
-    background: white;
-    padding: 40px;
-    border: 4px solid #000;
-    border-radius: 20px;
-    box-shadow: 15px 15px 0px #000;
-    width: 320px;
-    text-align: center;
-    transition: 0.3s;
+/* ===== FONDO STREAMNIC ===== */
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Inter',sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(230,25,25,.15), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(255,140,0,.12), transparent 30%),
+    #000;
+  overflow:hidden;
 }
 
-.login-box:hover {
-    transform: translate(-4px, -4px);
-    box-shadow: 20px 20px 0px #000;
+/* ===== ANIMACION ===== */
+@keyframes revealUp{
+  from{
+    opacity:0;
+    transform:translateY(40px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 }
 
-h2 {
-    margin-bottom: 20px;
+/* ===== LOGIN BOX ===== */
+.login-box{
+  width:340px;
+  padding:40px;
+  border-radius:32px;
+
+  background:rgba(10,10,10,0.9);
+  backdrop-filter:blur(16px);
+
+  border:1px solid rgba(255,255,255,0.1);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.8),
+    inset 0 0 0 1px rgba(255,255,255,0.04);
+
+  text-align:center;
+
+  animation:revealUp .6s ease;
 }
 
-input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 2px solid #000;
-    border-radius: 10px;
-    box-sizing: border-box;
-    font-size: 1rem;
+/* ===== TITULO ===== */
+h2{
+  margin-bottom:25px;
+  font-weight:900;
+  font-style:italic;
+  letter-spacing:1px;
+  color:white;
 }
 
-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px #000;
+.gradient-text{
+  background:linear-gradient(135deg,var(--red),var(--orange));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 
-button {
-    width: 100%;
-    padding: 15px;
-    background: #000;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
+/* ===== INPUTS ===== */
+input{
+  width:100%;
+  padding:14px;
+  margin-bottom:15px;
+
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.08);
+
+  background:#050505;
+  color:white;
+
+  font-size:1rem;
+
+  transition:.25s;
 }
 
-button:hover {
-    transform: scale(1.05);
+input::placeholder{
+  color:#666;
 }
 
-.msg {
-    margin-top: 10px;
-    font-size: 0.9rem;
-    font-weight: bold;
+input:focus{
+  outline:none;
+  border-color:rgba(255,140,0,.6);
+  box-shadow:0 0 0 2px rgba(255,140,0,.15);
+}
+
+/* ===== BOTON ===== */
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+
+  font-weight:900;
+  color:white;
+
+  background:linear-gradient(135deg,var(--red),var(--orange));
+
+  cursor:pointer;
+  transition:.25s;
+}
+
+button:hover{
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:
+    0 0 20px rgba(255,140,0,.3),
+    0 10px 30px rgba(230,25,25,.3);
+}
+
+button:active{
+  transform:scale(.95);
+}
+
+/* ===== MENSAJE ===== */
+.msg{
+  margin-top:10px;
+  font-size:.9rem;
+  font-weight:bold;
 }
 </style>
 </head>
@@ -78,7 +140,7 @@ button:hover {
 <body>
 
 <div class="login-box">
-    <h2>ADMIN LOGIN</h2>
+    <h2>ADMIN <span class="gradient-text">LOGIN</span></h2>
 
     <input type="text" id="u" placeholder="Usuario">
     <input type="password" id="p" placeholder="Contraseña">
@@ -104,7 +166,6 @@ async function login() {
         const res = await fetch('gallopinto.json');
         const data = await res.json();
 
-        // 🔥 IMPORTANTE: soporta usuarios o usuarios[]
         const users = data.usuarios || data.users || [];
 
         const user = users.find(x => 
@@ -124,11 +185,10 @@ async function login() {
             return;
         }
 
-        // guardar sesión
         localStorage.setItem('admin_auth', 'true');
         localStorage.setItem('admin_user', user.username);
 
-        msg.style.color = "green";
+        msg.style.color = "lime";
         msg.textContent = "Acceso concedido...";
 
         setTimeout(() => {
@@ -142,7 +202,6 @@ async function login() {
     }
 }
 
-// ENTER funciona
 document.getElementById('p').addEventListener("keydown", e => {
     if (e.key === "Enter") login();
 });
