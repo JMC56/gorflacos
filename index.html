@@ -379,7 +379,6 @@
       border-bottom:1px solid rgba(255,255,255,.05);
     }
 
-    /* ========= ANUNCIO GLOBAL GORFLACOS / DARK PREMIUM ========= */
     #avatarAnnouncementOverlay {
       position: fixed;
       inset: 0;
@@ -567,43 +566,35 @@
     }
 
     .login-btn-glass{
-  height:48px;
-  padding:0 20px;
-  border-radius:18px;
+      height:48px;
+      padding:0 20px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      color:#fff;
+      text-decoration:none;
+      background:rgba(255,255,255,0.05);
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 10px 25px rgba(0,0,0,.4),
+        inset 0 0 0 1px rgba(255,255,255,0.05);
+      transition:all .25s ease;
+    }
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+    .login-btn-glass:hover{
+      transform:translateY(-2px) scale(1.02);
+      border-color:rgba(255,140,0,.4);
+      box-shadow:
+        0 0 20px rgba(255,140,0,.2),
+        0 10px 30px rgba(230,25,25,.2);
+    }
 
-  font-weight:900;
-  color:#fff;
-  text-decoration:none;
-
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(12px);
-
-  border:1px solid rgba(255,255,255,0.08);
-
-  box-shadow:
-    0 10px 25px rgba(0,0,0,.4),
-    inset 0 0 0 1px rgba(255,255,255,0.05);
-
-  transition:all .25s ease;
-}
-
-.login-btn-glass:hover{
-  transform:translateY(-2px) scale(1.02);
-
-  border-color:rgba(255,140,0,.4);
-
-  box-shadow:
-    0 0 20px rgba(255,140,0,.2),
-    0 10px 30px rgba(230,25,25,.2);
-}
-
-.login-btn-glass:active{
-  transform:scale(.95);
-}
+    .login-btn-glass:active{
+      transform:scale(.95);
+    }
 
     @keyframes burstGlitch {
       0% {
@@ -625,33 +616,27 @@
     }
 
     #cursor-glow{
-  position:fixed;
-  top:0;
-  left:0;
+      position:fixed;
+      top:0;
+      left:0;
+      width:300px;
+      height:300px;
+      pointer-events:none;
+      z-index:9999;
+      background:radial-gradient(circle, rgba(255,140,0,0.25), transparent 70%);
+      transform:translate(-50%, -50%);
+      mix-blend-mode:screen;
+      transition:
+        width .2s ease,
+        height .2s ease,
+        opacity .2s ease;
+    }
 
-  width:300px;
-  height:300px;
-
-  pointer-events:none;
-  z-index:9999;
-
-  background:radial-gradient(circle, rgba(255,140,0,0.25), transparent 70%);
-  transform:translate(-50%, -50%);
-
-  mix-blend-mode:screen;
-
-  transition:
-    width .2s ease,
-    height .2s ease,
-    opacity .2s ease;
-}
-
-/* efecto más fuerte al pasar sobre cosas importantes */
-.glow-hover #cursor-glow{
-  width:420px;
-  height:420px;
-  background:radial-gradient(circle, rgba(230,25,25,0.35), transparent 70%);
-}
+    .glow-hover #cursor-glow{
+      width:420px;
+      height:420px;
+      background:radial-gradient(circle, rgba(230,25,25,0.35), transparent 70%);
+    }
 
     @keyframes avatarDrop {
       0% {
@@ -764,9 +749,7 @@
       </div>
 
       <div class="flex items-center gap-2 md:gap-3 reveal-up" style="animation-delay:.18s">
-        <a href="login.html" class="login-btn-glass">
-        Login
-        </a>
+        <a href="login.html" class="login-btn-glass">Login</a>
 
         <button id="openCartBtn" class="relative h-12 px-4 rounded-2xl bg-[#0b0b0b] border border-white/10 hover:border-orange-500/30 transition">
           <span class="font-semibold">Carrito</span>
@@ -901,13 +884,12 @@
     </div>
   </div>
 
-  <!-- AVATAR GLOBAL BLOQUEANTE -->
   <div id="avatarAnnouncementOverlay" aria-hidden="true">
     <div class="screen-noise"></div>
     <div class="glitch-burst">ANUNCIO</div>
 
     <div class="avatar-wrap" id="avatarWrap">
-      <div class="avatar-box avatar-fall" id="avatarBox">
+      <div class="avatar-box" id="avatarBox">
         <img id="globalAvatarImg" src="assets/1.png" alt="Avatar global">
       </div>
       <div class="speech-bubble" id="speechBubble">
@@ -915,6 +897,8 @@
       </div>
     </div>
   </div>
+
+  <div id="cursor-glow"></div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -968,12 +952,16 @@
     const speechBubble = document.getElementById("speechBubble");
     const speechText = document.getElementById("speechText");
     const globalAvatarImg = document.getElementById("globalAvatarImg");
+    const glow = document.getElementById("cursor-glow");
 
     let avatarVisible = false;
     let currentAnnouncementText = "";
     let glitchTimer = null;
     let revealTimer = null;
     let bubbleTimer = null;
+    let typeWriterTimer = null;
+    let productsUnsubscribe = null;
+    let announcementUnsubscribe = null;
 
     function escapeHtml(text) {
       if (text === null || text === undefined) return "";
@@ -996,28 +984,36 @@
     }
 
     function getCartCount() {
-      return cart.reduce((acc, item) => acc + item.qty, 0);
+      return cart.reduce((acc, item) => acc + Number(item.qty || 0), 0);
     }
 
     function getCartTotal() {
-      return cart.reduce((acc, item) => acc + (Number(item.precio) * item.qty), 0);
+      return cart.reduce((acc, item) => {
+        return acc + (Number(item.precio || 0) * Number(item.qty || 0));
+      }, 0);
     }
 
     function updateCartBadge() {
-      cartCountBadge.textContent = getCartCount();
+      cartCountBadge.textContent = String(getCartCount());
     }
 
     function openCart() {
       if (avatarVisible) return;
       cartBackdrop.classList.remove("hidden");
-      setTimeout(() => cartBackdrop.classList.remove("opacity-0"), 10);
+      requestAnimationFrame(() => {
+        cartBackdrop.classList.remove("opacity-0");
+      });
       cartDrawer.classList.add("show");
     }
 
     function closeCart() {
       cartBackdrop.classList.add("opacity-0");
       cartDrawer.classList.remove("show");
-      setTimeout(() => cartBackdrop.classList.add("hidden"), 250);
+      setTimeout(() => {
+        if (!cartDrawer.classList.contains("show")) {
+          cartBackdrop.classList.add("hidden");
+        }
+      }, 250);
     }
 
     function toggleCart(force) {
@@ -1026,49 +1022,63 @@
       const isOpen = cartDrawer.classList.contains("show");
 
       if (typeof force === "boolean") {
-        if (force) openCart();
-        else closeCart();
+        if (force) {
+          openCart();
+        } else {
+          closeCart();
+        }
         return;
       }
 
-      if (isOpen) closeCart();
-      else openCart();
+      if (isOpen) {
+        closeCart();
+      } else {
+        openCart();
+      }
     }
 
     function syncSearch(value) {
       currentSearch = normalizeText(value).toLowerCase();
-      if (document.activeElement !== searchDesktop) searchDesktop.value = value;
-      if (document.activeElement !== searchMobile) searchMobile.value = value;
+      if (document.activeElement !== searchDesktop) {
+        searchDesktop.value = value;
+      }
+      if (document.activeElement !== searchMobile) {
+        searchMobile.value = value;
+      }
       renderStore();
     }
 
     function getFilteredProducts() {
-      return productsCache.filter(item => {
-        const p = item.data;
+      return productsCache.filter((item) => {
+        const p = item.data || {};
         const text = `${p.nombre || ""} ${p.descripcion || ""}`.toLowerCase();
         return !currentSearch || text.includes(currentSearch);
       });
     }
 
-const glow = document.getElementById("cursor-glow");
+    function getProductById(id) {
+      return productsCache.find((entry) => entry.id === id) || null;
+    }
 
-document.addEventListener("mousemove", (e) => {
-  glow.style.left = e.clientX + "px";
-  glow.style.top = e.clientY + "px";
-});
+    function getLiveAvailableStock(productId) {
+      const entry = getProductById(productId);
+      if (!entry || !entry.data) return 0;
+      return Math.max(0, Number(entry.data.stock || 0));
+    }
 
-// detectar hover en elementos importantes
-const hoverTargets = document.querySelectorAll("button, a, .product-card");
-
-hoverTargets.forEach(el => {
-  el.addEventListener("mouseenter", () => {
-    document.body.classList.add("glow-hover");
-  });
-
-  el.addEventListener("mouseleave", () => {
-    document.body.classList.remove("glow-hover");
-  });
-});
+    function updateCartStocksFromCache() {
+      cart = cart
+        .map((item) => {
+          const liveStock = getLiveAvailableStock(item.id);
+          const safeQty = Math.min(Number(item.qty || 0), liveStock);
+          return {
+            ...item,
+            stock: liveStock,
+            qty: safeQty
+          };
+        })
+        .filter((item) => item.stock > 0 && item.qty > 0);
+    }
 
     function renderStore() {
       loadingBox.classList.add("hidden");
@@ -1097,16 +1107,18 @@ hoverTargets.forEach(el => {
 
       filtered.forEach((entry, index) => {
         const docId = entry.id;
-        const p = entry.data;
+        const p = entry.data || {};
         const nombre = p.nombre || "Sin nombre";
+        const descripcion = normalizeText(p.descripcion) || (Number(p.stock || 0) <= 0 ? "Actualmente no disponible." : "Producto disponible para compra inmediata.");
         const imagen = p.imagen || "";
         const precio = Number(p.precio || 0);
-        const stock = Number(p.stock || 0);
+        const stock = Math.max(0, Number(p.stock || 0));
         const agotado = stock <= 0;
 
         const card = document.createElement("article");
         card.className = "product-card";
         card.style.animationDelay = `${index * 0.04}s`;
+        card.dataset.productId = docId;
 
         card.innerHTML = `
           <div class="p-4">
@@ -1130,7 +1142,7 @@ hoverTargets.forEach(el => {
               <span class="stock-badge ${agotado ? 'out' : ''}">${agotado ? 'AGOTADO' : `STOCK ${stock}`}</span>
             </div>
 
-            <p class="mt-3 text-sm text-zinc-400 min-h-[22px]">${agotado ? 'Actualmente no disponible.' : 'Producto disponible para compra inmediata.'}</p>
+            <p class="mt-3 text-sm text-zinc-400 min-h-[44px]">${escapeHtml(descripcion)}</p>
 
             <div class="mt-5 flex items-center justify-between gap-4">
               <div>
@@ -1138,7 +1150,7 @@ hoverTargets.forEach(el => {
                 <p class="text-2xl font-black">$${precio.toFixed(2)}</p>
               </div>
 
-              <button class="add-btn" ${agotado ? 'disabled' : ''}>+</button>
+              <button class="add-btn" ${agotado ? "disabled" : ""}>+</button>
             </div>
           </div>
         `;
@@ -1164,22 +1176,29 @@ hoverTargets.forEach(el => {
     function agregarAlCarrito(id, nombre, precio, stock, imagen, thumbEl) {
       if (avatarVisible) return;
 
-      const item = cart.find(x => x.id === id);
+      const liveStock = getLiveAvailableStock(id);
+      if (liveStock <= 0) {
+        alert("Producto agotado");
+        return;
+      }
+
+      const item = cart.find((x) => x.id === id);
 
       if (item) {
-        if (item.qty < item.stock) {
+        if (item.qty < liveStock) {
           item.qty++;
+          item.stock = liveStock;
         } else {
           alert("Sin más stock disponible");
           return;
         }
       } else {
         cart.push({
-          id,
-          nombre,
-          precio,
+          id: id,
+          nombre: nombre,
+          precio: Number(precio || 0),
           qty: 1,
-          stock,
+          stock: liveStock,
           imagen: imagen || ""
         });
       }
@@ -1190,7 +1209,9 @@ hoverTargets.forEach(el => {
 
       if (thumbEl) {
         thumbEl.classList.add("added");
-        setTimeout(() => thumbEl.classList.remove("added"), 780);
+        setTimeout(() => {
+          thumbEl.classList.remove("added");
+        }, 780);
       }
     }
 
@@ -1200,7 +1221,10 @@ hoverTargets.forEach(el => {
       const item = cart[index];
       if (!item) return;
 
-      if (item.qty < item.stock) {
+      const liveStock = getLiveAvailableStock(item.id);
+      item.stock = liveStock;
+
+      if (item.qty < liveStock) {
         item.qty++;
         renderCart();
       } else {
@@ -1230,6 +1254,7 @@ hoverTargets.forEach(el => {
     }
 
     function renderCart() {
+      updateCartStocksFromCache();
       cartItems.innerHTML = "";
 
       if (cart.length === 0) {
@@ -1250,20 +1275,21 @@ hoverTargets.forEach(el => {
       let total = 0;
 
       cart.forEach((item, index) => {
-        const subtotal = item.precio * item.qty;
+        const subtotal = Number(item.precio || 0) * Number(item.qty || 0);
         total += subtotal;
 
         const row = document.createElement("div");
         row.className = "cart-item p-4";
         row.innerHTML = `
           <div class="flex gap-4">
-            <img src="${escapeHtml(item.imagen || '')}" alt="${escapeHtml(item.nombre)}" class="w-20 h-20 rounded-2xl object-cover border border-white/10 bg-black">
+            <img src="${escapeHtml(item.imagen || "")}" alt="${escapeHtml(item.nombre)}" class="w-20 h-20 rounded-2xl object-cover border border-white/10 bg-black">
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <h5 class="font-black leading-tight">${escapeHtml(item.nombre)}</h5>
-                  <p class="text-sm text-zinc-400 mt-1">Precio: $${Number(item.precio).toFixed(2)}</p>
+                  <p class="text-sm text-zinc-400 mt-1">Precio: $${Number(item.precio || 0).toFixed(2)}</p>
                   <p class="text-sm text-zinc-500 mt-1">Subtotal: $${subtotal.toFixed(2)}</p>
+                  <p class="text-xs text-zinc-500 mt-1">Stock disponible: ${Number(item.stock || 0)}</p>
                 </div>
                 <button class="remove-btn" data-index="${index}">&times;</button>
               </div>
@@ -1271,7 +1297,7 @@ hoverTargets.forEach(el => {
               <div class="mt-4 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2 bg-black rounded-2xl border border-white/10 px-2 py-1">
                   <button class="qty-btn decrease-btn" data-index="${index}">-</button>
-                  <span class="min-w-[22px] text-center font-bold">${item.qty}</span>
+                  <span class="min-w-[22px] text-center font-bold">${Number(item.qty || 0)}</span>
                   <button class="qty-btn increase-btn" data-index="${index}">+</button>
                 </div>
                 <div class="font-black">$${subtotal.toFixed(2)}</div>
@@ -1286,15 +1312,15 @@ hoverTargets.forEach(el => {
       updateCartBadge();
       checkoutBtn.disabled = false;
 
-      document.querySelectorAll(".remove-btn").forEach(btn => {
+      document.querySelectorAll(".remove-btn").forEach((btn) => {
         btn.addEventListener("click", () => eliminarDelCarrito(Number(btn.dataset.index)));
       });
 
-      document.querySelectorAll(".increase-btn").forEach(btn => {
+      document.querySelectorAll(".increase-btn").forEach((btn) => {
         btn.addEventListener("click", () => aumentarCantidad(Number(btn.dataset.index)));
       });
 
-      document.querySelectorAll(".decrease-btn").forEach(btn => {
+      document.querySelectorAll(".decrease-btn").forEach((btn) => {
         btn.addEventListener("click", () => disminuirCantidad(Number(btn.dataset.index)));
       });
     }
@@ -1328,41 +1354,85 @@ hoverTargets.forEach(el => {
         return;
       }
 
-      try {
-        const total = cart.reduce((acc, item) => acc + (item.precio * item.qty), 0);
-        const pedidoTexto = cart.map(item => `${item.nombre} (x${item.qty})`).join(", ");
+      if (!cart.length) {
+        alert("No hay productos en el carrito");
+        return;
+      }
 
-        const batch = db.batch();
+      try {
+        const cartSnapshot = [...cart];
+
+        for (let i = 0; i < cartSnapshot.length; i++) {
+          const item = cartSnapshot[i];
+          const liveStock = getLiveAvailableStock(item.id);
+
+          if (liveStock <= 0) {
+            alert(`El producto "${item.nombre}" ya no tiene stock disponible.`);
+            renderCart();
+            return;
+          }
+
+          if (item.qty > liveStock) {
+            alert(`La cantidad de "${item.nombre}" supera el stock actual. Ajusta tu carrito.`);
+            renderCart();
+            return;
+          }
+        }
+
+        const total = cartSnapshot.reduce((acc, item) => {
+          return acc + (Number(item.precio || 0) * Number(item.qty || 0));
+        }, 0);
+
+        const pedidoTexto = cartSnapshot.map((item) => `${item.nombre} (x${item.qty})`).join(", ");
+
         const compraRef = db.collection("compras").doc();
 
-        batch.set(compraRef, {
-          cliente: nombreCliente,
-          grado: gradoCliente,
-          pedido: pedidoTexto,
-          total: total,
-          items: cart.map(item => ({
-            id: item.id,
-            nombre: item.nombre,
-            precio: item.precio,
-            qty: item.qty
-          })),
-          fecha: firebase.firestore.Timestamp.now()
-        });
+        await db.runTransaction(async (transaction) => {
+          const productRefs = cartSnapshot.map((item) => db.collection("productos").doc(item.id));
+          const productDocs = await Promise.all(productRefs.map((ref) => transaction.get(ref)));
 
-        cart.forEach(item => {
-          const productoRef = db.collection("productos").doc(item.id);
-          batch.update(productoRef, {
-            stock: firebase.firestore.FieldValue.increment(-item.qty)
+          for (let i = 0; i < productDocs.length; i++) {
+            const docSnap = productDocs[i];
+            const item = cartSnapshot[i];
+
+            if (!docSnap.exists) {
+              throw new Error(`El producto "${item.nombre}" ya no existe.`);
+            }
+
+            const currentStock = Math.max(0, Number(docSnap.data().stock || 0));
+            if (currentStock < item.qty) {
+              throw new Error(`Stock insuficiente para "${item.nombre}". Disponible: ${currentStock}.`);
+            }
+          }
+
+          transaction.set(compraRef, {
+            cliente: nombreCliente,
+            grado: gradoCliente,
+            pedido: pedidoTexto,
+            total: total,
+            items: cartSnapshot.map((item) => ({
+              id: item.id,
+              nombre: item.nombre,
+              precio: Number(item.precio || 0),
+              qty: Number(item.qty || 0)
+            })),
+            fecha: firebase.firestore.Timestamp.now()
           });
-        });
 
-        await batch.commit();
+          for (let i = 0; i < productRefs.length; i++) {
+            const ref = productRefs[i];
+            const item = cartSnapshot[i];
+            transaction.update(ref, {
+              stock: firebase.firestore.FieldValue.increment(-Number(item.qty || 0))
+            });
+          }
+        });
 
         document.getElementById("m-form").classList.add("hidden");
         document.getElementById("m-thanks").classList.remove("hidden");
       } catch (error) {
         console.error("Error al confirmar compra:", error);
-        alert("No se pudo completar la compra");
+        alert(error && error.message ? error.message : "No se pudo completar la compra");
       }
     }
 
@@ -1378,31 +1448,75 @@ hoverTargets.forEach(el => {
     }
 
     function clearAvatarTimers() {
-      if (glitchTimer) clearTimeout(glitchTimer);
-      if (revealTimer) clearTimeout(revealTimer);
-      if (bubbleTimer) clearTimeout(bubbleTimer);
+      if (glitchTimer) {
+        clearTimeout(glitchTimer);
+      }
+      if (revealTimer) {
+        clearTimeout(revealTimer);
+      }
+      if (bubbleTimer) {
+        clearTimeout(bubbleTimer);
+      }
+      if (typeWriterTimer) {
+        clearTimeout(typeWriterTimer);
+      }
+
       glitchTimer = null;
       revealTimer = null;
       bubbleTimer = null;
+      typeWriterTimer = null;
     }
 
     function typeWriter(text, speed = 135) {
+      if (typeWriterTimer) {
+        clearTimeout(typeWriterTimer);
+        typeWriterTimer = null;
+      }
+
       speechText.textContent = "";
       let i = 0;
 
       function escribir() {
+        if (!avatarVisible) return;
+
         if (i < text.length) {
           speechText.textContent += text.charAt(i);
           i++;
-          setTimeout(escribir, speed);
+          typeWriterTimer = setTimeout(escribir, speed);
+        } else {
+          typeWriterTimer = null;
         }
       }
 
       escribir();
     }
 
+    function resolveAvatarPath(data) {
+      let avatarPath = "assets/1.png";
+
+      if (data && typeof data.avatarUrl === "string" && normalizeText(data.avatarUrl)) {
+        return normalizeText(data.avatarUrl);
+      }
+
+      if (data && typeof data.avatar === "string" && normalizeText(data.avatar)) {
+        const av = normalizeText(data.avatar);
+
+        if (/^https?:\/\//i.test(av)) {
+          return av;
+        }
+
+        if (av.includes("assets/")) {
+          return av;
+        }
+
+        return `assets/${av}`;
+      }
+
+      return avatarPath;
+    }
+
     function showAvatarAnnouncement(data) {
-      const clean = normalizeText(typeof data === "string" ? data : data.text);
+      const clean = normalizeText(typeof data === "string" ? data : data && data.text);
       if (!clean) {
         hideAvatarAnnouncement();
         return;
@@ -1416,33 +1530,15 @@ hoverTargets.forEach(el => {
       currentAnnouncementText = clean;
       avatarVisible = true;
 
-      // DETECTA AUTOMÁTICAMENTE EL AVATAR
-let avatarPath = "assets/1.png"; // default
+      globalAvatarImg.src = resolveAvatarPath(data);
 
-if (data && data.avatar) {
-  let av = data.avatar.trim();
-
-  // si solo viene "2.png"
-  if (!av.startsWith("http") && !av.includes("assets/")) {
-    avatarPath = "assets/" + av;
-  } else {
-    avatarPath = av;
-  }
-}
-
-if (data && data.avatarUrl) {
-  avatarPath = data.avatarUrl;
-}
-
-globalAvatarImg.src = avatarPath;
-      
-      typeWriter(clean, 135);
       overlay.classList.add("active");
       overlay.classList.add("glitching");
 
       avatarWrap.classList.remove("show");
       speechBubble.classList.remove("show");
       avatarBox.classList.remove("avatar-fall");
+      speechText.textContent = "";
 
       glitchTimer = setTimeout(() => {
         overlay.classList.remove("glitching");
@@ -1451,8 +1547,9 @@ globalAvatarImg.src = avatarPath;
         void avatarBox.offsetWidth;
         avatarBox.classList.add("avatar-fall");
 
-        revealTimer = setTimeout(() => {
+        bubbleTimer = setTimeout(() => {
           speechBubble.classList.add("show");
+          typeWriter(clean, 135);
         }, 450);
       }, 1000);
     }
@@ -1470,75 +1567,123 @@ globalAvatarImg.src = avatarPath;
       speechText.textContent = "";
     }
 
-    searchDesktop.addEventListener("input", e => syncSearch(e.target.value));
-    searchMobile.addEventListener("input", e => syncSearch(e.target.value));
+    function initCursorGlow() {
+      if (!glow) return;
 
-    openCartBtn.addEventListener("click", openCart);
-    closeCartBtn.addEventListener("click", closeCart);
-    closeCartBottomBtn.addEventListener("click", closeCart);
-    cartBackdrop.addEventListener("click", closeCart);
+      document.addEventListener("mousemove", (e) => {
+        glow.style.left = `${e.clientX}px`;
+        glow.style.top = `${e.clientY}px`;
+      });
 
-    checkoutBtn.addEventListener("click", openModalCompra);
-    closeBuyBtn.addEventListener("click", cerrarModalCompra);
-    cancelBuyBtn.addEventListener("click", cerrarModalCompra);
-    confirmBuyBtn.addEventListener("click", confirmarCompra);
-    finishBuyBtn.addEventListener("click", finalizarCompraYRecargar);
-
-    modalBuy.addEventListener("click", (e) => {
-      if (e.target === modalBuy) cerrarModalCompra();
-    });
-
-    db.collection("productos").onSnapshot(
-      (snapshot) => {
-        productsCache = snapshot.docs.map(docSnap => ({
-          id: docSnap.id,
-          data: docSnap.data()
-        }));
-        renderStore();
-      },
-      (error) => {
-        console.error("Error al leer productos:", error);
-        loadingBox.classList.add("hidden");
-        emptyState.classList.remove("hidden");
-        emptyState.querySelector("h4").textContent = "No se pudieron cargar los productos";
-        emptyState.querySelector("p").textContent = "Revisa la conexión o las reglas de Firebase.";
-      }
-    );
-
-    db.collection("system").doc("globalAnnouncement").onSnapshot(
-      (docSnap) => {
-        if (!docSnap.exists) {
-          hideAvatarAnnouncement();
-          return;
+      document.addEventListener("mouseover", (e) => {
+        const hoverTarget = e.target.closest("button, a, .product-card");
+        if (hoverTarget) {
+          document.body.classList.add("glow-hover");
         }
+      });
 
-        const data = docSnap.data() || {};
-        const active = data.active === true;
-        const text = normalizeText(data.text);
-        const avatarEnabled = data.avatarEnabled !== false;
-
-        if (active && text && avatarEnabled) {
-          showAvatarAnnouncement(data);
-        } else {
-          hideAvatarAnnouncement();
+      document.addEventListener("mouseout", (e) => {
+        const hoverTarget = e.target.closest("button, a, .product-card");
+        if (hoverTarget) {
+          document.body.classList.remove("glow-hover");
         }
-      },
-      (error) => {
-        console.error("Error al escuchar anuncio global:", error);
-      }
-    );
+      });
+    }
 
-    renderCart();
-    resetCompraModal();
+    function attachStaticEvents() {
+      searchDesktop.addEventListener("input", (e) => syncSearch(e.target.value));
+      searchMobile.addEventListener("input", (e) => syncSearch(e.target.value));
 
-    window.toggleCart = toggleCart;
-    window.openModalCompra = openModalCompra;
-    window.cerrarModalCompra = cerrarModalCompra;
-    window.confirmarCompra = confirmarCompra;
-    window.aumentarCantidad = aumentarCantidad;
-    window.disminuirCantidad = disminuirCantidad;
-    window.eliminarDelCarrito = eliminarDelCarrito;
+      openCartBtn.addEventListener("click", openCart);
+      closeCartBtn.addEventListener("click", closeCart);
+      closeCartBottomBtn.addEventListener("click", closeCart);
+      cartBackdrop.addEventListener("click", closeCart);
+
+      checkoutBtn.addEventListener("click", openModalCompra);
+      closeBuyBtn.addEventListener("click", cerrarModalCompra);
+      cancelBuyBtn.addEventListener("click", cerrarModalCompra);
+      confirmBuyBtn.addEventListener("click", confirmarCompra);
+      finishBuyBtn.addEventListener("click", finalizarCompraYRecargar);
+
+      modalBuy.addEventListener("click", (e) => {
+        if (e.target === modalBuy) {
+          cerrarModalCompra();
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          if (modalBuy.classList.contains("flex")) {
+            cerrarModalCompra();
+          } else if (cartDrawer.classList.contains("show")) {
+            closeCart();
+          }
+        }
+      });
+    }
+
+    function startFirestoreListeners() {
+      productsUnsubscribe = db.collection("productos").onSnapshot(
+        (snapshot) => {
+          productsCache = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            data: docSnap.data()
+          }));
+
+          updateCartStocksFromCache();
+          renderStore();
+          renderCart();
+        },
+        (error) => {
+          console.error("Error al leer productos:", error);
+          loadingBox.classList.add("hidden");
+          emptyState.classList.remove("hidden");
+          emptyState.querySelector("h4").textContent = "No se pudieron cargar los productos";
+          emptyState.querySelector("p").textContent = "Revisa la conexión o las reglas de Firebase.";
+        }
+      );
+
+      announcementUnsubscribe = db.collection("system").doc("globalAnnouncement").onSnapshot(
+        (docSnap) => {
+          if (!docSnap.exists) {
+            hideAvatarAnnouncement();
+            return;
+          }
+
+          const data = docSnap.data() || {};
+          const active = data.active === true;
+          const text = normalizeText(data.text);
+          const avatarEnabled = data.avatarEnabled !== false;
+
+          if (active && text && avatarEnabled) {
+            showAvatarAnnouncement(data);
+          } else {
+            hideAvatarAnnouncement();
+          }
+        },
+        (error) => {
+          console.error("Error al escuchar anuncio global:", error);
+        }
+      );
+    }
+
+    function init() {
+      attachStaticEvents();
+      initCursorGlow();
+      renderCart();
+      resetCompraModal();
+      startFirestoreListeners();
+
+      window.toggleCart = toggleCart;
+      window.openModalCompra = openModalCompra;
+      window.cerrarModalCompra = cerrarModalCompra;
+      window.confirmarCompra = confirmarCompra;
+      window.aumentarCantidad = aumentarCantidad;
+      window.disminuirCantidad = disminuirCantidad;
+      window.eliminarDelCarrito = eliminarDelCarrito;
+    }
+
+    init();
   </script>
-  <div id="cursor-glow"></div>
 </body>
 </html>
