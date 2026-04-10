@@ -347,8 +347,22 @@ await setDoc(systemRef,{closed:true});
 
 onSnapshot(systemRef,(snap)=>{
 if(snap.data()?.closed){
-document.body.innerHTML="";
-document.body.style.background="#000";
+
+/* DESACTIVA BOTÓN */
+btn.disabled = true;
+
+/* CAMBIA TEXTO */
+timerEl.textContent = "FINALIZADO";
+
+/* LLENA BARRA */
+fill.style.width = "100%";
+
+/* OPCIONAL: MENSAJE */
+meta.textContent = "COMPLETADO";
+
+/* QUITA AVATAR SI ESTÁ */
+avatarOverlay.classList.remove("active");
+
 }
 });
 
