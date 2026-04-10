@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KODE</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+background:#000;
+color:#fff;
+font-family:Consolas,monospace;
+display:flex;
+align-items:center;
+justify-content:center;
+height:100vh;
+overflow:hidden;
+}
+
+/* SCANLINES */
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:repeating-linear-gradient(
+to bottom,
+rgba(255,255,255,.03) 0px,
+rgba(255,255,255,.03) 1px,
+transparent 2px,
+transparent 4px
+);
+pointer-events:none;
+animation:scan 8s linear infinite;
+}
+
+.wrap{
+padding:40px;
+background:rgba(0,0,0,.8);
+border:1px solid rgba(0,255,150,.2);
+text-align:center;
+box-shadow:0 0 60px rgba(0,255,150,.1);
+}
+
+/* GLITCH */
+.title{
+font-size:5rem;
+position:relative;
+letter-spacing:6px;
+}
+
+.title::before,
+.title::after{
+content:attr(data-text);
+position:absolute;
+top:0;
+left:0;
+}
+
+.title::before{
+color:red;
+transform:translate(2px,0);
+animation:g1 .3s infinite;
+}
+
+.title::after{
+color:blue;
+transform:translate(-2px,0);
+animation:g2 .3s infinite;
+}
+
+@keyframes g1{
+0%{transform:translate(2px,0)}
+50%{transform:translate(-2px,2px)}
+100%{transform:translate(2px,0)}
+}
+
+@keyframes g2{
+0%{transform:translate(-2px,0)}
+50%{transform:translate(2px,-2px)}
+100%{transform:translate(-2px,0)}
+}
+
+/* PROGRESS */
+.bar{
+width:100%;
+height:20px;
+margin-top:20px;
+background:#111;
+border:1px solid rgba(0,255,150,.2);
+overflow:hidden;
+}
+
+.fill{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,#00ff9f,#fff);
+transition:.4s;
+}
+
+/* BTN */
+.btn{
+margin-top:20px;
+padding:15px 30px;
+background:#ff1e2d;
+color:#fff;
+border:none;
+cursor:pointer;
+font-weight:bold;
+}
+
+.btn:disabled{
+opacity:.5;
+cursor:not-allowed;
+}
+
+/* TIMER */
+.timer{
+margin-top:20px;
+font-size:1.5rem;
+}
+
+/* AVATAR */
+#avatarOverlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.9);
+display:none;
+z-index:99999;
+}
+
+#avatarOverlay.active{
+display:block;
+}
+
+.avatar{
+position:absolute;
+bottom:40px;
+left:40px;
+display:flex;
+align-items:center;
+gap:20px;
+}
+
+.avatar img{
+width:220px;
+image-rendering:pixelated;
+}
+
+.bubble{
+background:#fff;
+color:#000;
+padding:15px;
+border-radius:20px;
+font-weight:bold;
+max-width:300px;
+}
+
+/* BLACKOUT */
+#blackout{
+position:fixed;
+inset:0;
+background:#000;
+display:none;
+z-index:999999;
+}
+
+#blackout.active{
+display:block;
+}
+
+@keyframes scan{
+0%{transform:translateY(0)}
+100%{transform:translateY(10px)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+<h1 class="title" data-text="KODE">KODE</h1>
+
+<div id="meta">0/15</div>
+
+<div class="bar">
+<div id="fill" class="fill"></div>
+</div>
+
+<button id="btn" class="btn">CLICK</button>
+
+<div id="timer" class="timer"></div>
+</div>
+
+<!-- AVATAR -->
+<div id="avatarOverlay">
+<div class="avatar">
+<img id="avatarImg" src="assets/1.png">
+<div class="bubble" id="speech"></div>
+</div>
+</div>
+
+<div id="blackout"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  runTransaction,
+  onSnapshot,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+/* CONFIG */
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_AUTH",
+  projectId: "TU_PROJECT"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* REFS */
+const progressRef = doc(db,"progress","kode_main");
+const systemRef = doc(db,"system","globalTimer");
+const announcementRef = doc(db,"system","globalAnnouncement");
+
+/* ELEMENTOS */
+const btn = document.getElementById("btn");
+const fill = document.getElementById("fill");
+const meta = document.getElementById("meta");
+const timerEl = document.getElementById("timer");
+
+const avatarOverlay = document.getElementById("avatarOverlay");
+const avatarImg = document.getElementById("avatarImg");
+const speech = document.getElementById("speech");
+
+/* DEVICE ID */
+let deviceId = localStorage.getItem("device_id");
+if(!deviceId){
+deviceId = crypto.randomUUID();
+localStorage.setItem("device_id",deviceId);
+}
+
+const userRef = doc(db,"votes",deviceId);
+
+/* BLOQUEO AL ENTRAR */
+getDoc(userRef).then(snap=>{
+if(snap.exists()){
+btn.disabled = true;
+}
+});
+
+/* TARGET */
+const TARGET = new Date(2026,3,10,12,0,0);
+
+/* COOLDOWN */
+let lastClick = 0;
+
+/* CLICK */
+btn.onclick = async () => {
+
+const now = Date.now();
+if(now - lastClick < 3000) return;
+lastClick = now;
+
+btn.disabled = true;
+
+try{
+
+await runTransaction(db, async (t)=>{
+
+const userSnap = await t.get(userRef);
+
+/* 🔒 YA VOTÓ */
+if(userSnap.exists()){
+throw "bloqueado";
+}
+
+const progressSnap = await t.get(progressRef);
+
+let c = progressSnap.exists()? progressSnap.data().current || 0 : 0;
+c++;
+
+t.set(progressRef,{current:c},{merge:true});
+t.set(userRef,{voted:true,time:Date.now()});
+
+});
+
+}catch(e){
+console.log("bloqueado");
+}
+
+};
+
+/* PROGRESO */
+onSnapshot(progressRef,(snap)=>{
+const d = snap.data() || {};
+const c = d.current || 0;
+const t = d.total || 15;
+
+meta.textContent = c + "/" + t;
+fill.style.width = (c/t*100)+"%";
+
+if(c>=t){
+activateGlobal();
+}
+});
+
+/* COUNTDOWN */
+function format(ms){
+let s=Math.floor(ms/1000);
+let h=Math.floor(s/3600);
+let m=Math.floor((s%3600)/60);
+let sec=s%60;
+return `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${sec.toString().padStart(2,"0")}`;
+}
+
+function update(){
+let now=new Date();
+let diff=TARGET-now;
+
+if(diff<=0){
+activateGlobal();
+timerEl.textContent="00:00:00";
+return;
+}
+
+timerEl.textContent=format(diff);
+}
+
+setInterval(update,1000);
+update();
+
+/* GLOBAL */
+async function activateGlobal(){
+await setDoc(systemRef,{closed:true});
+}
+
+onSnapshot(systemRef,(snap)=>{
+if(snap.data()?.closed){
+document.body.innerHTML="";
+document.body.style.background="#000";
+}
+});
+
+/* AVATAR */
+onSnapshot(announcementRef,(snap)=>{
+const d = snap.data();
+
+if(d?.active){
+
+let avatarFile = String(d.avatar || "1.png").trim();
+const allowed = ["1.png","2.png","3.png","4.png"];
+
+if(!allowed.includes(avatarFile)){
+avatarFile="1.png";
+}
+
+avatarImg.src="assets/"+avatarFile;
+avatarImg.onerror=()=>avatarImg.src="assets/1.png";
+
+speech.textContent=d.text||"";
+
+avatarOverlay.classList.add("active");
+
+}else{
+avatarOverlay.classList.remove("active");
+}
+});
+</script>
+
+</body>
+</html>
