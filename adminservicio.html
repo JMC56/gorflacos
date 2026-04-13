@@ -241,14 +241,21 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
-  apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
-  authDomain: "gorflacos.firebaseapp.com",
-  databaseURL: "https://gorflacos-default-rtdb.firebaseio.com",
-  projectId: "gorflacos",
-  storageBucket: "gorflacos.firebasestorage.app",
-  messagingSenderId: "507648872448",
-  appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
-};
+      apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+      authDomain: "gorflacos.firebaseapp.com",
+      databaseURL: "https://gorflacos-default-rtdb.firebaseio.com",
+      projectId: "gorflacos",
+      storageBucket: "gorflacos.firebasestorage.app",
+      messagingSenderId: "507648872448",
+      appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
+    };
+
+    const ADMINS = [
+      { username: "memo_admin", password: "05-08-2013!$", role: "admin" }
+      // Puedes añadir más así:
+      // { username: "admin2", password: "123456", role: "admin" },
+      // { username: "gerencia", password: "clave123", role: "admin" }
+    ];
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -272,6 +279,7 @@
     let selectedTicketId = null;
     let selectedTicketData = null;
     let unsubscribeTicketMessages = null;
+    let unsubscribeTickets = null;
 
     function isLoggedIn() {
       return localStorage.getItem('supportAdminLogged') === 'true';
@@ -283,7 +291,7 @@
 
     function escapeHtml(text) {
       const div = document.createElement('div');
-      div.textContent = text;
+      div.textContent = text || '';
       return div.innerHTML;
     }
 
@@ -297,11 +305,11 @@
       }
 
       try {
-        const res = await fetch('gallopinto.json');
-        const data = await res.json();
-        const users = Array.isArray(data) ? data : data.users || [];
-
-        const found = users.find(u => u.username === user && u.password === pass && u.role === 'admin');
+        const found = ADMINS.find(u =>
+          u.username === user &&
+          u.password === pass &&
+          u.role === 'admin'
+        );
 
         if (!found) {
           alert('Credenciales incorrectas o sin permisos de administrador.');
@@ -312,7 +320,7 @@
         showAdminPanel();
       } catch (error) {
         console.error(error);
-        alert('No se pudo leer gallopinto.json');
+        alert('No se pudo validar el acceso.');
       }
     }
 
@@ -328,14 +336,30 @@
       setLoggedIn(false);
       selectedTicketId = null;
       selectedTicketData = null;
+
+      if (unsubscribeTicketMessages) {
+        unsubscribeTicketMessages();
+        unsubscribeTicketMessages = null;
+      }
+
+      if (unsubscribeTickets) {
+        unsubscribeTickets();
+        unsubscribeTickets = null;
+      }
+
       ticketsList.innerHTML = '<div class="empty">Inicie sesión para ver los chats.</div>';
       adminMessages.innerHTML = '<div class="empty">Abra un chat para ver sus mensajes.</div>';
       replyBox.classList.add('hidden');
       doneBtn.style.display = 'none';
+      chatClientName.textContent = 'Ningún chat seleccionado';
+      chatClientInfo.textContent = 'Seleccione una conversación de la izquierda.';
+      adminUser.value = '';
+      adminPass.value = '';
     }
 
     function renderTickets(snapshot) {
       ticketsList.innerHTML = '';
+
       if (snapshot.empty) {
         ticketsList.innerHTML = '<div class="empty">No hay chats pendientes.</div>';
         return;
@@ -356,9 +380,13 @@
     }
 
     function loadTickets() {
+      if (unsubscribeTickets) unsubscribeTickets();
+
       const q = query(collection(db, 'support_tickets'), orderBy('updatedAt', 'desc'));
-      onSnapshot(q, (snapshot) => {
+
+      unsubscribeTickets = onSnapshot(q, (snapshot) => {
         const filteredDocs = snapshot.docs.filter(d => (d.data().status || 'open') === 'open');
+
         renderTickets({
           empty: filteredDocs.length === 0,
           forEach: (cb) => filteredDocs.forEach(cb)
@@ -384,9 +412,14 @@
       if (!selectedTicketId) return;
       if (unsubscribeTicketMessages) unsubscribeTicketMessages();
 
-      const q = query(collection(db, 'support_tickets', selectedTicketId, 'messages'), orderBy('createdAt', 'asc'));
+      const q = query(
+        collection(db, 'support_tickets', selectedTicketId, 'messages'),
+        orderBy('createdAt', 'asc')
+      );
+
       unsubscribeTicketMessages = onSnapshot(q, (snapshot) => {
         adminMessages.innerHTML = '';
+
         if (snapshot.empty) {
           adminMessages.innerHTML = '<div class="empty">No hay mensajes en este chat.</div>';
           return;
@@ -394,7 +427,13 @@
 
         snapshot.forEach(docSnap => {
           const msg = docSnap.data();
-          const label = msg.sender === 'user' ? 'Cliente' : msg.sender === 'admin' ? 'Administrador' : 'Sistema';
+          const label =
+            msg.sender === 'user'
+              ? 'Cliente'
+              : msg.sender === 'admin'
+              ? 'Administrador'
+              : 'Sistema';
+
           const div = document.createElement('div');
           div.className = `msg ${msg.sender}`;
           div.innerHTML = `${escapeHtml(msg.text)}<div class="meta">${label}</div>`;
@@ -410,10 +449,12 @@
 
     async function sendReply() {
       const text = adminReply.value.trim();
+
       if (!selectedTicketId) {
         alert('Seleccione un chat.');
         return;
       }
+
       if (!text) {
         alert('Escriba una respuesta.');
         return;
@@ -465,6 +506,11 @@
         adminMessages.innerHTML = '<div class="empty">El caso fue eliminado correctamente.</div>';
         replyBox.classList.add('hidden');
         doneBtn.style.display = 'none';
+
+        if (unsubscribeTicketMessages) {
+          unsubscribeTicketMessages();
+          unsubscribeTicketMessages = null;
+        }
       } catch (error) {
         console.error(error);
         alert('No se pudo eliminar el caso.');
@@ -476,6 +522,13 @@
     refreshBtn.addEventListener('click', listenSelectedMessages);
     doneBtn.addEventListener('click', markDoneAndDeleteTicket);
     logoutBtn.addEventListener('click', showLogin);
+
+    adminPass.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        loginAdmin();
+      }
+    });
 
     adminReply.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
