@@ -1,0 +1,889 @@
+# index.html
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Servicio al Cliente</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b, #111827);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+    }
+    .card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    }
+    .left {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .left h1 {
+      font-size: 28px;
+      line-height: 1.1;
+    }
+    .left p {
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+    .left .tag {
+      display: inline-block;
+      background: rgba(59,130,246,0.2);
+      border: 1px solid rgba(59,130,246,0.35);
+      color: #93c5fd;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      width: fit-content;
+    }
+    .chat-wrap {
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 80vh;
+      min-height: 620px;
+    }
+    .chat-header {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+    }
+    .chat-header h2 {
+      font-size: 21px;
+      margin-bottom: 8px;
+    }
+    .chat-header p {
+      color: #cbd5e1;
+    }
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .msg {
+      max-width: 76%;
+      padding: 12px 14px;
+      border-radius: 18px;
+      line-height: 1.5;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+    .msg.system {
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.25);
+      align-self: flex-start;
+      color: #dbeafe;
+    }
+    .msg.user {
+      background: rgba(34,197,94,0.18);
+      border: 1px solid rgba(34,197,94,0.28);
+      align-self: flex-end;
+      color: #dcfce7;
+    }
+    .msg.admin {
+      background: rgba(234,88,12,0.18);
+      border: 1px solid rgba(234,88,12,0.3);
+      align-self: flex-start;
+      color: #ffedd5;
+    }
+    .meta {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 6px;
+    }
+    .composer {
+      padding: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: grid;
+      gap: 12px;
+      background: rgba(255,255,255,0.03);
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    input, textarea, button {
+      width: 100%;
+      border: none;
+      outline: none;
+      border-radius: 14px;
+      font-size: 15px;
+    }
+    input, textarea {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 14px;
+    }
+    textarea {
+      resize: none;
+      min-height: 90px;
+    }
+    button {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      padding: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .small-link {
+      text-align: center;
+      color: #93c5fd;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .empty {
+      color: #94a3b8;
+      text-align: center;
+      padding: 30px 10px;
+    }
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; }
+      .chat-wrap { height: auto; min-height: 75vh; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="card left">
+      <span class="tag">Atención en línea</span>
+      <h1>Servicio al Cliente</h1>
+      <p>Hola, gracias por contactarnos. Escriba su consulta y un administrador le responderá por este mismo chat.</p>
+      <p>Al enviar el primer mensaje, su conversación quedará guardada para seguimiento.</p>
+      <a href="admin.html" class="small-link">Ir al panel de administración</a>
+    </aside>
+
+    <section class="card chat-wrap">
+      <div class="chat-header">
+        <h2 id="chatTitle">¿En qué podemos ayudarle?</h2>
+        <p id="chatSub">Inicie una conversación llenando sus datos y escribiendo su mensaje.</p>
+      </div>
+
+      <div class="messages" id="messages">
+        <div class="msg system">
+          Hola, bienvenido a servicio al cliente. ¿En qué podemos ayudarle?
+          <div class="meta">Sistema</div>
+        </div>
+      </div>
+
+      <div class="composer">
+        <div class="row">
+          <input type="text" id="clientName" placeholder="Su nombre" />
+          <input type="text" id="clientPhone" placeholder="Teléfono o referencia" />
+        </div>
+        <textarea id="clientMessage" placeholder="Escriba aquí su mensaje..."></textarea>
+        <button id="sendBtn">Enviar mensaje</button>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      doc,
+      setDoc,
+      getDoc,
+      onSnapshot,
+      query,
+      orderBy,
+      serverTimestamp,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "PON_AQUI_TU_API_KEY",
+      authDomain: "PON_AQUI_TU_AUTH_DOMAIN",
+      projectId: "PON_AQUI_TU_PROJECT_ID",
+      storageBucket: "PON_AQUI_TU_STORAGE_BUCKET",
+      messagingSenderId: "PON_AQUI_TU_MESSAGING_SENDER_ID",
+      appId: "PON_AQUI_TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const messagesEl = document.getElementById('messages');
+    const sendBtn = document.getElementById('sendBtn');
+    const clientName = document.getElementById('clientName');
+    const clientPhone = document.getElementById('clientPhone');
+    const clientMessage = document.getElementById('clientMessage');
+    const chatTitle = document.getElementById('chatTitle');
+    const chatSub = document.getElementById('chatSub');
+
+    let ticketId = localStorage.getItem('supportTicketId');
+    let unsubscribeMessages = null;
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function renderMessage(type, text, label = '') {
+      const div = document.createElement('div');
+      div.className = `msg ${type}`;
+      div.innerHTML = `${escapeHtml(text)}<div class="meta">${label}</div>`;
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function clearChatUI() {
+      messagesEl.innerHTML = '';
+    }
+
+    async function createTicketIfNeeded(name, phone, firstMessage) {
+      if (ticketId) return ticketId;
+
+      const ticketRef = await addDoc(collection(db, 'support_tickets'), {
+        clientName: name,
+        clientPhone: phone,
+        status: 'open',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        lastMessage: firstMessage
+      });
+
+      ticketId = ticketRef.id;
+      localStorage.setItem('supportTicketId', ticketId);
+      return ticketId;
+    }
+
+    async function sendMessage() {
+      const name = clientName.value.trim();
+      const phone = clientPhone.value.trim();
+      const text = clientMessage.value.trim();
+
+      if (!name) {
+        alert('Escriba su nombre.');
+        clientName.focus();
+        return;
+      }
+
+      if (!text) {
+        alert('Escriba su mensaje.');
+        clientMessage.focus();
+        return;
+      }
+
+      sendBtn.disabled = true;
+
+      try {
+        const currentTicketId = await createTicketIfNeeded(name, phone, text);
+
+        await addDoc(collection(db, 'support_tickets', currentTicketId, 'messages'), {
+          sender: 'user',
+          text,
+          createdAt: serverTimestamp()
+        });
+
+        await updateDoc(doc(db, 'support_tickets', currentTicketId), {
+          clientName: name,
+          clientPhone: phone,
+          updatedAt: serverTimestamp(),
+          lastMessage: text,
+          status: 'open'
+        });
+
+        clientMessage.value = '';
+        chatTitle.textContent = `Conversación activa de ${name}`;
+        chatSub.textContent = 'Su mensaje fue enviado. Un administrador le responderá por aquí.';
+        listenMessages(currentTicketId);
+      } catch (error) {
+        console.error(error);
+        alert('Ocurrió un error al enviar el mensaje.');
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    function listenMessages(id) {
+      if (!id) return;
+      if (unsubscribeMessages) unsubscribeMessages();
+
+      const ticketRef = doc(db, 'support_tickets', id);
+      const messagesRef = query(collection(db, 'support_tickets', id, 'messages'), orderBy('createdAt', 'asc'));
+
+      onSnapshot(ticketRef, (snap) => {
+        if (!snap.exists()) {
+          clearChatUI();
+          renderMessage('system', 'Este caso fue marcado como entregado o finalizado. Puede iniciar una nueva conversación.', 'Sistema');
+          localStorage.removeItem('supportTicketId');
+          ticketId = null;
+          chatTitle.textContent = '¿En qué podemos ayudarle?';
+          chatSub.textContent = 'Inicie una nueva conversación enviando un mensaje.';
+          return;
+        }
+
+        const data = snap.data();
+        if (data.clientName) {
+          clientName.value = data.clientName;
+          chatTitle.textContent = `Conversación activa de ${data.clientName}`;
+          chatSub.textContent = data.status === 'open'
+            ? 'Su caso está siendo atendido.'
+            : 'Su caso está en revisión.';
+        }
+        if (data.clientPhone) clientPhone.value = data.clientPhone;
+      });
+
+      unsubscribeMessages = onSnapshot(messagesRef, (snapshot) => {
+        clearChatUI();
+        if (snapshot.empty) {
+          messagesEl.innerHTML = '<div class="empty">Todavía no hay mensajes en esta conversación.</div>';
+          return;
+        }
+
+        snapshot.forEach(docSnap => {
+          const msg = docSnap.data();
+          const label = msg.sender === 'user' ? 'Usted' : msg.sender === 'admin' ? 'Administrador' : 'Sistema';
+          renderMessage(msg.sender, msg.text, label);
+        });
+      }, (error) => {
+        console.error(error);
+      });
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    clientMessage.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    if (ticketId) {
+      listenMessages(ticketId);
+    }
+  </script>
+</body>
+</html>
+```
+
+# admin.html
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Servicio al Cliente</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #020617, #111827, #1e293b);
+      color: white;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .hidden { display: none !important; }
+    .panel {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .login-card, .layout, .box {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    }
+    .login-card {
+      width: 100%;
+      max-width: 460px;
+      margin: 80px auto;
+      padding: 28px;
+      display: grid;
+      gap: 14px;
+    }
+    .login-card h1 { font-size: 28px; }
+    .login-card p { color: #cbd5e1; line-height: 1.5; }
+    input, textarea, button, select {
+      width: 100%;
+      border: none;
+      outline: none;
+      border-radius: 14px;
+      font-size: 15px;
+    }
+    input, textarea, select {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 14px;
+    }
+    button {
+      background: linear-gradient(135deg, #ea580c, #dc2626);
+      color: white;
+      padding: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
+      padding: 20px;
+      min-height: calc(100vh - 40px);
+    }
+    .sidebar, .content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .box { padding: 16px; }
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .head h2 { font-size: 20px; }
+    .muted { color: #cbd5e1; font-size: 14px; }
+    .tickets {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .ticket {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      border-radius: 18px;
+      padding: 14px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+    .ticket:hover, .ticket.active {
+      transform: translateY(-1px);
+      border-color: rgba(249,115,22,0.5);
+      background: rgba(249,115,22,0.08);
+    }
+    .ticket strong { display: block; margin-bottom: 6px; }
+    .ticket small { color: #cbd5e1; }
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+      min-height: 78vh;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px 4px 12px 0;
+    }
+    .msg {
+      max-width: 78%;
+      padding: 12px 14px;
+      border-radius: 18px;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+    .msg.user {
+      align-self: flex-start;
+      background: rgba(34,197,94,0.16);
+      border: 1px solid rgba(34,197,94,0.24);
+      color: #dcfce7;
+    }
+    .msg.admin {
+      align-self: flex-end;
+      background: rgba(249,115,22,0.16);
+      border: 1px solid rgba(249,115,22,0.25);
+      color: #ffedd5;
+    }
+    .msg.system {
+      align-self: center;
+      background: rgba(59,130,246,0.16);
+      border: 1px solid rgba(59,130,246,0.25);
+      color: #dbeafe;
+    }
+    .meta {
+      font-size: 11px;
+      opacity: 0.75;
+      margin-top: 6px;
+    }
+    textarea { min-height: 100px; resize: none; }
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .secondary {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .danger {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+    }
+    .empty {
+      color: #94a3b8;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .tickets { max-height: 280px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <section id="loginView" class="login-card">
+      <h1>Admin - Servicio al Cliente</h1>
+      <p>Ingrese con las credenciales de administrador almacenadas en <strong>gallopinto.json</strong>.</p>
+      <input type="text" id="adminUser" placeholder="Usuario" />
+      <input type="password" id="adminPass" placeholder="Contraseña" />
+      <button id="loginBtn">Entrar</button>
+    </section>
+
+    <section id="adminView" class="layout hidden">
+      <aside class="sidebar">
+        <div class="box">
+          <div class="head">
+            <h2>Chats abiertos</h2>
+            <button class="secondary" id="logoutBtn" style="width:auto;padding:10px 14px;">Salir</button>
+          </div>
+          <p class="muted">Seleccione un chat para responderlo.</p>
+        </div>
+        <div class="box tickets" id="ticketsList">
+          <div class="empty">Cargando chats...</div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="box chat-area">
+          <div class="head">
+            <div>
+              <h2 id="chatClientName">Ningún chat seleccionado</h2>
+              <p class="muted" id="chatClientInfo">Seleccione una conversación de la izquierda.</p>
+            </div>
+            <div class="top-actions">
+              <button class="danger" id="doneBtn" style="display:none;width:auto;padding:10px 14px;">Marcar entregado</button>
+            </div>
+          </div>
+
+          <div class="chat-messages" id="adminMessages">
+            <div class="empty">Abra un chat para ver sus mensajes.</div>
+          </div>
+
+          <div id="replyBox" class="hidden">
+            <textarea id="adminReply" placeholder="Escriba su respuesta..."></textarea>
+            <div class="actions">
+              <button id="replyBtn">Responder</button>
+              <button class="secondary" id="refreshBtn" style="width:auto;padding:0 18px;">Actualizar</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      orderBy,
+      onSnapshot,
+      addDoc,
+      doc,
+      getDocs,
+      deleteDoc,
+      serverTimestamp,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+  authDomain: "gorflacos.firebaseapp.com",
+  databaseURL: "https://gorflacos-default-rtdb.firebaseio.com",
+  projectId: "gorflacos",
+  storageBucket: "gorflacos.firebasestorage.app",
+  messagingSenderId: "507648872448",
+  appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const loginView = document.getElementById('loginView');
+    const adminView = document.getElementById('adminView');
+    const adminUser = document.getElementById('adminUser');
+    const adminPass = document.getElementById('adminPass');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const ticketsList = document.getElementById('ticketsList');
+    const chatClientName = document.getElementById('chatClientName');
+    const chatClientInfo = document.getElementById('chatClientInfo');
+    const adminMessages = document.getElementById('adminMessages');
+    const adminReply = document.getElementById('adminReply');
+    const replyBtn = document.getElementById('replyBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const replyBox = document.getElementById('replyBox');
+    const doneBtn = document.getElementById('doneBtn');
+
+    let selectedTicketId = null;
+    let selectedTicketData = null;
+    let unsubscribeTicketMessages = null;
+
+    function isLoggedIn() {
+      return localStorage.getItem('supportAdminLogged') === 'true';
+    }
+
+    function setLoggedIn(state) {
+      localStorage.setItem('supportAdminLogged', state ? 'true' : 'false');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    async function loginAdmin() {
+      const user = adminUser.value.trim();
+      const pass = adminPass.value.trim();
+
+      if (!user || !pass) {
+        alert('Complete usuario y contraseña.');
+        return;
+      }
+
+      try {
+        const res = await fetch('gallopinto.json');
+        const data = await res.json();
+        const users = Array.isArray(data) ? data : data.users || [];
+
+        const found = users.find(u => u.username === user && u.password === pass && u.role === 'admin');
+
+        if (!found) {
+          alert('Credenciales incorrectas o sin permisos de administrador.');
+          return;
+        }
+
+        setLoggedIn(true);
+        showAdminPanel();
+      } catch (error) {
+        console.error(error);
+        alert('No se pudo leer gallopinto.json');
+      }
+    }
+
+    function showAdminPanel() {
+      loginView.classList.add('hidden');
+      adminView.classList.remove('hidden');
+      loadTickets();
+    }
+
+    function showLogin() {
+      loginView.classList.remove('hidden');
+      adminView.classList.add('hidden');
+      setLoggedIn(false);
+      selectedTicketId = null;
+      selectedTicketData = null;
+      ticketsList.innerHTML = '<div class="empty">Inicie sesión para ver los chats.</div>';
+      adminMessages.innerHTML = '<div class="empty">Abra un chat para ver sus mensajes.</div>';
+      replyBox.classList.add('hidden');
+      doneBtn.style.display = 'none';
+    }
+
+    function renderTickets(snapshot) {
+      ticketsList.innerHTML = '';
+      if (snapshot.empty) {
+        ticketsList.innerHTML = '<div class="empty">No hay chats pendientes.</div>';
+        return;
+      }
+
+      snapshot.forEach(docSnap => {
+        const ticket = docSnap.data();
+        const div = document.createElement('div');
+        div.className = 'ticket' + (selectedTicketId === docSnap.id ? ' active' : '');
+        div.innerHTML = `
+          <strong>${escapeHtml(ticket.clientName || 'Cliente sin nombre')}</strong>
+          <small>${escapeHtml(ticket.clientPhone || 'Sin referencia')}</small>
+          <div style="margin-top:8px;color:#e2e8f0;font-size:14px;line-height:1.4;">${escapeHtml(ticket.lastMessage || 'Sin mensajes')}</div>
+        `;
+        div.addEventListener('click', () => selectTicket(docSnap.id, ticket));
+        ticketsList.appendChild(div);
+      });
+    }
+
+    function loadTickets() {
+      const q = query(collection(db, 'support_tickets'), orderBy('updatedAt', 'desc'));
+      onSnapshot(q, (snapshot) => {
+        const filteredDocs = snapshot.docs.filter(d => (d.data().status || 'open') === 'open');
+        renderTickets({
+          empty: filteredDocs.length === 0,
+          forEach: (cb) => filteredDocs.forEach(cb)
+        });
+      }, (error) => {
+        console.error(error);
+        ticketsList.innerHTML = '<div class="empty">Error al cargar tickets.</div>';
+      });
+    }
+
+    function selectTicket(id, data) {
+      selectedTicketId = id;
+      selectedTicketData = data;
+      chatClientName.textContent = data.clientName || 'Cliente';
+      chatClientInfo.textContent = `Referencia: ${data.clientPhone || 'Sin teléfono'} · Estado: ${data.status || 'open'}`;
+      replyBox.classList.remove('hidden');
+      doneBtn.style.display = 'inline-block';
+      loadTickets();
+      listenSelectedMessages();
+    }
+
+    function listenSelectedMessages() {
+      if (!selectedTicketId) return;
+      if (unsubscribeTicketMessages) unsubscribeTicketMessages();
+
+      const q = query(collection(db, 'support_tickets', selectedTicketId, 'messages'), orderBy('createdAt', 'asc'));
+      unsubscribeTicketMessages = onSnapshot(q, (snapshot) => {
+        adminMessages.innerHTML = '';
+        if (snapshot.empty) {
+          adminMessages.innerHTML = '<div class="empty">No hay mensajes en este chat.</div>';
+          return;
+        }
+
+        snapshot.forEach(docSnap => {
+          const msg = docSnap.data();
+          const label = msg.sender === 'user' ? 'Cliente' : msg.sender === 'admin' ? 'Administrador' : 'Sistema';
+          const div = document.createElement('div');
+          div.className = `msg ${msg.sender}`;
+          div.innerHTML = `${escapeHtml(msg.text)}<div class="meta">${label}</div>`;
+          adminMessages.appendChild(div);
+        });
+
+        adminMessages.scrollTop = adminMessages.scrollHeight;
+      }, (error) => {
+        console.error(error);
+        adminMessages.innerHTML = '<div class="empty">Error al cargar mensajes.</div>';
+      });
+    }
+
+    async function sendReply() {
+      const text = adminReply.value.trim();
+      if (!selectedTicketId) {
+        alert('Seleccione un chat.');
+        return;
+      }
+      if (!text) {
+        alert('Escriba una respuesta.');
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, 'support_tickets', selectedTicketId, 'messages'), {
+          sender: 'admin',
+          text,
+          createdAt: serverTimestamp()
+        });
+
+        await updateDoc(doc(db, 'support_tickets', selectedTicketId), {
+          lastMessage: text,
+          updatedAt: serverTimestamp(),
+          status: 'open'
+        });
+
+        adminReply.value = '';
+      } catch (error) {
+        console.error(error);
+        alert('No se pudo enviar la respuesta.');
+      }
+    }
+
+    async function markDoneAndDeleteTicket() {
+      if (!selectedTicketId) {
+        alert('Seleccione un chat.');
+        return;
+      }
+
+      const ok = confirm('¿Desea marcar este caso como entregado y eliminar todos los mensajes?');
+      if (!ok) return;
+
+      try {
+        const messagesRef = collection(db, 'support_tickets', selectedTicketId, 'messages');
+        const messagesSnapshot = await getDocs(messagesRef);
+
+        for (const msgDoc of messagesSnapshot.docs) {
+          await deleteDoc(doc(db, 'support_tickets', selectedTicketId, 'messages', msgDoc.id));
+        }
+
+        await deleteDoc(doc(db, 'support_tickets', selectedTicketId));
+
+        selectedTicketId = null;
+        selectedTicketData = null;
+        chatClientName.textContent = 'Ningún chat seleccionado';
+        chatClientInfo.textContent = 'Seleccione una conversación de la izquierda.';
+        adminMessages.innerHTML = '<div class="empty">El caso fue eliminado correctamente.</div>';
+        replyBox.classList.add('hidden');
+        doneBtn.style.display = 'none';
+      } catch (error) {
+        console.error(error);
+        alert('No se pudo eliminar el caso.');
+      }
+    }
+
+    loginBtn.addEventListener('click', loginAdmin);
+    replyBtn.addEventListener('click', sendReply);
+    refreshBtn.addEventListener('click', listenSelectedMessages);
+    doneBtn.addEventListener('click', markDoneAndDeleteTicket);
+    logoutBtn.addEventListener('click', showLogin);
+
+    adminReply.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendReply();
+      }
+    });
+
+    if (isLoggedIn()) {
+      showAdminPanel();
+    }
+  </script>
+</body>
+</html>
