@@ -600,6 +600,59 @@
       position:relative;
     }
 
+    .customer-service-float{
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      z-index:999997;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+    }
+
+    .customer-service-arrow{
+      font-size:18px;
+      color:#ffffff;
+      animation:customerArrowBounce 1s ease-in-out infinite;
+      line-height:1;
+    }
+
+    .customer-service-button{
+      width:76px;
+      height:76px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:10px;
+      font-size:8px;
+      line-height:1.15;
+      font-weight:900;
+      letter-spacing:.04em;
+      box-shadow:0 14px 30px rgba(37,99,235,.35);
+      border:1px solid rgba(255,255,255,.18);
+      transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+    }
+
+    .customer-service-button:hover{
+      transform:translateY(-3px) scale(1.04);
+      box-shadow:0 18px 36px rgba(37,99,235,.45);
+      filter:brightness(1.06);
+    }
+
+    .customer-service-label{
+      font-size:10px;
+      color:#d4d4d8;
+      text-align:center;
+      line-height:1.2;
+      max-width:90px;
+    }
+
     @keyframes pulseDot{
       0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}
       70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}
@@ -698,6 +751,11 @@
       100%{ transform:translate(0,0); }
     }
 
+    @keyframes customerArrowBounce{
+      0%,100%{ transform:translateY(0); }
+      50%{ transform:translateY(6px); }
+    }
+
     @media (max-width:900px){
       .avatar-wrap{
         left:20px;
@@ -736,6 +794,21 @@
 
     @media (max-width:768px){
       .thumb{ height:190px; }
+
+      .customer-service-float{
+        right:14px;
+        bottom:14px;
+      }
+
+      .customer-service-button{
+        width:70px;
+        height:70px;
+        font-size:7px;
+      }
+
+      .customer-service-label{
+        font-size:9px;
+      }
     }
 
     @media (max-width:700px){
@@ -1772,5 +1845,11 @@
 
     init();
   </script>
+
+  <div class="customer-service-float">
+    <div class="customer-service-arrow">↓</div>
+    <a href="servicio.html" class="customer-service-button">SERVICIO AL CLIENTE</a>
+    <div class="customer-service-label">Atención rápida</div>
+  </div>
 </body>
 </html>
