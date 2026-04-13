@@ -6,6 +6,7 @@
   <title>Servicio al Cliente</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #0f172a, #1e293b, #111827);
@@ -15,7 +16,9 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      overflow-x: hidden;
     }
+
     .app {
       width: 100%;
       max-width: 1100px;
@@ -23,6 +26,7 @@
       grid-template-columns: 320px 1fr;
       gap: 20px;
     }
+
     .card {
       background: rgba(255,255,255,0.07);
       border: 1px solid rgba(255,255,255,0.1);
@@ -30,20 +34,24 @@
       backdrop-filter: blur(12px);
       box-shadow: 0 20px 40px rgba(0,0,0,0.35);
     }
+
     .left {
       padding: 24px;
       display: flex;
       flex-direction: column;
       gap: 18px;
     }
+
     .left h1 {
       font-size: 28px;
       line-height: 1.1;
     }
+
     .left p {
       color: #cbd5e1;
       line-height: 1.6;
     }
+
     .left .tag {
       display: inline-block;
       background: rgba(59,130,246,0.2);
@@ -54,6 +62,7 @@
       font-size: 13px;
       width: fit-content;
     }
+
     .chat-wrap {
       padding: 0;
       overflow: hidden;
@@ -62,18 +71,67 @@
       height: 80vh;
       min-height: 620px;
     }
+
     .chat-header {
       padding: 20px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       background: rgba(255,255,255,0.04);
+      display: grid;
+      gap: 12px;
     }
+
     .chat-header h2 {
       font-size: 21px;
       margin-bottom: 8px;
     }
+
     .chat-header p {
       color: #cbd5e1;
     }
+
+    .status-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #94a3b8;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 0 rgba(148,163,184,.45);
+    }
+
+    .status-box.waiting .status-dot {
+      background: #f59e0b;
+      box-shadow: 0 0 0 0 rgba(245,158,11,.45);
+      animation: pulseWaiting 1.8s infinite;
+    }
+
+    .status-box.attending .status-dot {
+      background: #22c55e;
+      box-shadow: 0 0 0 0 rgba(34,197,94,.45);
+      animation: pulseAttending 1.8s infinite;
+    }
+
+    .status-box.typing .status-dot {
+      background: #3b82f6;
+      box-shadow: 0 0 0 0 rgba(59,130,246,.45);
+      animation: pulseTyping 1s infinite;
+    }
+
+    .status-text {
+      font-size: 14px;
+      color: #e2e8f0;
+      line-height: 1.4;
+    }
+
     .messages {
       flex: 1;
       overflow-y: auto;
@@ -82,6 +140,7 @@
       flex-direction: column;
       gap: 12px;
     }
+
     .msg {
       max-width: 76%;
       padding: 12px 14px;
@@ -90,29 +149,34 @@
       word-break: break-word;
       white-space: pre-wrap;
     }
+
     .msg.system {
       background: rgba(59,130,246,0.15);
       border: 1px solid rgba(59,130,246,0.25);
       align-self: flex-start;
       color: #dbeafe;
     }
+
     .msg.user {
       background: rgba(34,197,94,0.18);
       border: 1px solid rgba(34,197,94,0.28);
       align-self: flex-end;
       color: #dcfce7;
     }
+
     .msg.admin {
       background: rgba(234,88,12,0.18);
       border: 1px solid rgba(234,88,12,0.3);
       align-self: flex-start;
       color: #ffedd5;
     }
+
     .meta {
       font-size: 11px;
       opacity: 0.7;
       margin-top: 6px;
     }
+
     .composer {
       padding: 16px;
       border-top: 1px solid rgba(255,255,255,0.08);
@@ -120,11 +184,13 @@
       gap: 12px;
       background: rgba(255,255,255,0.03);
     }
+
     .row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
+
     input, textarea, button {
       width: 100%;
       border: none;
@@ -132,16 +198,19 @@
       border-radius: 14px;
       font-size: 15px;
     }
+
     input, textarea {
       background: rgba(255,255,255,0.08);
       color: #fff;
       border: 1px solid rgba(255,255,255,0.08);
       padding: 14px;
     }
+
     textarea {
       resize: none;
       min-height: 90px;
     }
+
     button {
       background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: #fff;
@@ -150,23 +219,135 @@
       cursor: pointer;
       transition: transform 0.18s ease, opacity 0.18s ease;
     }
-    button:hover { transform: translateY(-1px); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .small-link {
       text-align: center;
       color: #93c5fd;
       text-decoration: none;
       font-size: 14px;
     }
+
     .empty {
       color: #94a3b8;
       text-align: center;
       padding: 30px 10px;
     }
+
+    .customer-service-float {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .customer-service-arrow {
+      color: #dbeafe;
+      font-size: 18px;
+      line-height: 1;
+      animation: arrowBounce 1.1s ease-in-out infinite;
+      text-shadow: 0 6px 12px rgba(0,0,0,0.35);
+    }
+
+    .customer-service-button {
+      width: 76px;
+      height: 76px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+      font-size: 8px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: 0.03em;
+      box-shadow: 0 18px 35px rgba(37,99,235,0.35);
+      border: 1px solid rgba(255,255,255,0.16);
+      transition: transform 0.18s ease, filter 0.18s ease;
+    }
+
+    .customer-service-button:hover {
+      transform: translateY(-2px) scale(1.04);
+      filter: brightness(1.06);
+    }
+
+    .customer-service-caption {
+      font-size: 10px;
+      color: #cbd5e1;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 92px;
+    }
+
+    @keyframes arrowBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(7px); }
+    }
+
+    @keyframes pulseWaiting {
+      0% { box-shadow: 0 0 0 0 rgba(245,158,11,.45); }
+      70% { box-shadow: 0 0 0 10px rgba(245,158,11,0); }
+      100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+    }
+
+    @keyframes pulseAttending {
+      0% { box-shadow: 0 0 0 0 rgba(34,197,94,.45); }
+      70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); }
+      100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+    }
+
+    @keyframes pulseTyping {
+      0% { box-shadow: 0 0 0 0 rgba(59,130,246,.45); }
+      70% { box-shadow: 0 0 0 10px rgba(59,130,246,0); }
+      100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+    }
+
     @media (max-width: 860px) {
-      .app { grid-template-columns: 1fr; }
-      .chat-wrap { height: auto; min-height: 75vh; }
-      .row { grid-template-columns: 1fr; }
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .chat-wrap {
+        height: auto;
+        min-height: 75vh;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .customer-service-float {
+        right: 12px;
+        bottom: 12px;
+      }
+
+      .customer-service-button {
+        width: 70px;
+        height: 70px;
+        font-size: 7px;
+      }
+
+      .customer-service-caption {
+        font-size: 9px;
+      }
     }
   </style>
 </head>
@@ -182,8 +363,15 @@
 
     <section class="card chat-wrap">
       <div class="chat-header">
-        <h2 id="chatTitle">¿En qué podemos ayudarle?</h2>
-        <p id="chatSub">Inicie una conversación llenando sus datos y escribiendo su mensaje.</p>
+        <div>
+          <h2 id="chatTitle">¿En qué podemos ayudarle?</h2>
+          <p id="chatSub">Inicie una conversación llenando sus datos y escribiendo su mensaje.</p>
+        </div>
+
+        <div id="statusBox" class="status-box waiting">
+          <span class="status-dot"></span>
+          <span id="statusText" class="status-text">Esperando respuesta...</span>
+        </div>
       </div>
 
       <div class="messages" id="messages">
@@ -204,6 +392,12 @@
     </section>
   </div>
 
+  <div class="customer-service-float">
+    <div class="customer-service-arrow">↓</div>
+    <a href="servicio.html" class="customer-service-button">SERVICIO AL CLIENTE</a>
+    <div class="customer-service-caption">Atención rápida</div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
@@ -211,8 +405,6 @@
       collection,
       addDoc,
       doc,
-      setDoc,
-      getDoc,
       onSnapshot,
       query,
       orderBy,
@@ -221,37 +413,40 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
-  apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
-  authDomain: "gorflacos.firebaseapp.com",
-  databaseURL: "https://gorflacos-default-rtdb.firebaseio.com",
-  projectId: "gorflacos",
-  storageBucket: "gorflacos.firebasestorage.app",
-  messagingSenderId: "507648872448",
-  appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
-};
+      apiKey: "AIzaSyB685cJZl1HCK6He3sRdUNDu_oPOyO6dOw",
+      authDomain: "gorflacos.firebaseapp.com",
+      databaseURL: "https://gorflacos-default-rtdb.firebaseio.com",
+      projectId: "gorflacos",
+      storageBucket: "gorflacos.firebasestorage.app",
+      messagingSenderId: "507648872448",
+      appId: "1:507648872448:web:72dae319bcde4cea4e08e5"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const messagesEl = document.getElementById('messages');
-    const sendBtn = document.getElementById('sendBtn');
-    const clientName = document.getElementById('clientName');
-    const clientPhone = document.getElementById('clientPhone');
-    const clientMessage = document.getElementById('clientMessage');
-    const chatTitle = document.getElementById('chatTitle');
-    const chatSub = document.getElementById('chatSub');
+    const messagesEl = document.getElementById("messages");
+    const sendBtn = document.getElementById("sendBtn");
+    const clientName = document.getElementById("clientName");
+    const clientPhone = document.getElementById("clientPhone");
+    const clientMessage = document.getElementById("clientMessage");
+    const chatTitle = document.getElementById("chatTitle");
+    const chatSub = document.getElementById("chatSub");
+    const statusBox = document.getElementById("statusBox");
+    const statusText = document.getElementById("statusText");
 
-    let ticketId = localStorage.getItem('supportTicketId');
+    let ticketId = localStorage.getItem("supportTicketId");
     let unsubscribeMessages = null;
+    let unsubscribeTicket = null;
 
     function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
+      const div = document.createElement("div");
+      div.textContent = text ?? "";
       return div.innerHTML;
     }
 
-    function renderMessage(type, text, label = '') {
-      const div = document.createElement('div');
+    function renderMessage(type, text, label = "") {
+      const div = document.createElement("div");
       div.className = `msg ${type}`;
       div.innerHTML = `${escapeHtml(text)}<div class="meta">${label}</div>`;
       messagesEl.appendChild(div);
@@ -259,23 +454,45 @@
     }
 
     function clearChatUI() {
-      messagesEl.innerHTML = '';
+      messagesEl.innerHTML = "";
+    }
+
+    function setStatus(mode, agentName = "") {
+      statusBox.classList.remove("waiting", "attending", "typing");
+
+      if (mode === "typing") {
+        statusBox.classList.add("typing");
+        statusText.textContent = `${agentName} está respondiendo...`;
+        return;
+      }
+
+      if (mode === "attending") {
+        statusBox.classList.add("attending");
+        statusText.textContent = `${agentName} te está atendiendo`;
+        return;
+      }
+
+      statusBox.classList.add("waiting");
+      statusText.textContent = "Esperando respuesta...";
     }
 
     async function createTicketIfNeeded(name, phone, firstMessage) {
       if (ticketId) return ticketId;
 
-      const ticketRef = await addDoc(collection(db, 'support_tickets'), {
+      const ticketRef = await addDoc(collection(db, "support_tickets"), {
         clientName: name,
         clientPhone: phone,
-        status: 'open',
+        status: "open",
+        activeAdmin: "",
+        adminOnline: false,
+        adminTyping: false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         lastMessage: firstMessage
       });
 
       ticketId = ticketRef.id;
-      localStorage.setItem('supportTicketId', ticketId);
+      localStorage.setItem("supportTicketId", ticketId);
       return ticketId;
     }
 
@@ -285,13 +502,13 @@
       const text = clientMessage.value.trim();
 
       if (!name) {
-        alert('Escriba su nombre.');
+        alert("Escriba su nombre.");
         clientName.focus();
         return;
       }
 
       if (!text) {
-        alert('Escriba su mensaje.');
+        alert("Escriba su mensaje.");
         clientMessage.focus();
         return;
       }
@@ -301,27 +518,27 @@
       try {
         const currentTicketId = await createTicketIfNeeded(name, phone, text);
 
-        await addDoc(collection(db, 'support_tickets', currentTicketId, 'messages'), {
-          sender: 'user',
+        await addDoc(collection(db, "support_tickets", currentTicketId, "messages"), {
+          sender: "user",
           text,
           createdAt: serverTimestamp()
         });
 
-        await updateDoc(doc(db, 'support_tickets', currentTicketId), {
+        await updateDoc(doc(db, "support_tickets", currentTicketId), {
           clientName: name,
           clientPhone: phone,
           updatedAt: serverTimestamp(),
           lastMessage: text,
-          status: 'open'
+          status: "open"
         });
 
-        clientMessage.value = '';
+        clientMessage.value = "";
         chatTitle.textContent = `Conversación activa de ${name}`;
-        chatSub.textContent = 'Su mensaje fue enviado. Un administrador le responderá por aquí.';
+        chatSub.textContent = "Su mensaje fue enviado. Un administrador le responderá por aquí.";
         listenMessages(currentTicketId);
       } catch (error) {
         console.error(error);
-        alert('Ocurrió un error al enviar el mensaje.');
+        alert("Ocurrió un error al enviar el mensaje.");
       } finally {
         sendBtn.disabled = false;
       }
@@ -329,43 +546,71 @@
 
     function listenMessages(id) {
       if (!id) return;
+
       if (unsubscribeMessages) unsubscribeMessages();
+      if (unsubscribeTicket) unsubscribeTicket();
 
-      const ticketRef = doc(db, 'support_tickets', id);
-      const messagesRef = query(collection(db, 'support_tickets', id, 'messages'), orderBy('createdAt', 'asc'));
+      const ticketRef = doc(db, "support_tickets", id);
+      const messagesRef = query(
+        collection(db, "support_tickets", id, "messages"),
+        orderBy("createdAt", "asc")
+      );
 
-      onSnapshot(ticketRef, (snap) => {
+      unsubscribeTicket = onSnapshot(ticketRef, (snap) => {
         if (!snap.exists()) {
           clearChatUI();
-          renderMessage('system', 'Este caso fue marcado como entregado o finalizado. Puede iniciar una nueva conversación.', 'Sistema');
-          localStorage.removeItem('supportTicketId');
+          renderMessage("system", "Este caso fue marcado como entregado o finalizado. Puede iniciar una nueva conversación.", "Sistema");
+          localStorage.removeItem("supportTicketId");
           ticketId = null;
-          chatTitle.textContent = '¿En qué podemos ayudarle?';
-          chatSub.textContent = 'Inicie una nueva conversación enviando un mensaje.';
+          chatTitle.textContent = "¿En qué podemos ayudarle?";
+          chatSub.textContent = "Inicie una nueva conversación enviando un mensaje.";
+          setStatus("waiting");
           return;
         }
 
-        const data = snap.data();
+        const data = snap.data() || {};
+
         if (data.clientName) {
           clientName.value = data.clientName;
           chatTitle.textContent = `Conversación activa de ${data.clientName}`;
-          chatSub.textContent = data.status === 'open'
-            ? 'Su caso está siendo atendido.'
-            : 'Su caso está en revisión.';
+          chatSub.textContent = data.status === "open"
+            ? "Su caso está siendo atendido."
+            : "Su caso está en revisión.";
         }
-        if (data.clientPhone) clientPhone.value = data.clientPhone;
+
+        if (data.clientPhone) {
+          clientPhone.value = data.clientPhone;
+        }
+
+        const agentName = (data.activeAdmin || "").trim();
+        const isOnline = data.adminOnline === true;
+        const isTyping = data.adminTyping === true;
+
+        if (agentName && isOnline && isTyping) {
+          setStatus("typing", agentName);
+        } else if (agentName && isOnline) {
+          setStatus("attending", agentName);
+        } else {
+          setStatus("waiting");
+        }
       });
 
       unsubscribeMessages = onSnapshot(messagesRef, (snapshot) => {
         clearChatUI();
+
         if (snapshot.empty) {
           messagesEl.innerHTML = '<div class="empty">Todavía no hay mensajes en esta conversación.</div>';
           return;
         }
 
-        snapshot.forEach(docSnap => {
+        snapshot.forEach((docSnap) => {
           const msg = docSnap.data();
-          const label = msg.sender === 'user' ? 'Usted' : msg.sender === 'admin' ? 'Administrador' : 'Sistema';
+          const label = msg.sender === "user"
+            ? "Usted"
+            : msg.sender === "admin"
+            ? "Administrador"
+            : "Sistema";
+
           renderMessage(msg.sender, msg.text, label);
         });
       }, (error) => {
@@ -373,10 +618,10 @@
       });
     }
 
-    sendBtn.addEventListener('click', sendMessage);
+    sendBtn.addEventListener("click", sendMessage);
 
-    clientMessage.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+    clientMessage.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
       }
@@ -384,6 +629,8 @@
 
     if (ticketId) {
       listenMessages(ticketId);
+    } else {
+      setStatus("waiting");
     }
   </script>
 </body>
