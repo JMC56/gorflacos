@@ -2,5 +2,6 @@
     "usuarios": [
         { "username": "admin", "password": "JAMES2014$", "role": "admin" },
         { "username": "memo_admin", "password": "05-08-2013!$", "role": "admin" }
+        { "username": "Roberto_martinez", "password": "IAXLDUREX", "role": "admin" }
     ]
 }
