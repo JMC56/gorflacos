@@ -341,6 +341,80 @@
       box-shadow:0 0 0 3px rgba(255,140,0,.08);
     }
 
+    .coupon-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+    }
+
+    .coupon-btn{
+      min-width:120px;
+      height:52px;
+      border:none;
+      border-radius:18px;
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+      background:#131313;
+      border:1px solid rgba(255,255,255,.10);
+      transition:.2s ease;
+    }
+
+    .coupon-btn:hover{
+      background:#1a1a1a;
+      border-color:rgba(255,140,0,.35);
+    }
+
+    .coupon-status{
+      min-height:22px;
+      font-size:.88rem;
+      font-weight:700;
+    }
+
+    .coupon-status.success{
+      color:#22c55e;
+    }
+
+    .coupon-status.error{
+      color:#f87171;
+    }
+
+    .coupon-status.info{
+      color:#d4d4d8;
+    }
+
+    .summary-box{
+      border:1px solid rgba(255,255,255,.08);
+      background:#090909;
+      border-radius:22px;
+      padding:16px;
+    }
+
+    .summary-line{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      font-size:.95rem;
+    }
+
+    .summary-line + .summary-line{
+      margin-top:10px;
+    }
+
+    .summary-line.total{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,.08);
+      font-size:1rem;
+      font-weight:900;
+    }
+
+    .summary-line.discount span:last-child{
+      color:#22c55e;
+      font-weight:900;
+    }
+
     .primary-btn{
       width:100%;
       height:50px;
@@ -809,6 +883,14 @@
       .customer-service-label{
         font-size:9px;
       }
+
+      .coupon-row{
+        grid-template-columns:1fr;
+      }
+
+      .coupon-btn{
+        width:100%;
+      }
     }
 
     @media (max-width:700px){
@@ -988,6 +1070,30 @@
           <input id="user-g" type="text" placeholder="Tu Grado" class="buy-input">
         </div>
 
+        <div>
+          <label class="block text-sm mb-2 text-zinc-300">Cupón de descuento</label>
+          <div class="coupon-row">
+            <input id="couponCode" type="text" placeholder="Ingresa tu cupón" class="buy-input">
+            <button id="applyCouponBtn" type="button" class="coupon-btn">Aplicar</button>
+          </div>
+          <div id="couponStatus" class="coupon-status info mt-2"></div>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-line">
+            <span class="text-zinc-400">Subtotal</span>
+            <span id="checkoutSubtotal">C$0.00</span>
+          </div>
+          <div class="summary-line discount">
+            <span class="text-zinc-400">Descuento</span>
+            <span id="checkoutDiscount">-C$0.00</span>
+          </div>
+          <div class="summary-line total">
+            <span>Total general</span>
+            <span id="checkoutFinalTotal">C$0.00</span>
+          </div>
+        </div>
+
         <button id="confirmBuyBtn" class="primary-btn gradient-main">Confirmar</button>
         <button id="cancelBuyBtn" class="secondary-btn" type="button">Cancelar</button>
       </div>
@@ -1048,6 +1154,8 @@
     let cart = [];
     let productsCache = [];
     let currentSearch = "";
+    let appliedDiscount = null;
+    let applyingCoupon = false;
 
     let avatarVisible = false;
     let currentAnnouncementText = "";
@@ -1083,6 +1191,13 @@
     const cancelBuyBtn = document.getElementById("cancelBuyBtn");
     const finishBuyBtn = document.getElementById("finishBuyBtn");
 
+    const couponCodeInput = document.getElementById("couponCode");
+    const applyCouponBtn = document.getElementById("applyCouponBtn");
+    const couponStatus = document.getElementById("couponStatus");
+    const checkoutSubtotal = document.getElementById("checkoutSubtotal");
+    const checkoutDiscount = document.getElementById("checkoutDiscount");
+    const checkoutFinalTotal = document.getElementById("checkoutFinalTotal");
+
     const overlay = document.getElementById("avatarAnnouncementOverlay");
     const avatarWrap = document.getElementById("avatarWrap");
     const avatarBox = document.getElementById("avatarBox");
@@ -1114,14 +1229,24 @@
       cartCountBadge.classList.add("floating-cart-bump");
     }
 
+    function formatCurrency(value) {
+      return `C$${Number(value || 0).toFixed(2)}`;
+    }
+
     function getCartCount() {
       return cart.reduce((acc, item) => acc + Number(item.qty || 0), 0);
     }
 
-    function getCartTotal() {
+    function getCartSubtotal() {
       return cart.reduce((acc, item) => {
         return acc + (Number(item.precio || 0) * Number(item.qty || 0));
       }, 0);
+    }
+
+    function getCartTotal() {
+      const subtotal = getCartSubtotal();
+      const discountAmount = getAppliedDiscountAmount(subtotal);
+      return Math.max(0, subtotal - discountAmount);
     }
 
     function updateCartBadge() {
@@ -1209,6 +1334,267 @@
           };
         })
         .filter((item) => item.stock > 0 && item.qty > 0);
+    }
+
+    function clearAppliedDiscount(silent = false) {
+      appliedDiscount = null;
+      if (!silent) {
+        setCouponStatus("", "info");
+      }
+      refreshCheckoutSummary();
+      renderCart();
+    }
+
+    function setCouponStatus(message, type = "info") {
+      couponStatus.textContent = message || "";
+      couponStatus.className = `coupon-status ${type}`;
+    }
+
+    function getAppliedDiscountAmount(subtotal = getCartSubtotal()) {
+      if (!appliedDiscount) return 0;
+
+      let amount = 0;
+
+      if (appliedDiscount.discountType === "percentage") {
+        amount = subtotal * (Number(appliedDiscount.value || 0) / 100);
+      } else if (appliedDiscount.discountType === "fixed") {
+        amount = Number(appliedDiscount.value || 0);
+      }
+
+      if (appliedDiscount.maxDiscount > 0) {
+        amount = Math.min(amount, Number(appliedDiscount.maxDiscount || 0));
+      }
+
+      amount = Math.min(amount, subtotal);
+      return Math.max(0, Number(amount || 0));
+    }
+
+    function refreshCheckoutSummary() {
+      const subtotal = getCartSubtotal();
+      const discountAmount = getAppliedDiscountAmount(subtotal);
+      const finalTotal = Math.max(0, subtotal - discountAmount);
+
+      checkoutSubtotal.textContent = formatCurrency(subtotal);
+      checkoutDiscount.textContent = `-${formatCurrency(discountAmount)}`;
+      checkoutFinalTotal.textContent = formatCurrency(finalTotal);
+      cartTotal.textContent = formatCurrency(finalTotal);
+    }
+
+    function isDiscountValidForDate(data) {
+      const now = new Date();
+
+      if (data && data.startsAt) {
+        const startDate = data.startsAt.toDate ? data.startsAt.toDate() : new Date(data.startsAt);
+        if (!isNaN(startDate.getTime()) && now < startDate) {
+          return {
+            valid:false,
+            message:"Este cupón todavía no está activo."
+          };
+        }
+      }
+
+      if (data && data.expiresAt) {
+        const endDate = data.expiresAt.toDate ? data.expiresAt.toDate() : new Date(data.expiresAt);
+        if (!isNaN(endDate.getTime()) && now > endDate) {
+          return {
+            valid:false,
+            message:"Este cupón ha expirado."
+          };
+        }
+      }
+
+      return {
+        valid:true,
+        message:""
+      };
+    }
+
+    function extractDiscountData(docId, data) {
+      const discountTypeRaw = normalizeText(data.type || data.discountType || "").toLowerCase();
+      let discountType = "";
+
+      if (discountTypeRaw === "percentage" || discountTypeRaw === "percent" || discountTypeRaw === "porcentaje") {
+        discountType = "percentage";
+      }
+
+      if (discountTypeRaw === "fixed" || discountTypeRaw === "monto" || discountTypeRaw === "amount" || discountTypeRaw === "fijo") {
+        discountType = "fixed";
+      }
+
+      const numericValue = Number(data.value ?? data.amount ?? data.discount ?? 0);
+      const minPurchase = Math.max(0, Number(data.minPurchase ?? data.minimumPurchase ?? data.minTotal ?? 0));
+      const maxDiscount = Math.max(0, Number(data.maxDiscount ?? data.maximumDiscount ?? 0));
+      const usesLeft = data.usesLeft === undefined || data.usesLeft === null ? null : Number(data.usesLeft);
+      const active = data.active !== false;
+
+      return {
+        id:docId,
+        code:normalizeText(data.code || docId).toUpperCase(),
+        discountType:discountType,
+        value:numericValue,
+        minPurchase:minPurchase,
+        maxDiscount:maxDiscount,
+        usesLeft:usesLeft,
+        active:active
+      };
+    }
+
+    async function findDiscountByCode(code) {
+      const normalizedCode = normalizeText(code).toUpperCase();
+      if (!normalizedCode) return null;
+
+      const byIdDoc = await db.collection("discounts").doc(normalizedCode).get();
+      if (byIdDoc.exists) {
+        return {
+          id:byIdDoc.id,
+          data:byIdDoc.data()
+        };
+      }
+
+      const querySnap = await db.collection("discounts")
+        .where("code", "==", normalizedCode)
+        .limit(1)
+        .get();
+
+      if (!querySnap.empty) {
+        const first = querySnap.docs[0];
+        return {
+          id:first.id,
+          data:first.data()
+        };
+      }
+
+      return null;
+    }
+
+    async function applyCoupon() {
+      if (avatarVisible) return;
+
+      const code = normalizeText(couponCodeInput.value).toUpperCase();
+
+      if (!cart.length) {
+        setCouponStatus("No hay productos en el carrito.", "error");
+        return;
+      }
+
+      if (!code) {
+        clearAppliedDiscount(true);
+        setCouponStatus("Ingresa un código de cupón.", "error");
+        return;
+      }
+
+      if (applyingCoupon) return;
+
+      try {
+        applyingCoupon = true;
+        applyCouponBtn.disabled = true;
+        applyCouponBtn.textContent = "Validando...";
+        setCouponStatus("Validando cupón...", "info");
+
+        const result = await findDiscountByCode(code);
+
+        if (!result || !result.data) {
+          appliedDiscount = null;
+          refreshCheckoutSummary();
+          renderCart();
+          setCouponStatus("Cupón no válido.", "error");
+          return;
+        }
+
+        const rawData = result.data || {};
+        const dateValidation = isDiscountValidForDate(rawData);
+
+        if (!dateValidation.valid) {
+          appliedDiscount = null;
+          refreshCheckoutSummary();
+          renderCart();
+          setCouponStatus(dateValidation.message, "error");
+          return;
+        }
+
+        const parsed = extractDiscountData(result.id, rawData);
+
+        if (!parsed.active) {
+          appliedDiscount = null;
+          refreshCheckoutSummary();
+          renderCart();
+          setCouponStatus("Este cupón no está activo.", "error");
+          return;
+        }
+
+        if (!parsed.discountType || parsed.value <= 0) {
+          appliedDiscount = null;
+          refreshCheckoutSummary();
+          renderCart();
+          setCouponStatus("El cupón no tiene una configuración válida.", "error");
+          return;
+        }
+
+        if (parsed.usesLeft !== null && parsed.usesLeft <= 0) {
+          appliedDiscount = null;
+          refreshCheckoutSummary();
+          renderCart();
+          setCouponStatus("Este cupón ya no tiene usos disponibles.", "error");
+          return;
+        }
+
+        const subtotal = getCartSubtotal();
+
+        if (subtotal <= 0) {
+          appliedDiscount = null;
+          refreshCheckoutSummary();
+          renderCart();
+          setCouponStatus("No hay subtotal disponible para aplicar el descuento.", "error");
+          return;
+        }
+
+        if (parsed.minPurchase > 0 && subtotal < parsed.minPurchase) {
+          appliedDiscount = null;
+          refreshCheckoutSummary();
+          renderCart();
+          setCouponStatus(`Este cupón requiere una compra mínima de ${formatCurrency(parsed.minPurchase)}.`, "error");
+          return;
+        }
+
+        appliedDiscount = {
+          id:parsed.id,
+          code:parsed.code,
+          discountType:parsed.discountType,
+          value:parsed.value,
+          minPurchase:parsed.minPurchase,
+          maxDiscount:parsed.maxDiscount,
+          usesLeft:parsed.usesLeft
+        };
+
+        const discountAmount = getAppliedDiscountAmount(subtotal);
+
+        if (discountAmount <= 0) {
+          appliedDiscount = null;
+          refreshCheckoutSummary();
+          renderCart();
+          setCouponStatus("El cupón no genera descuento para este pedido.", "error");
+          return;
+        }
+
+        refreshCheckoutSummary();
+        renderCart();
+
+        if (appliedDiscount.discountType === "percentage") {
+          setCouponStatus(`Cupón aplicado: ${appliedDiscount.code} (${Number(appliedDiscount.value)}% de descuento).`, "success");
+        } else {
+          setCouponStatus(`Cupón aplicado: ${appliedDiscount.code} (${formatCurrency(appliedDiscount.value)} de descuento).`, "success");
+        }
+      } catch (error) {
+        console.error("Error al aplicar cupón:", error);
+        appliedDiscount = null;
+        refreshCheckoutSummary();
+        renderCart();
+        setCouponStatus("No se pudo validar el cupón.", "error");
+      } finally {
+        applyingCoupon = false;
+        applyCouponBtn.disabled = false;
+        applyCouponBtn.textContent = "Aplicar";
+      }
     }
 
     function renderStore() {
@@ -1334,6 +1720,10 @@
         });
       }
 
+      if (appliedDiscount) {
+        refreshCheckoutSummary();
+      }
+
       renderCart();
       updateCartBadge();
       saveCartBadgeAnimation();
@@ -1398,16 +1788,16 @@
           </div>
         `;
         updateCartBadge();
-        cartTotal.textContent = "C$0.00";
+        refreshCheckoutSummary();
         checkoutBtn.disabled = true;
         return;
       }
 
-      let total = 0;
+      let subtotal = 0;
 
       cart.forEach((item, index) => {
-        const subtotal = Number(item.precio || 0) * Number(item.qty || 0);
-        total += subtotal;
+        const itemSubtotal = Number(item.precio || 0) * Number(item.qty || 0);
+        subtotal += itemSubtotal;
 
         const row = document.createElement("div");
         row.className = "cart-item p-4";
@@ -1419,7 +1809,7 @@
                 <div>
                   <h5 class="font-black leading-tight">${escapeHtml(item.nombre)}</h5>
                   <p class="text-sm text-zinc-400 mt-1">Precio: C$${Number(item.precio || 0).toFixed(2)}</p>
-                  <p class="text-sm text-zinc-500 mt-1">Subtotal: C$${subtotal.toFixed(2)}</p>
+                  <p class="text-sm text-zinc-500 mt-1">Subtotal: C$${itemSubtotal.toFixed(2)}</p>
                   <p class="text-xs text-zinc-500 mt-1">Stock disponible: ${Number(item.stock || 0)}</p>
                 </div>
                 <button class="remove-btn" data-index="${index}">&times;</button>
@@ -1431,7 +1821,7 @@
                   <span class="min-w-[22px] text-center font-bold">${Number(item.qty || 0)}</span>
                   <button class="qty-btn increase-btn" data-index="${index}">+</button>
                 </div>
-                <div class="font-black">C$${subtotal.toFixed(2)}</div>
+                <div class="font-black">C$${itemSubtotal.toFixed(2)}</div>
               </div>
             </div>
           </div>
@@ -1439,9 +1829,13 @@
         cartItems.appendChild(row);
       });
 
-      cartTotal.textContent = `C$${total.toFixed(2)}`;
+      const discountAmount = getAppliedDiscountAmount(subtotal);
+      const total = Math.max(0, subtotal - discountAmount);
+
+      cartTotal.textContent = formatCurrency(total);
       updateCartBadge();
       checkoutBtn.disabled = false;
+      refreshCheckoutSummary();
 
       document.querySelectorAll(".remove-btn").forEach((btn) => {
         btn.addEventListener("click", () => eliminarDelCarrito(Number(btn.dataset.index)));
@@ -1464,6 +1858,7 @@
         return;
       }
 
+      refreshCheckoutSummary();
       modalBuy.classList.remove("hidden");
       modalBuy.classList.add("flex");
     }
@@ -1516,9 +1911,85 @@
           }
         }
 
-        const total = cartSnapshot.reduce((acc, item) => {
+        let subtotal = cartSnapshot.reduce((acc, item) => {
           return acc + (Number(item.precio || 0) * Number(item.qty || 0));
         }, 0);
+
+        let discountDataToSave = null;
+        let discountAmount = 0;
+        let total = subtotal;
+
+        if (appliedDiscount) {
+          const discountDoc = await db.collection("discounts").doc(appliedDiscount.id).get();
+
+          if (!discountDoc.exists) {
+            appliedDiscount = null;
+            refreshCheckoutSummary();
+            renderCart();
+            alert("El cupón aplicado ya no existe. Vuelve a intentarlo.");
+            return;
+          }
+
+          const freshDiscountRaw = discountDoc.data() || {};
+          const dateValidation = isDiscountValidForDate(freshDiscountRaw);
+
+          if (!dateValidation.valid) {
+            appliedDiscount = null;
+            refreshCheckoutSummary();
+            renderCart();
+            alert(dateValidation.message);
+            return;
+          }
+
+          const freshDiscount = extractDiscountData(discountDoc.id, freshDiscountRaw);
+
+          if (!freshDiscount.active) {
+            appliedDiscount = null;
+            refreshCheckoutSummary();
+            renderCart();
+            alert("El cupón aplicado ya no está activo.");
+            return;
+          }
+
+          if (freshDiscount.usesLeft !== null && freshDiscount.usesLeft <= 0) {
+            appliedDiscount = null;
+            refreshCheckoutSummary();
+            renderCart();
+            alert("El cupón aplicado ya no tiene usos disponibles.");
+            return;
+          }
+
+          if (freshDiscount.minPurchase > 0 && subtotal < freshDiscount.minPurchase) {
+            appliedDiscount = null;
+            refreshCheckoutSummary();
+            renderCart();
+            alert(`Este cupón requiere una compra mínima de ${formatCurrency(freshDiscount.minPurchase)}.`);
+            return;
+          }
+
+          appliedDiscount = {
+            id:freshDiscount.id,
+            code:freshDiscount.code,
+            discountType:freshDiscount.discountType,
+            value:freshDiscount.value,
+            minPurchase:freshDiscount.minPurchase,
+            maxDiscount:freshDiscount.maxDiscount,
+            usesLeft:freshDiscount.usesLeft
+          };
+
+          discountAmount = getAppliedDiscountAmount(subtotal);
+          total = Math.max(0, subtotal - discountAmount);
+
+          discountDataToSave = {
+            id:freshDiscount.id,
+            code:freshDiscount.code,
+            discountType:freshDiscount.discountType,
+            value:Number(freshDiscount.value || 0),
+            minPurchase:Number(freshDiscount.minPurchase || 0),
+            maxDiscount:Number(freshDiscount.maxDiscount || 0),
+            appliedAmount:Number(discountAmount || 0)
+          };
+        }
 
         const pedidoTexto = cartSnapshot.map((item) => `${item.nombre} (x${item.qty})`).join(", ");
 
@@ -1527,6 +1998,35 @@
         await db.runTransaction(async (transaction) => {
           const productRefs = cartSnapshot.map((item) => db.collection("productos").doc(item.id));
           const productDocs = await Promise.all(productRefs.map((ref) => transaction.get(ref)));
+
+          let discountRef = null;
+          let discountDocTx = null;
+
+          if (discountDataToSave && discountDataToSave.id) {
+            discountRef = db.collection("discounts").doc(discountDataToSave.id);
+            discountDocTx = await transaction.get(discountRef);
+
+            if (!discountDocTx.exists) {
+              throw new Error("El cupón aplicado ya no existe.");
+            }
+
+            const currentDiscountRaw = discountDocTx.data() || {};
+            const txDateValidation = isDiscountValidForDate(currentDiscountRaw);
+
+            if (!txDateValidation.valid) {
+              throw new Error(txDateValidation.message);
+            }
+
+            const txDiscount = extractDiscountData(discountDocTx.id, currentDiscountRaw);
+
+            if (!txDiscount.active) {
+              throw new Error("El cupón aplicado ya no está activo.");
+            }
+
+            if (txDiscount.usesLeft !== null && txDiscount.usesLeft <= 0) {
+              throw new Error("El cupón aplicado ya no tiene usos disponibles.");
+            }
+          }
 
           for (let i = 0; i < productDocs.length; i++) {
             const docSnap = productDocs[i];
@@ -1546,7 +2046,10 @@
             cliente:nombreCliente,
             grado:gradoCliente,
             pedido:pedidoTexto,
+            subtotal:subtotal,
+            descuento:discountAmount,
             total:total,
+            coupon:discountDataToSave ? discountDataToSave : null,
             items:cartSnapshot.map((item) => ({
               id:item.id,
               nombre:item.nombre,
@@ -1565,6 +2068,19 @@
               stock: currentStock - Number(item.qty || 0)
             });
           }
+
+          if (discountDataToSave && discountDataToSave.id && discountDocTx.exists) {
+            const currentDiscountRaw = discountDocTx.data() || {};
+            const currentUsesLeft = currentDiscountRaw.usesLeft === undefined || currentDiscountRaw.usesLeft === null
+              ? null
+              : Number(currentDiscountRaw.usesLeft);
+
+            if (currentUsesLeft !== null) {
+              transaction.update(db.collection("discounts").doc(discountDataToSave.id), {
+                usesLeft: Math.max(0, currentUsesLeft - 1)
+              });
+            }
+          }
         });
 
         document.getElementById("m-form").classList.add("hidden");
@@ -1580,6 +2096,10 @@
       document.getElementById("m-thanks").classList.add("hidden");
       document.getElementById("user-n").value = "";
       document.getElementById("user-g").value = "";
+      couponCodeInput.value = "";
+      clearAppliedDiscount(true);
+      setCouponStatus("", "info");
+      refreshCheckoutSummary();
     }
 
     function finalizarCompraYRecargar() {
@@ -1764,6 +2284,24 @@
       confirmBuyBtn.addEventListener("click", confirmarCompra);
       finishBuyBtn.addEventListener("click", finalizarCompraYRecargar);
 
+      applyCouponBtn.addEventListener("click", applyCoupon);
+
+      couponCodeInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          applyCoupon();
+        }
+      });
+
+      couponCodeInput.addEventListener("input", () => {
+        if (!normalizeText(couponCodeInput.value) && appliedDiscount) {
+          clearAppliedDiscount(true);
+        }
+        if (!normalizeText(couponCodeInput.value) && !appliedDiscount) {
+          setCouponStatus("", "info");
+        }
+      });
+
       modalBuy.addEventListener("click", (e) => {
         if (e.target === modalBuy) {
           cerrarModalCompra();
@@ -1841,6 +2379,7 @@
       window.aumentarCantidad = aumentarCantidad;
       window.disminuirCantidad = disminuirCantidad;
       window.eliminarDelCarrito = eliminarDelCarrito;
+      window.applyCoupon = applyCoupon;
     }
 
     init();
