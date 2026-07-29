@@ -42,7 +42,6 @@ body{
     linear-gradient(180deg, var(--sky-lav) 0%, var(--sky-pink) 55%, var(--sky-mint) 100%);
 }
 
-/* soft light veil so the card stays readable over any photo */
 body::before{
   content:"";
   position:fixed;
@@ -268,7 +267,7 @@ body::before{
   border-right-color:#fff;
 }
 
-/* ===== BLACKOUT (mantiene comportamiento, ahora suave) ===== */
+/* ===== BLACKOUT ===== */
 #blackout{
   position:fixed;
   inset:0;
@@ -278,6 +277,66 @@ body::before{
 }
 
 #blackout.active{ display:block; }
+
+/* ===== ADMIN PANEL ===== */
+#adminPanel{
+  display:none;
+  position:fixed;
+  top:20px;
+  right:20px;
+  z-index:9999999;
+  background:#fff;
+  border-radius:20px;
+  padding:18px;
+  box-shadow:var(--shadow-soft);
+  border:2px solid #F0E8FF;
+  width:250px;
+  font-family:'Quicksand',sans-serif;
+}
+
+#adminPanel.active{ display:block; }
+
+#adminPanel h3{
+  font-family:'Baloo 2',sans-serif;
+  font-size:1rem;
+  color:var(--lav-deep);
+  margin-bottom:10px;
+  text-align:center;
+}
+
+.admin-btn{
+  width:100%;
+  padding:10px;
+  margin-bottom:8px;
+  border:none;
+  border-radius:12px;
+  background:var(--lav);
+  color:#5A4A7A;
+  font-family:'Quicksand',sans-serif;
+  font-weight:700;
+  cursor:pointer;
+  font-size:.85rem;
+  transition:background .15s ease;
+}
+
+.admin-btn:hover{ background:var(--lav-deep); color:#fff; }
+
+.admin-input, .admin-select{
+  width:100%;
+  padding:8px;
+  margin-bottom:8px;
+  border-radius:10px;
+  border:1.5px solid #EEE6FF;
+  font-family:'Quicksand',sans-serif;
+  font-size:.85rem;
+}
+
+#adminStatus{
+  font-size:.75rem;
+  color:var(--text-soft);
+  text-align:center;
+  margin-top:4px;
+}
 </style>
 </head>
 
@@ -292,9 +351,7 @@ body::before{
 
 <div class="wrap">
 
-  <!-- florecitas decorativas (con respaldo SVG por si no existe el asset) -->
-  <img class="deco-flower tl" src="assets/icon-flower.png" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><g fill=%22%23FFB8DC%22><circle cx=%2232%22 cy=%2214%22 r=%2011%22/><circle cx=%2250%22 cy=%2232%22 r=%2211%22/><circle cx=%2232%22 cy=%2250%22 r=%2211%22/><circle cx=%2214%22 cy=%2232%22 r=%2211%22/></g><circle cx=%2232%22 cy=%2232%22 r=%229%22 fill=%22%23FFE18F%22/></svg>'">
-
+  <img class="deco-flower tl" src="assets/icon-flower.png" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><g fill=%22%23FFB8DC%22><circle cx=%2232%22 cy=%2214%22 r=%2211%22/><circle cx=%2250%22 cy=%2232%22 r=%2211%22/><circle cx=%2232%22 cy=%2250%22 r=%2211%22/><circle cx=%2214%22 cy=%2232%22 r=%2211%22/></g><circle cx=%2232%22 cy=%2232%22 r=%229%22 fill=%22%23FFE18F%22/></svg>'">
   <img class="deco-flower br" src="assets/icon-flower.png" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><g fill=%22%23C9B6FF%22><circle cx=%2232%22 cy=%2214%22 r=%2211%22/><circle cx=%2250%22 cy=%2232%22 r=%2211%22/><circle cx=%2232%22 cy=%2250%22 r=%2211%22/><circle cx=%2214%22 cy=%2232%22 r=%2211%22/></g><circle cx=%2232%22 cy=%2232%22 r=%229%22 fill=%22%23FFE18F%22/></svg>'">
 
   <h1 class="title">shadow byte</h1>
@@ -308,7 +365,7 @@ body::before{
     <div id="fill" class="fill"></div>
   </div>
 
-  <button id="btn" class="btn">✧ TOCAR ✧</button>
+  <button id="btn" class="btn">TOCAR</button>
 
   <div id="timer" class="timer"></div>
 
@@ -324,6 +381,27 @@ body::before{
 
 <div id="blackout"></div>
 
+<!-- PANEL ADMIN (solo visible con ?admin en la URL) -->
+<div id="adminPanel">
+  <h3>✦ Panel Admin ✦</h3>
+  <button id="startTimerBtn" class="admin-btn">Iniciar contador (1h)</button>
+  <button id="resetTimerBtn" class="admin-btn">Reiniciar contador</button>
+  <hr style="border:none;border-top:1px solid #EEE6FF;margin:10px 0;">
+  <input id="msgInput" class="admin-input" type="text" placeholder="Mensaje del avatar...">
+  <select id="avatarSelect" class="admin-select">
+    <option value="1.png">Avatar 1</option>
+    <option value="2.png">Avatar 2</option>
+    <option value="3.png">Avatar 3</option>
+    <option value="4.png">Avatar 4</option>
+  </select>
+  <button id="sendMsgBtn" class="admin-btn">Mostrar mensaje</button>
+  <button id="hideMsgBtn" class="admin-btn">Ocultar mensaje</button>
+  <hr style="border:none;border-top:1px solid #EEE6FF;margin:10px 0;">
+  <input id="totalInput" class="admin-input" type="number" placeholder="Nuevo total (ej: 15)">
+  <button id="setTotalBtn" class="admin-btn">Actualizar total y resetear votos</button>
+  <div id="adminStatus"></div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
@@ -332,7 +410,11 @@ import {
   runTransaction,
   onSnapshot,
   setDoc,
-  getDoc
+  getDoc,
+  updateDoc,
+  collection,
+  getDocs,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* CONFIG */
@@ -367,148 +449,217 @@ const speech = document.getElementById("speech");
 /* DEVICE ID */
 let deviceId = localStorage.getItem("device_id");
 if(!deviceId){
-deviceId = crypto.randomUUID();
-localStorage.setItem("device_id",deviceId);
+  deviceId = crypto.randomUUID();
+  localStorage.setItem("device_id",deviceId);
 }
 
 const userRef = doc(db,"votes",deviceId);
 
-/* BLOQUEO AL ENTRAR */
-getDoc(userRef).then(snap=>{
-if(snap.exists()){
-btn.disabled = true;
-}
-});
+/* ¿YA VOTÓ EN ESTA RONDA? — comparamos contra el round actual */
+let currentRound = 0;
 
-/* TARGET */
-const TARGET = new Date(2026,3,10,12,0,0);
+async function checkVoteLock(){
+  const userSnap = await getDoc(userRef);
+  if(userSnap.exists() && userSnap.data().round === currentRound){
+    btn.disabled = true;
+  } else {
+    btn.disabled = false;
+  }
+}
 
 /* COOLDOWN */
 let lastClick = 0;
 
 /* CLICK */
 btn.onclick = async () => {
+  const now = Date.now();
+  if(now - lastClick < 3000) return;
+  lastClick = now;
 
-const now = Date.now();
-if(now - lastClick < 3000) return;
-lastClick = now;
+  btn.disabled = true;
 
-btn.disabled = true;
+  try{
+    await runTransaction(db, async (t)=>{
+      const progressSnap = await t.get(progressRef);
+      const round = progressSnap.exists() ? (progressSnap.data().round || 0) : 0;
 
-try{
+      const userSnap = await t.get(userRef);
 
-await runTransaction(db, async (t)=>{
+      /* 🔒 YA VOTÓ EN ESTA RONDA */
+      if(userSnap.exists() && userSnap.data().round === round){
+        throw "bloqueado";
+      }
 
-const userSnap = await t.get(userRef);
+      let c = progressSnap.exists()? progressSnap.data().current || 0 : 0;
+      c++;
 
-/* 🔒 YA VOTÓ */
-if(userSnap.exists()){
-throw "bloqueado";
-}
-
-const progressSnap = await t.get(progressRef);
-
-let c = progressSnap.exists()? progressSnap.data().current || 0 : 0;
-c++;
-
-t.set(progressRef,{current:c},{merge:true});
-t.set(userRef,{voted:true,time:Date.now()});
-
-});
-
-}catch(e){
-console.log("bloqueado");
-btn.disabled = false;
-}
-
+      t.set(progressRef,{current:c},{merge:true});
+      t.set(userRef,{voted:true,time:Date.now(),round:round});
+    });
+  }catch(e){
+    console.log("bloqueado");
+    btn.disabled = false;
+  }
 };
 
 /* PROGRESO */
 onSnapshot(progressRef,(snap)=>{
-const d = snap.data() || {};
-const c = d.current || 0;
-const t = d.total || 15;
+  const d = snap.data() || {};
+  const c = d.current || 0;
+  const t = d.total || 15;
+  currentRound = d.round || 0;
 
-metaText.textContent = c + "/" + t;
-fill.style.width = (c/t*100)+"%";
+  metaText.textContent = c + "/" + t;
+  fill.style.width = (c/t*100)+"%";
 
-if(c>=t){
-activateGlobal();
-}
+  checkVoteLock();
+
+  if(c>=t){
+    activateGlobal();
+  }
 });
 
-/* COUNTDOWN */
+/* COUNTDOWN — controlado desde Firebase (systemRef.startTime), dura 1h */
+const DURATION_MS = 60*60*1000; // 1 hora
+
 function format(ms){
-let s=Math.floor(ms/1000);
-let h=Math.floor(s/3600);
-let m=Math.floor((s%3600)/60);
-let sec=s%60;
-return `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${sec.toString().padStart(2,"0")}`;
+  let s=Math.floor(ms/1000);
+  let h=Math.floor(s/3600);
+  let m=Math.floor((s%3600)/60);
+  let sec=s%60;
+  return `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${sec.toString().padStart(2,"0")}`;
 }
 
-function update(){
-let now=new Date();
-let diff=TARGET-now;
+let startTime = null;
 
-if(diff<=0){
-activateGlobal();
-timerEl.textContent="00:00:00";
-return;
+function tick(){
+  if(!startTime){
+    timerEl.textContent = "--:--:--";
+    return;
+  }
+
+  const now = Date.now();
+  const target = startTime + DURATION_MS;
+  const diff = target - now;
+
+  if(diff<=0){
+    activateGlobal();
+    timerEl.textContent="00:00:00";
+    return;
+  }
+
+  timerEl.textContent=format(diff);
 }
 
-timerEl.textContent=format(diff);
-}
-
-setInterval(update,1000);
-update();
+setInterval(tick,1000);
 
 /* GLOBAL */
 async function activateGlobal(){
-await setDoc(systemRef,{closed:true});
+  await setDoc(systemRef,{closed:true},{merge:true});
 }
 
 onSnapshot(systemRef,(snap)=>{
-if(snap.data()?.closed){
+  const d = snap.data() || {};
 
-/* DESACTIVA BOTÓN */
-btn.disabled = true;
+  startTime = d.startTime || null;
 
-/* CAMBIA TEXTO */
-timerEl.textContent = "COMPLETADO ✧";
+  if(d.closed){
+    btn.disabled = true;
+    timerEl.textContent = "COMPLETADO";
+    fill.style.width = "100%";
+    metaText.textContent = "COMPLETADO";
+  }
 
-/* LLENA BARRA */
-fill.style.width = "100%";
-
-/* OPCIONAL: MENSAJE */
-metaText.textContent = "COMPLETADO";
-
-}
+  tick();
 });
 
 /* AVATAR */
 onSnapshot(announcementRef,(snap)=>{
-const d = snap.data();
+  const d = snap.data();
 
-if(d?.active){
+  if(d?.active){
+    let avatarFile = String(d.avatar || "1.png").trim();
+    const allowed = ["1.png","2.png","3.png","4.png"];
 
-let avatarFile = String(d.avatar || "1.png").trim();
-const allowed = ["1.png","2.png","3.png","4.png"];
+    if(!allowed.includes(avatarFile)){
+      avatarFile="1.png";
+    }
 
-if(!allowed.includes(avatarFile)){
-avatarFile="1.png";
-}
+    avatarImg.src="assets/"+avatarFile;
+    avatarImg.onerror=()=>avatarImg.src="assets/1.png";
 
-avatarImg.src="assets/"+avatarFile;
-avatarImg.onerror=()=>avatarImg.src="assets/1.png";
+    speech.textContent=d.text||"";
 
-speech.textContent=d.text||"";
-
-avatarOverlay.classList.add("active");
-
-}else{
-avatarOverlay.classList.remove("active");
-}
+    avatarOverlay.classList.add("active");
+  }else{
+    avatarOverlay.classList.remove("active");
+  }
 });
+
+/* ============ ADMIN PANEL ============ */
+const params = new URLSearchParams(window.location.search);
+const isAdmin = params.has("admin");
+
+if(isAdmin){
+  document.getElementById("adminPanel").classList.add("active");
+
+  const adminStatus = document.getElementById("adminStatus");
+  function flash(msg){
+    adminStatus.textContent = msg;
+    setTimeout(()=>{ adminStatus.textContent=""; }, 2500);
+  }
+
+  /* Iniciar contador de 1h */
+  document.getElementById("startTimerBtn").onclick = async () => {
+    await setDoc(systemRef,{startTime:Date.now(), closed:false},{merge:true});
+    flash("Contador iniciado ✧");
+  };
+
+  /* Reiniciar contador (borra startTime y closed) */
+  document.getElementById("resetTimerBtn").onclick = async () => {
+    await setDoc(systemRef,{startTime:null, closed:false},{merge:true});
+    flash("Contador reiniciado ✧");
+  };
+
+  /* Mostrar mensaje del avatar */
+  document.getElementById("sendMsgBtn").onclick = async () => {
+    const text = document.getElementById("msgInput").value;
+    const avatar = document.getElementById("avatarSelect").value;
+    await setDoc(announcementRef,{active:true, text, avatar});
+    flash("Mensaje enviado ✧");
+  };
+
+  /* Ocultar mensaje del avatar */
+  document.getElementById("hideMsgBtn").onclick = async () => {
+    await setDoc(announcementRef,{active:false},{merge:true});
+    flash("Mensaje ocultado ✧");
+  };
+
+  /* Actualizar total y resetear votos (nueva ronda) */
+  document.getElementById("setTotalBtn").onclick = async () => {
+    const newTotal = parseInt(document.getElementById("totalInput").value, 10);
+    if(!newTotal || newTotal < 1){
+      flash("Total inválido");
+      return;
+    }
+
+    await runTransaction(db, async (t)=>{
+      const progressSnap = await t.get(progressRef);
+      const prevRound = progressSnap.exists() ? (progressSnap.data().round || 0) : 0;
+
+      t.set(progressRef, {
+        current: 0,
+        total: newTotal,
+        round: prevRound + 1
+      });
+    });
+
+    // reabre votación globalmente también
+    await setDoc(systemRef,{closed:false},{merge:true});
+
+    flash("Total actualizado, votos reseteados ✧");
+  };
+}
 </script>
 
 </body>
