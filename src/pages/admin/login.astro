@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Admin Login | Gorflacos">
+  <main class="grid min-h-screen place-items-center px-5 py-12">
+    <section class="candy-panel w-full max-w-md p-8 sm:p-10">
+      <div class="text-center">
+        <img src="/assets/gorflacos-logo.svg" alt="Gorflacos" width="200" height="60" class="mx-auto h-14 w-auto" />
+        <p class="mt-4 text-xs font-bold tracking-[0.2em] text-candy">ADMIN ACCESS</p>
+        <h1 class="mt-2 font-display text-4xl font-bold tracking-[-0.07em]">Hola, equipo.</h1>
+        <p class="mt-3 text-sm leading-6 text-ink/60">Usa el correo autorizado para abrir el panel.</p>
+      </div>
+      <form id="admin-login-form" class="mt-8 space-y-4">
+        <label class="block text-sm font-bold">Correo electrónico<input required id="admin-email" type="email" class="mt-2 w-full rounded-xl border border-ink/15 bg-white px-4 py-3 outline-none focus:border-candy" placeholder="tu@correo.com" /></label>
+        <p id="admin-login-error" class="hidden rounded-xl bg-bubblegum/35 p-3 text-sm text-tomato">Ese correo no está autorizado.</p>
+        <button class="candy-button-pink w-full" type="submit">Entrar al panel <i class="fi fi-rr-arrow-right"></i></button>
+      </form>
+      <a class="mt-6 block text-center text-sm font-bold text-ink/50 hover:text-candy" href="/">Volver a la tienda</a>
+    </section>
+  </main>
+</BaseLayout>
+<script src="../../scripts/admin-login.ts"></script>

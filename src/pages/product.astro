@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import CartDrawer from '../components/CartDrawer.astro';
+import CheckoutModal from '../components/CheckoutModal.astro';
+import Footer from '../components/Footer.astro';
+---
+<BaseLayout title="Producto | Gorflacos"><Header /><main id="product-detail" class="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20"><div class="rounded-[2rem] border border-dashed border-ink/15 p-16 text-center text-ink/55">Cargando producto desde Supabase...</div></main><Footer /><CartDrawer /><CheckoutModal /></BaseLayout>
+<script src="../scripts/product-detail.ts"></script><script src="../scripts/store.ts"></script>

@@ -1,0 +1,32 @@
+---
+---
+
+<header class="sticky top-0 z-30 border-b border-ink/10 bg-cream/90 shadow-sm backdrop-blur">
+  <div class="mx-auto grid max-w-7xl grid-cols-3 items-center px-5 py-4 lg:px-8">
+    <div class="flex items-center gap-2">
+      <button id="open-search" class="grid size-10 place-items-center rounded-full transition hover:bg-bubblegum/40" type="button" aria-label="Buscar productos" title="Buscar"><i class="fi fi-rr-search"></i></button>
+    </div>
+    <a href="/" class="justify-self-center" aria-label="Gorflacos inicio"><img src="/assets/gorflacos-logo.svg" alt="Gorflacos" width="160" height="48" class="h-10 w-auto" /></a>
+    <div class="flex justify-end gap-1">
+      <a href="/admin/login" class="grid size-10 place-items-center rounded-full transition hover:bg-bubblegum/40" aria-label="Login de administrador" title="Login"><i class="fi fi-rr-user"></i></a>
+      <button id="open-cart" class="relative grid size-10 place-items-center rounded-full transition hover:bg-bubblegum/40" type="button" aria-label="Abrir carrito" title="Carrito"><i class="fi fi-rr-shopping-bag"></i><span id="cart-count" class="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-candy text-[10px] font-bold text-white">0</span></button>
+    </div>
+  </div>
+  <nav class="mx-auto flex max-w-7xl items-center justify-center gap-5 overflow-x-auto px-5 pb-4 text-[11px] font-bold tracking-[0.14em] text-ink/70 lg:gap-10" aria-label="Navegación principal">
+    <a class="whitespace-nowrap transition hover:text-candy" href="/shop">SHOP ALL</a>
+    <a class="whitespace-nowrap transition hover:text-candy" href="/shop?category=Best%20Sellers">BESTSELLERS</a>
+    <a class="whitespace-nowrap transition hover:text-candy" href="/shop?category=Party%20Packs">PARTY PACKS</a>
+    <a class="whitespace-nowrap transition hover:text-candy" href="/shop?category=Sweet%20Sour">SWEET SAVINGS</a>
+    <a class="whitespace-nowrap transition hover:text-candy" href="#blog">BLOG</a>
+    <a class="whitespace-nowrap transition hover:text-candy" href="#story">OUR STORY</a>
+  </nav>
+</header>
+<div id="search-panel" class="fixed inset-x-0 top-0 z-40 hidden border-b border-ink/10 bg-cream p-5 shadow-xl">
+  <div class="mx-auto flex max-w-3xl items-center gap-3"><i class="fi fi-rr-search text-candy"></i><input id="search-input" class="w-full bg-transparent py-3 font-display text-2xl outline-none placeholder:text-ink/35" placeholder="Busca una golosina..." type="search" /><button id="close-search" class="grid size-10 place-items-center rounded-full bg-ink text-white" type="button" aria-label="Cerrar búsqueda">×</button></div>
+</div>
+<script>
+  const searchPanel = document.querySelector('#search-panel');
+  document.querySelector('#open-search')?.addEventListener('click', () => { searchPanel?.classList.remove('hidden'); const input = document.querySelector('#search-input'); if (input instanceof HTMLInputElement) input.focus(); });
+  document.querySelector('#close-search')?.addEventListener('click', () => searchPanel?.classList.add('hidden'));
+  document.querySelector('#search-input')?.addEventListener('keydown', (event) => { if (event instanceof KeyboardEvent && event.key === 'Enter' && event.target instanceof HTMLInputElement) window.location.href = `/shop?search=${encodeURIComponent(event.target.value)}`; });
+</script>
