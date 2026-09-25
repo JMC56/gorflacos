@@ -13,10 +13,15 @@ document.querySelectorAll<HTMLInputElement>('input[type="file"]').forEach((input
 
 const adminHeader = document.querySelector('main header');
 const adminSections = document.querySelectorAll('main > div > section');
+const adminPanels = document.querySelectorAll('main .candy-panel');
 adminHeader?.classList.add('admin-entry');
 adminSections.forEach((section, index) => {
   section.classList.add('scroll-reveal');
   if (index > 0) section.classList.add('scroll-reveal-delay-2');
+});
+adminPanels.forEach((panel, index) => {
+  panel.classList.add('scroll-reveal');
+  panel.classList.add(`scroll-reveal-delay-${Math.min((index % 3) + 1, 3)}`);
 });
 const adminRevealObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -27,6 +32,11 @@ const adminRevealObserver = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.12, rootMargin: '0px 0px -48px' });
 adminSections.forEach((section) => adminRevealObserver.observe(section));
+adminPanels.forEach((panel) => adminRevealObserver.observe(panel));
+requestAnimationFrame(() => {
+  adminHeader?.classList.add('admin-entry');
+  adminSections[0]?.classList.add('is-visible');
+});
 
 function guardSession() {
   const lastActive = Number(localStorage.getItem('gorflacos-admin-last-active') || 0);
