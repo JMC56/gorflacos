@@ -11,6 +11,23 @@ const owner = isOwner(email);
 const sessionLimit = 2 * 60 * 60 * 1000;
 document.querySelectorAll<HTMLInputElement>('input[type="file"]').forEach((input) => { input.accept = '.png,.svg,image/png,image/svg+xml'; });
 
+const adminHeader = document.querySelector('main header');
+const adminSections = document.querySelectorAll('main > div > section');
+adminHeader?.classList.add('admin-entry');
+adminSections.forEach((section, index) => {
+  section.classList.add('scroll-reveal');
+  if (index > 0) section.classList.add('scroll-reveal-delay-2');
+});
+const adminRevealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('is-visible');
+      adminRevealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -48px' });
+adminSections.forEach((section) => adminRevealObserver.observe(section));
+
 function guardSession() {
   const lastActive = Number(localStorage.getItem('gorflacos-admin-last-active') || 0);
   if (!email || !lastActive || Date.now() - lastActive > sessionLimit) { endAdminSession(); window.location.href = '/'; return; }
