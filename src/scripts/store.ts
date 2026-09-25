@@ -14,6 +14,8 @@ function formatPrice(value: number) { return `C$${value}`; }
 let products: Product[] = [];
 function lineTotal() { return cart.reduce((sum, line) => sum + (products.find((item) => item.id === line.productId)?.price || 0) * line.quantity, 0); }
 function updateCart(productId: string, quantity: number) {
+  const product = products.find((item) => item.id === productId);
+  if (product && quantity > product.stock) quantity = product.stock;
   const line = cart.find((item) => item.productId === productId);
   if (line) line.quantity = Math.max(0, quantity); else if (quantity > 0) cart.push({ productId, quantity });
   for (let index = cart.length - 1; index >= 0; index -= 1) if (cart[index].quantity === 0) cart.splice(index, 1);

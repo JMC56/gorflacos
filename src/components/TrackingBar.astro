@@ -1,8 +1,4 @@
 ---
 ---
 <div id="tracking-bar" class="hidden border-b border-leaf/20 bg-mint px-5 py-3 text-center text-sm font-bold text-ink"><div class="mx-auto flex max-w-7xl items-center justify-center gap-3"><i class="fi fi-rr-truck-side text-leaf"></i><span id="tracking-copy">Tu pedido está en camino</span><span id="tracking-step" class="rounded-full bg-white/70 px-3 py-1 text-xs">1 de 3</span><button id="dismiss-tracking" class="ml-2 opacity-60 hover:opacity-100" type="button" aria-label="Ocultar seguimiento">×</button></div></div>
-<script>
-  const order = JSON.parse(localStorage.getItem('gorflacos-order') || 'null'); const bar = document.querySelector('#tracking-bar'); const copy = document.querySelector('#tracking-copy'); const step = document.querySelector('#tracking-step');
-  if (order && order.status !== 'delivered') { bar?.classList.remove('hidden'); const labels = ['Tu pedido está en camino', 'Casi llega a la zona escolar', 'Fue entregado']; const index = Math.min(order.step || 0, 2); if (copy) copy.textContent = labels[index]; if (step) step.textContent = `${index + 1} de 3`; }
-  document.querySelector('#dismiss-tracking')?.addEventListener('click', () => bar?.classList.add('hidden'));
-</script>
+<script src="../scripts/tracking.ts"></script>

@@ -17,6 +17,19 @@ export type Product = {
   stock: number;
 };
 
+export type OrderStatus = 'received' | 'preparing' | 'on_the_way' | 'delivered';
+export type Order = {
+  id: string;
+  student_name: string;
+  grade: string;
+  delivery_place: string;
+  items: Array<{ productId: string; name: string; quantity: number; price: number; image_url: string }>;
+  total: number;
+  status: OrderStatus;
+  created_at: string;
+  updated_at: string;
+};
+
 export const categories = ['Shop All', 'Best Sellers', 'Party Packs', 'Sweet & Sour', 'Chocolates'];
 export const allowedProductImageTypes = ['image/png', 'image/svg+xml'];
 
@@ -46,6 +59,20 @@ export function subscribeToProducts(onChange: () => void) {
   const client = supabase;
   const channel = client.channel('public-products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, onChange).subscribe();
   return () => { void client.removeChannel(channel); };
+}
+
+export function subscribeToOrders(onChange: () => void) {
+  if (!supabase) return () => undefined;
+  const client = supabase;
+  const channel = client.channel('public-orders').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, onChange).subscribe();
+  return () => { void client.removeChannel(channel); };
+}
+
+export async function createOrder(order: Omit<Order, 'id' | 'created_at' | 'updated_at'>) {
+  if (!supabase) throw new Error('Supabase no está configurado.');
+  const { data, error } = await supabase.from('orders').insert(order).select().single();
+  if (error || !data) throw error || new Error('No se pudo registrar el pedido.');
+  return data as Order;
 }
 
 export async function uploadProductImage(file: File) {
