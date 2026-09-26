@@ -57,14 +57,14 @@ export async function getProduct(slug: string) {
 export function subscribeToProducts(onChange: () => void) {
   if (!supabase) return () => undefined;
   const client = supabase;
-  const channel = client.channel('public-products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, onChange).subscribe();
+  const channel = client.channel(`public-products-${crypto.randomUUID()}`).on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, onChange).subscribe();
   return () => { void client.removeChannel(channel); };
 }
 
 export function subscribeToOrders(onChange: () => void) {
   if (!supabase) return () => undefined;
   const client = supabase;
-  const channel = client.channel('public-orders').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, onChange).subscribe();
+  const channel = client.channel(`public-orders-${crypto.randomUUID()}`).on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, onChange).subscribe();
   return () => { void client.removeChannel(channel); };
 }
 
