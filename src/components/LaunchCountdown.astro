@@ -1,0 +1,83 @@
+<div id="launch-countdown" class="launch-countdown fixed inset-0 z-[100] flex min-h-svh items-center justify-start overflow-y-auto px-5 py-10 text-center text-ink" role="dialog" aria-modal="true" aria-labelledby="launch-title">
+  <div class="launch-content my-auto mx-auto w-full max-w-5xl">
+    <p class="font-display text-xl font-bold text-ink sm:text-2xl">GOR<span class="text-candy">FLACOS</span></p>
+    <p class="mt-5 text-xs font-bold uppercase tracking-[0.24em] text-candy">Algo dulce viene en camino</p>
+    <h1 id="launch-title" class="mt-3 font-display text-5xl font-bold leading-none text-ink sm:text-6xl md:text-7xl">Pronto abriremos</h1>
+    <p class="mx-auto mt-4 max-w-xl text-base leading-7 text-ink/70 sm:text-lg">Espéranos un ratito. Estamos preparando algo especial para ti.</p>
+    <div class="mx-auto mt-7 grid max-w-3xl grid-cols-4 gap-2 sm:gap-4" role="timer" aria-label="Tiempo restante hasta la apertura" aria-live="off">
+      <div class="launch-unit rounded-lg bg-ink px-2 py-3 text-white sm:px-4 sm:py-4"><span id="launch-days" class="block font-display text-3xl font-bold tabular-nums text-candy sm:text-4xl">00</span><span class="mt-1 block text-[10px] font-bold uppercase tracking-[0.1em] text-white/70 sm:text-xs">Días</span></div>
+      <div class="launch-unit rounded-lg bg-ink px-2 py-3 text-white sm:px-4 sm:py-4"><span id="launch-hours" class="block font-display text-3xl font-bold tabular-nums text-candy sm:text-4xl">00</span><span class="mt-1 block text-[10px] font-bold uppercase tracking-[0.1em] text-white/70 sm:text-xs">Horas</span></div>
+      <div class="launch-unit rounded-lg bg-ink px-2 py-3 text-white sm:px-4 sm:py-4"><span id="launch-minutes" class="block font-display text-3xl font-bold tabular-nums text-candy sm:text-4xl">00</span><span class="mt-1 block text-[10px] font-bold uppercase tracking-[0.1em] text-white/70 sm:text-xs">Minutos</span></div>
+      <div class="launch-unit rounded-lg bg-ink px-2 py-3 text-white sm:px-4 sm:py-4"><span id="launch-seconds" class="block font-display text-3xl font-bold tabular-nums text-candy sm:text-4xl">00</span><span class="mt-1 block text-[10px] font-bold uppercase tracking-[0.1em] text-white/70 sm:text-xs">Segundos</span></div>
+    </div>
+    <p class="mt-4 text-sm font-bold text-ink/60">12 de octubre de 2026 · 7:00 a. m. · Hora de Nicaragua</p>
+  </div>
+</div>
+
+<script is:inline>
+  const launchScreen = document.getElementById('launch-countdown');
+
+  if (launchScreen) {
+    const launchTime = Date.parse('2026-10-12T13:00:00Z');
+    const originalOverflow = document.body.style.overflow;
+    const finishCountdown = () => {
+      launchScreen.remove();
+      document.body.style.overflow = originalOverflow;
+    };
+
+    if (new URLSearchParams(window.location.search).has('admin') || Date.now() >= launchTime) {
+      finishCountdown();
+    } else {
+      const renderCountdown = () => {
+        const remaining = Math.max(0, launchTime - Date.now());
+        const units = {
+          days: Math.floor(remaining / 86400000),
+          hours: Math.floor((remaining % 86400000) / 3600000),
+          minutes: Math.floor((remaining % 3600000) / 60000),
+          seconds: Math.floor((remaining % 60000) / 1000)
+        };
+
+        Object.entries(units).forEach(([unit, value]) => {
+          const element = document.getElementById(`launch-${unit}`);
+          if (element) element.textContent = String(value).padStart(2, '0');
+        });
+      };
+
+      document.body.style.overflow = 'hidden';
+      renderCountdown();
+      const countdownInterval = window.setInterval(() => {
+        if (Date.now() >= launchTime) {
+          window.clearInterval(countdownInterval);
+          finishCountdown();
+          return;
+        }
+        renderCountdown();
+      }, 1000);
+    }
+  }
+</script>
+
+<style>
+  .launch-countdown {
+    background-color: #ffe4ed;
+    background-image: radial-gradient(#f49abd 1.2px, transparent 1.2px);
+    background-size: 28px 28px;
+  }
+
+  .launch-content {
+    animation: launch-arrive 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .launch-unit {
+    box-shadow: 0 10px 30px rgb(32 51 68 / 10%);
+  }
+
+  @keyframes launch-arrive {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .launch-content { animation: none; }
+  }
+</style>
