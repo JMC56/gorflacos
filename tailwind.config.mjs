@@ -21,8 +21,7 @@ export default {
         leaf: '#2d9c91'
       },
       boxShadow: {
-        soft: '0 24px 70px rgba(33, 50, 66, 0.12)',
-        candy: '0 18px 45px rgba(255, 126, 182, 0.16)'
+        soft: '0 24px 70px rgba(33, 50, 66, 0.12)'
       }
     }
   },

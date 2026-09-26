@@ -6,7 +6,7 @@ const banners = [
 ];
 ---
 <section class="scroll-reveal mx-auto max-w-7xl px-5 pt-5 lg:px-8 lg:pt-8" aria-label="Promociones destacadas">
-  <div id="hero-slider" class="relative overflow-hidden rounded-[2rem] shadow-candy">
+  <div id="hero-slider" class="relative overflow-hidden rounded-[2rem]">
     <div id="hero-track" class="flex transition-transform duration-700 ease-out" style="transform: translateX(-100%)">
     {banners.map((banner) => <article class="hero-slide min-w-full" data-slide>
       <img class="block aspect-[3/1] h-auto w-full object-cover" src={banner.image} alt={banner.alt} width="2160" height="720" />

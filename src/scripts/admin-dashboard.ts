@@ -47,7 +47,11 @@ function guardSession() {
 guardSession();
 history.pushState(null, '', window.location.href); window.addEventListener('popstate', () => history.pushState(null, '', window.location.href));
 ['click', 'keydown', 'mousemove'].forEach((eventName) => document.addEventListener(eventName, () => localStorage.setItem('gorflacos-admin-last-active', String(Date.now())), { passive: true }));
-document.querySelector('#admin-logout')?.addEventListener('click', () => { endAdminSession(); window.location.href = '/'; });
+document.querySelector('#admin-logout')?.addEventListener('click', (event) => {
+  event.stopPropagation();
+  endAdminSession();
+  window.location.replace('/?admin');
+});
 
 function slugify(value: string) { return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
 function uniqueSlug(name: string, id: string) { const base = slugify(name); return id ? base : `${base}-${Date.now().toString(36)}`; }
