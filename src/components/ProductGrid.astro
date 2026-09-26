@@ -1,6 +1,6 @@
 ---
-interface Props { id?: string; category?: string; featured?: boolean; search?: string; emptyMessage?: string; }
-const { id = 'product-grid', category = 'Shop All', featured = false, search = '', emptyMessage = 'Aún no hay productos publicados.' } = Astro.props;
+interface Props { id?: string; category?: string; search?: string; emptyMessage?: string; }
+const { id = 'product-grid', category = 'Shop All', search = '', emptyMessage = 'Aún no hay productos publicados.' } = Astro.props;
 ---
-<div id={id} class="product-grid grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-category={category} data-featured={featured} data-search={search} data-empty={emptyMessage}><div class="col-span-full rounded-[2rem] border border-dashed border-ink/15 p-12 text-center text-sm text-ink/55">Cargando golosinas...</div></div>
+<div id={id} class="product-grid grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-category={category} data-search={search} data-empty={emptyMessage}><div class="col-span-full rounded-[2rem] border border-dashed border-ink/15 p-12 text-center text-sm text-ink/55">Cargando golosinas...</div></div>
 <script src="../scripts/catalog-grid.ts"></script>

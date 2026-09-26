@@ -3,7 +3,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import HeroSlider from '../components/HeroSlider.astro';
 import CollectionRail from '../components/CollectionRail.astro';
-import ProductGrid from '../components/ProductGrid.astro';
 import CartDrawer from '../components/CartDrawer.astro';
 import CheckoutModal from '../components/CheckoutModal.astro';
 import TrackingBar from '../components/TrackingBar.astro';
@@ -17,10 +16,6 @@ import Footer from '../components/Footer.astro';
   <main>
     <HeroSlider />
     <CollectionRail />
-    <section id="featured" class="scroll-reveal mx-auto max-w-7xl px-5 pb-20 lg:px-8 lg:pb-28">
-      <div class="mb-8 flex items-end justify-between"><div><p class="text-xs font-bold tracking-[0.22em] text-candy">THE GOOD STUFF</p><h2 class="mt-2 font-display text-4xl font-bold tracking-[-0.07em] sm:text-5xl">Fan favorites</h2></div><a class="hidden text-sm font-bold text-candy hover:text-ink sm:block" href="/shop">Shop all <i class="fi fi-rr-arrow-right"></i></a></div>
-      <ProductGrid id="featured-products" featured={true} />
-    </section>
     <section id="story" class="scroll-reveal bg-bubblegum/35 px-5 py-20 lg:px-8 lg:py-28"><div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-center"><p class="font-display text-7xl font-bold leading-none tracking-[-0.1em] text-candy sm:text-9xl">GOR<br /><span class="text-ink">FLACOS</span></p><div class="max-w-2xl"><p class="text-xs font-bold tracking-[0.24em] text-leaf">NUESTRA HISTORIA</p><h2 class="mt-4 font-display text-4xl font-bold tracking-[-0.06em] sm:text-6xl">Golosinas con personalidad propia.</h2><p class="mt-6 text-lg leading-8 text-ink/65">Gorflacos existe para convertir un día cualquiera en una pausa de colores, sabores y algo que sí vale la pena compartir.</p></div></div></section>
   </main>
   <Footer />

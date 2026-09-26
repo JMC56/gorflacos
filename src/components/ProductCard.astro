@@ -8,7 +8,7 @@ interface Props {
 const { product } = Astro.props;
 ---
 
-<article class="product-card group flex h-full flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white/90 shadow-candy transition duration-300 hover:-translate-y-1" data-category={product.category} data-name={product.name.toLowerCase()}>
+<article class="product-card group flex h-full flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white/90 transition duration-300 hover:-translate-y-1" data-category={product.category} data-name={product.name.toLowerCase()}>
   <a href={`/product?slug=${encodeURIComponent(product.slug)}`} class="relative block aspect-square overflow-hidden bg-ink/10">
     <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src={product.image_url} alt={product.name} loading="lazy" />
     <span class="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-ink">

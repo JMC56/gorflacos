@@ -13,7 +13,6 @@ export type Product = {
   image_url: string;
   gallery_urls: string[];
   published: boolean;
-  featured: boolean;
   stock: number;
 };
 
@@ -33,12 +32,11 @@ export type Order = {
 export const categories = ['Shop All', 'Best Sellers', 'Party Packs', 'Sweet & Sour', 'Chocolates'];
 export const allowedProductImageTypes = ['image/png', 'image/svg+xml'];
 
-export async function listProducts(filters: { category?: string; search?: string; featured?: boolean; includeUnpublished?: boolean } = {}) {
+export async function listProducts(filters: { category?: string; search?: string; includeUnpublished?: boolean } = {}) {
   if (!supabase) return [] as Product[];
   let query = supabase.from('products').select('*').order('created_at', { ascending: false });
   if (!filters.includeUnpublished) query = query.eq('published', true);
   if (filters.search) query = query.ilike('name', `%${filters.search}%`);
-  if (filters.featured) query = query.eq('featured', true);
   const { data, error } = await query;
   if (error) throw error;
   const products = (data || []) as Product[];
