@@ -123,3 +123,5 @@ create policy "public product image reads" on storage.objects for select using (
 create policy "product image uploads" on storage.objects for insert with check (bucket_id = 'product-images');
 create policy "product image updates" on storage.objects for update using (bucket_id = 'product-images') with check (bucket_id = 'product-images');
 create policy "product image deletes" on storage.objects for delete using (bucket_id = 'product-images');
+
+notify pgrst, 'reload schema';
