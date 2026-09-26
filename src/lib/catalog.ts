@@ -78,9 +78,27 @@ export async function createOrder(order: Omit<Order, 'id' | 'created_at' | 'upda
 export async function uploadProductImage(file: File) {
   if (!supabase) throw new Error('Supabase no está configurado.');
   if (!allowedProductImageTypes.includes(file.type)) throw new Error('Solo se permiten imágenes PNG o SVG.');
-  const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
-  const path = `${crypto.randomUUID()}-${safeName}`;
-  const { error } = await supabase.storage.from('product-images').upload(path, file, { upsert: false, contentType: file.type });
+  const bitmap = await createImageBitmap(file);
+  let squareImage: Blob;
+  try {
+    const size = Math.min(bitmap.width, bitmap.height, 1200);
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('No se pudo preparar el recorte de la imagen.');
+    const cropX = (bitmap.width - size) / 2;
+    const cropY = (bitmap.height - size) / 2;
+    context.drawImage(bitmap, cropX, cropY, size, size, 0, 0, size, size);
+    squareImage = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('No se pudo convertir la imagen cuadrada.')), 'image/png');
+    });
+  } finally {
+    bitmap.close();
+  }
+  const safeName = file.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const path = `${crypto.randomUUID()}-${safeName || 'product-image'}.png`;
+  const { error } = await supabase.storage.from('product-images').upload(path, squareImage, { upsert: false, contentType: 'image/png' });
   if (error) throw error;
   return supabase.storage.from('product-images').getPublicUrl(path).data.publicUrl;
 }
