@@ -7,7 +7,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "migrate:square-images": "node scripts/migrate-square-product-images.mjs"
   },
   "dependencies": {
     "@astrojs/tailwind": "^6.0.2",
