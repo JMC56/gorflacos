@@ -12,7 +12,14 @@ const checkoutModal = document.querySelector('#checkout-modal');
 function saveCart() { localStorage.setItem('candy-cart', JSON.stringify(cart)); }
 function formatPrice(value: number) { return `C$${value}`; }
 let products: Product[] = [];
+let productsPromise: Promise<Product[]> | null = null;
 function lineTotal() { return cart.reduce((sum, line) => sum + (products.find((item) => item.id === line.productId)?.price || 0) * line.quantity, 0); }
+function loadProducts() {
+  if (!productsPromise) {
+    productsPromise = listProducts().then((data) => { products = data; renderCart(); return data; }).catch((error) => { productsPromise = null; throw error; });
+  }
+  return productsPromise;
+}
 function updateCart(productId: string, quantity: number) {
   const product = products.find((item) => item.id === productId);
   if (product && quantity > product.stock) quantity = product.stock;
@@ -29,7 +36,7 @@ function renderCart() {
 }
 function openCart(open: boolean) { drawer?.classList.toggle('translate-x-full', !open); backdrop?.classList.toggle('hidden', !open); drawer?.setAttribute('aria-hidden', String(!open)); }
 
-document.addEventListener('click', (event) => { const target = event.target as HTMLElement; const addButton = target.closest<HTMLButtonElement>('.add-product'); if (addButton) updateCart(addButton.dataset.productId || '', Number((addButton.parentElement?.querySelector('.quantity-value') as HTMLElement)?.textContent || 1)); });
+document.addEventListener('click', async (event) => { const target = event.target as HTMLElement; const addButton = target.closest<HTMLButtonElement>('.add-product'); if (!addButton) return; const productId = addButton.dataset.productId || ''; addButton.disabled = true; try { if (!products.some((product) => product.id === productId)) await loadProducts(); if (!products.some((product) => product.id === productId)) throw new Error('No encontramos ese producto. Actualiza la tienda e inténtalo de nuevo.'); updateCart(productId, Number((addButton.parentElement?.querySelector('.quantity-value') as HTMLElement)?.textContent || 1)); } catch (error) { alert(error instanceof Error ? error.message : 'No se pudo añadir el producto.'); } finally { addButton.disabled = false; } });
 document.querySelectorAll<HTMLButtonElement>('.quantity-plus').forEach((button) => button.addEventListener('click', () => { const value = button.parentElement?.querySelector('.quantity-value'); if (value) value.textContent = String(Number(value.textContent) + 1); }));
 document.querySelectorAll<HTMLButtonElement>('.quantity-minus').forEach((button) => button.addEventListener('click', () => { const value = button.parentElement?.querySelector('.quantity-value'); if (value) value.textContent = String(Math.max(1, Number(value.textContent) - 1)); }));
 document.querySelectorAll<HTMLButtonElement>('.filter-button').forEach((button) => button.addEventListener('click', () => { document.querySelectorAll('.filter-button').forEach((item) => item.classList.remove('bg-ink', 'text-white')); button.classList.add('bg-ink', 'text-white'); document.querySelectorAll<HTMLElement>('.product-card').forEach((card) => card.classList.toggle('hidden', button.dataset.filter !== 'Shop All' && card.dataset.category !== button.dataset.filter)); }));
@@ -37,4 +44,4 @@ cartItems?.addEventListener('click', (event) => { const target = event.target as
 document.querySelector('#open-cart')?.addEventListener('click', () => openCart(true)); document.querySelector('#close-cart')?.addEventListener('click', () => openCart(false)); backdrop?.addEventListener('click', () => openCart(false));
 document.querySelector('#checkout')?.addEventListener('click', () => { if (!cart.length) { alert('Añade un producto antes de continuar.'); return; } checkoutModal?.classList.remove('hidden'); checkoutModal?.classList.add('flex'); openCart(false); });
 document.addEventListener('catalog:updated', () => renderCart());
-void listProducts().then((data) => { products = data; renderCart(); });
+void loadProducts().catch((error) => console.error('No se pudo cargar el catálogo para el carrito.', error));
