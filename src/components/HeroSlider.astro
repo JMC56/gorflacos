@@ -6,20 +6,53 @@ const banners = [
 ];
 ---
 <section class="scroll-reveal mx-auto max-w-7xl px-5 pt-5 lg:px-8 lg:pt-8" aria-label="Promociones destacadas">
-  <div id="hero-slider" class="overflow-hidden rounded-[2rem] shadow-candy">
-    <div id="hero-track" class="flex transition-transform duration-700 ease-out">
+  <div id="hero-slider" class="relative overflow-hidden rounded-[2rem] shadow-candy">
+    <div id="hero-track" class="flex transition-transform duration-700 ease-out" style="transform: translateX(-100%)">
     {banners.map((banner) => <article class="hero-slide min-w-full" data-slide>
       <img class="block aspect-[3/1] h-auto w-full object-cover" src={banner.image} alt={banner.alt} width="2160" height="720" />
     </article>)}
     </div>
-  </div>
-  <div class="mt-4 flex justify-center gap-3">
-    <button id="hero-prev" class="grid size-11 place-items-center rounded-full bg-ink text-lg text-white transition hover:bg-candy" type="button" aria-label="Banner anterior" title="Banner anterior"><i class="fi fi-rr-angle-left"></i></button>
-    <button id="hero-next" class="grid size-11 place-items-center rounded-full bg-ink text-lg text-white transition hover:bg-candy" type="button" aria-label="Siguiente banner" title="Siguiente banner"><i class="fi fi-rr-angle-right"></i></button>
+    <div class="absolute bottom-3 right-4 z-10 flex gap-2 sm:bottom-5 sm:right-6">
+      <button id="hero-prev" class="grid size-10 place-items-center text-3xl text-white drop-shadow-[0_2px_5px_rgba(0,0,0,0.8)] transition hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white sm:size-12" type="button" aria-label="Banner anterior" title="Banner anterior"><i class="fi fi-rr-angle-left"></i></button>
+      <button id="hero-next" class="grid size-10 place-items-center text-3xl text-white drop-shadow-[0_2px_5px_rgba(0,0,0,0.8)] transition hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white sm:size-12" type="button" aria-label="Siguiente banner" title="Siguiente banner"><i class="fi fi-rr-angle-right"></i></button>
+    </div>
   </div>
 </section>
 <script lang="ts">
-  const track = document.querySelector('#hero-track'); const slides = [...document.querySelectorAll('.hero-slide')]; let activeSlide = 0;
-  function showSlide(index = 0) { activeSlide = (index + slides.length) % slides.length; if (track instanceof HTMLElement) track.style.transform = `translateX(-${activeSlide * 100}%)`; }
-  document.querySelector('#hero-prev')?.addEventListener('click', () => showSlide(activeSlide - 1)); document.querySelector('#hero-next')?.addEventListener('click', () => showSlide(activeSlide + 1)); setInterval(() => showSlide(activeSlide + 1), 5000);
+  const track = document.querySelector('#hero-track');
+  const originalSlides = [...document.querySelectorAll('.hero-slide')];
+
+  if (track instanceof HTMLElement && originalSlides.length > 1) {
+    const heroTrack = track;
+    const firstClone = originalSlides[0].cloneNode(true);
+    const lastClone = originalSlides[originalSlides.length - 1].cloneNode(true);
+    if (firstClone instanceof HTMLElement) firstClone.setAttribute('aria-hidden', 'true');
+    if (lastClone instanceof HTMLElement) lastClone.setAttribute('aria-hidden', 'true');
+    heroTrack.prepend(lastClone);
+    heroTrack.append(firstClone);
+
+    const slides = [...heroTrack.querySelectorAll('.hero-slide')];
+    let activeSlide = 1;
+
+    const showSlide = (index = 1) => {
+      activeSlide = index;
+      heroTrack.style.transition = '';
+      heroTrack.style.transform = `translateX(-${activeSlide * 100}%)`;
+    };
+
+    heroTrack.addEventListener('transitionend', (event) => {
+      if (event.target !== heroTrack || event.propertyName !== 'transform') return;
+      if (activeSlide === slides.length - 1 || activeSlide === 0) {
+        activeSlide = activeSlide === 0 ? slides.length - 2 : 1;
+        heroTrack.style.transition = 'none';
+        heroTrack.style.transform = `translateX(-${activeSlide * 100}%)`;
+        heroTrack.offsetHeight;
+        heroTrack.style.transition = '';
+      }
+    });
+
+    document.querySelector('#hero-prev')?.addEventListener('click', () => showSlide(activeSlide - 1));
+    document.querySelector('#hero-next')?.addEventListener('click', () => showSlide(activeSlide + 1));
+    window.setInterval(() => showSlide(activeSlide + 1), 5000);
+  }
 </script>
