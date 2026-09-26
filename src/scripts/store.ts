@@ -1,4 +1,5 @@
-import { listProducts, type Product } from '../lib/catalog';
+import { listProducts, subscribeToProducts, type Product } from '../lib/catalog';
+import { supabase } from '../lib/supabase';
 
 type CartLine = { productId: string; quantity: number };
 const cart: CartLine[] = JSON.parse(localStorage.getItem('candy-cart') || '[]');
@@ -14,11 +15,35 @@ function formatPrice(value: number) { return `C$${value}`; }
 let products: Product[] = [];
 let productsPromise: Promise<Product[]> | null = null;
 function lineTotal() { return cart.reduce((sum, line) => sum + (products.find((item) => item.id === line.productId)?.price || 0) * line.quantity, 0); }
+function reconcileCart() {
+  let changed = false;
+  for (let index = cart.length - 1; index >= 0; index -= 1) {
+    const line = cart[index];
+    const product = products.find((item) => item.id === line.productId);
+    if (!product || product.stock <= 0) {
+      cart.splice(index, 1);
+      changed = true;
+    } else if (line.quantity > product.stock) {
+      line.quantity = product.stock;
+      changed = true;
+    }
+  }
+  if (changed) saveCart();
+}
+function applyProducts(data: Product[]) {
+  products = data;
+  reconcileCart();
+  renderCart();
+}
 function loadProducts() {
   if (!productsPromise) {
-    productsPromise = listProducts().then((data) => { products = data; renderCart(); return data; }).catch((error) => { productsPromise = null; throw error; });
+    productsPromise = listProducts().then((data) => { if (supabase) applyProducts(data); return data; }).catch((error) => { productsPromise = null; throw error; });
   }
   return productsPromise;
+}
+function refreshProducts() {
+  if (!supabase) return;
+  void listProducts().then(applyProducts).catch((error) => console.error('No se pudo sincronizar el carrito con el catálogo.', error));
 }
 function updateCart(productId: string, quantity: number) {
   const product = products.find((item) => item.id === productId);
@@ -44,4 +69,6 @@ cartItems?.addEventListener('click', (event) => { const target = event.target as
 document.querySelector('#open-cart')?.addEventListener('click', () => openCart(true)); document.querySelector('#close-cart')?.addEventListener('click', () => openCart(false)); backdrop?.addEventListener('click', () => openCart(false));
 document.querySelector('#checkout')?.addEventListener('click', () => { if (!cart.length) { alert('Añade un producto antes de continuar.'); return; } checkoutModal?.classList.remove('hidden'); checkoutModal?.classList.add('flex'); openCart(false); });
 document.addEventListener('catalog:updated', () => renderCart());
+subscribeToProducts(refreshProducts);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshProducts(); });
 void loadProducts().catch((error) => console.error('No se pudo cargar el catálogo para el carrito.', error));
