@@ -23,12 +23,22 @@ const {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css" />
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/3.0.0/uicons-brands/css/uicons-brands.css" />
     <title>{title}</title>
   </head>
   <body class="min-h-screen bg-cream font-body text-ink antialiased">
     <LaunchCountdown />
     <slot />
     <script>
+      const currentUrl = new URL(window.location.href);
+      if (currentUrl.searchParams.has('logout')) {
+        document.cookie = 'gorflacos_admin=; max-age=0; path=/; SameSite=Lax';
+        localStorage.removeItem('gorflacos-admin-last-active');
+        currentUrl.searchParams.delete('logout');
+        currentUrl.searchParams.set('admin', '');
+        window.history.replaceState(null, '', `${currentUrl.pathname}?${currentUrl.searchParams.toString()}`);
+      }
+
       if (window.location.pathname === '/') {
         history.scrollRestoration = 'manual';
         window.scrollTo(0, 0);

@@ -47,12 +47,6 @@ function guardSession() {
 guardSession();
 history.pushState(null, '', window.location.href); window.addEventListener('popstate', () => history.pushState(null, '', window.location.href));
 ['click', 'keydown', 'mousemove'].forEach((eventName) => document.addEventListener(eventName, () => localStorage.setItem('gorflacos-admin-last-active', String(Date.now())), { passive: true }));
-document.querySelector('#admin-logout')?.addEventListener('click', (event) => {
-  event.stopPropagation();
-  endAdminSession();
-  window.location.replace('/?admin');
-});
-
 function slugify(value: string) { return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
 function uniqueSlug(name: string, id: string) { const base = slugify(name); return id ? base : `${base}-${Date.now().toString(36)}`; }
 function showStatus(message: string, error = false) { if (!status) return; status.textContent = message; status.className = `rounded-xl p-3 text-sm ${error ? 'bg-bubblegum/40 text-tomato' : 'bg-mint text-leaf'}`; }
