@@ -5,8 +5,7 @@ const tiktokUrl = '';
 const navigationLinks = [
 	{ label: 'Tienda', href: '/shop' },
 	{ label: 'Política de privacidad', href: '/privacy-policy' },
-	{ label: 'Términos de servicio', href: '/terms-of-service' },
-	{ label: 'FAQs', href: '/faqs' }
+	{ label: 'Términos de servicio', href: '/terms-of-service' }
 ];
 
 const categoryLinks = [
@@ -47,5 +46,15 @@ const categoryLinks = [
 			</div>
 		</div>
 	</div>
-	<div class="mx-auto mt-12 max-w-7xl border-t border-candy/20 pt-5 text-xs text-ink/50">© {new Date().getFullYear()} Gorflacos</div>
 </footer>
+
+<div class="border-t border-ink/10 bg-white px-5 py-5 text-ink lg:px-8">
+	<div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
+		<p class="text-xs font-bold sm:text-sm">Gorflacos © {new Date().getFullYear()} · Todos los derechos reservados</p>
+		<button id="footer-back-to-top" class="grid size-10 shrink-0 place-items-center rounded-full border border-ink/15 text-lg transition hover:bg-bubblegum/30" type="button" aria-label="Volver arriba" title="Volver arriba"><i class="fi fi-rr-angle-up"></i></button>
+	</div>
+</div>
+
+<script>
+	document.querySelector('#footer-back-to-top')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>

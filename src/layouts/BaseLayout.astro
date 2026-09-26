@@ -39,6 +39,15 @@ const {
         window.history.replaceState(null, '', `${currentUrl.pathname}?${currentUrl.searchParams.toString()}`);
       }
 
+      if (currentUrl.searchParams.has('admin')) {
+        document.querySelectorAll('a[href^="/"]').forEach((link) => {
+          if (!(link instanceof HTMLAnchorElement)) return;
+          const destination = new URL(link.href, window.location.origin);
+          destination.searchParams.set('admin', '');
+          link.href = `${destination.pathname}?${destination.searchParams.toString()}${destination.hash}`;
+        });
+      }
+
       if (window.location.pathname === '/') {
         history.scrollRestoration = 'manual';
         window.scrollTo(0, 0);
