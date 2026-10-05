@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import LaunchCountdown from '../components/LaunchCountdown.astro';
 
 interface Props {
   title?: string;
@@ -28,7 +27,6 @@ const {
     <title>{title}</title>
   </head>
   <body class="min-h-screen bg-cream font-body text-ink antialiased">
-    <LaunchCountdown />
     <slot />
     <script>
       const currentUrl = new URL(window.location.href);
